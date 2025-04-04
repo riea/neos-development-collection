@@ -1,0 +1,24 @@
+##
+# Wrapper to be used for each "full" view like "index" or "review"
+#
+prototype(Neos.Restore.Ui:Component.ModuleWrapper) < prototype(Neos.Fusion:Component) {
+  /// array
+  flashMessages = ${[]}
+
+  /// string
+  content = ''
+
+  renderer = afx`
+    <Neos.Restore.Ui:Component.HTMXConfig/>
+    <Neos.Restore.Ui:Component.FlashMessages flashMessages={props.flashMessages}/>
+    <Neos.Restore.Ui:Component.Indicator/>
+    <section
+      id="restore-module-content"
+      hx-indicator="#indicator"
+      hx-boost="true"
+    >
+      {props.content}
+    </section>
+    <div @if.isNotHTMX={request.format != 'htmx'} id="popover-container"></div>
+  `
+}

@@ -1,0 +1,57 @@
+prototype(Neos.Restore.Ui:Component.Modal.HardDeleteConfirm) < prototype(Neos.Fusion:Component) {
+  /// string
+  name = ''
+
+  @private {
+    i18n = ${I18n.id('').source('Main').package('Neos.Restore.Ui')}
+    popoverId = 'hard-delete-confirm-modal'
+
+    hardDeleteUri = Neos.Fusion:ActionUri {
+      action = 'hardDelete'
+      format = 'htmx'
+      arguments {
+        name = ${props.name}
+        force = true
+      }
+    }
+  }
+
+  renderer = afx`
+    <div popover class="error" id={private.popoverId}>
+      <header>
+        <button
+          type="button"
+          class="neos-close neos-button"
+          popovertarget={private.popoverId}
+          popovertargetaction="close"
+        >
+          <Neos.Restore.Ui:Component.Icon icon="times"/>
+        </button>
+        <div class="neos-header">
+          <i class="fas fa-exclamation-triangle"></i> {private.i18n.id('restore.dialog.ConfirmationHardDeleteNodeTitle')}
+        </div>
+      </header>
+      <section>
+        <p>{private.i18n.id('restore.dialog.ConfirmationHardDeleteNodeText')}</p>
+      </section>
+      <footer>
+        <button
+          type="button"
+          class="neos-button"
+          popovertarget={private.popoverId}
+          popovertargetaction="close"
+        >
+          {private.i18n.id('cancel')}
+        </button>
+        <Neos.Restore.Ui:Component.Button
+          isDanger
+          label={private.i18n.id('restore.modal.yesHardDelete')}
+          attributes.hx-get={private.hardDeleteUri}
+          attributes.hx-target="#restore-module-content"
+          attributes.hx-swap="outerHTML"
+          attributes.hx-on--after-request={'document.getElementById("' + private.popoverId + '").hidePopover()'}
+        />
+      </footer>
+    </div>
+  `
+}

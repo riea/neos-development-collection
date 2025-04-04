@@ -1,0 +1,8 @@
+- requestFilter: 'isPackage("Neos.Restore.Ui") && isController("Restore")'
+  viewObjectName: 'Neos\Fusion\View\FusionView'
+  options:
+    fusionPathPatterns:
+      - 'resource://Neos.Neos/Private/Fusion'
+      - 'resource://Neos.Fusion/Private/Fusion'
+      - 'resource://Neos.Fusion.Form/Private/Fusion'
+      - 'resource://Neos.Restore.Ui/Private/Fusion'

@@ -1,0 +1,24 @@
+Neos:
+  Neos:
+    modules:
+      management:
+        submodules:
+          restore:
+            label: 'Neos.Restore.Ui:Main:restore.label'
+            controller: 'Neos\Restore\Ui\Controller\RestoreController'
+            description: 'Neos.Restore.Ui:Main:restore.description'
+            icon: fa-solid fa-trash-can-arrow-up
+            mainStylesheet: 'Lite'
+            additionalResources:
+              javaScripts:
+                'HtmxLibrary': 'resource://Neos.Restore.Ui/Public/Scripts/htmx.min.js'
+                'Module': 'resource://Neos.Restore.Ui/Public/Scripts/Module.js'
+                'Review': 'resource://Neos.Restore.Ui/Public/Scripts/Review.js'
+              styleSheets:
+                'Module': 'resource://Neos.Restore.Ui/Public/Styles/Module.css'
+
+    userInterface:
+      translation:
+        autoInclude:
+          Neos.Restore.Ui:
+            - Main

@@ -1,0 +1,22 @@
+{
+    "name": "neos/restore-ui",
+    "type": "neos-package",
+    "description": "Manage deleted Nodes in Neos CMS",
+    "support": {
+        "forum": "https://discuss.neos.io/",
+        "docs": "https://docs.neos.io/"
+    },
+    "license": [
+        "GPL-3.0-or-later"
+    ],
+    "require": {
+        "php": "^8.2",
+        "neos/neos": "self.version",
+        "neos/diff": "self.version"
+    },
+    "autoload": {
+        "psr-4": {
+            "Neos\\Restore\\Ui\\": "Classes"
+        }
+    }
+}

@@ -33,22 +33,22 @@ prototype(Neos.Restore.Ui:Component.NodesTable) < prototype(Neos.Fusion:Componen
             hx-target="#restore-module-content"
             hx-swap="outerHTML"
           >
-            {private.i18n.id('restore.node.title').translate()}
+            {private.i18n.id('restore.table.label')}
             <Neos.Restore.Ui:Component.Icon icon={props.sorting.sortAscending ? 'sort-alpha-down' : 'sort-alpha-up'}/>
           </button>
         </th>
-        <th>{private.i18n.id('restore.node.description')}</th>
-        <th>{private.i18n.id('restore.node.status')}</th>
-        <th>{private.i18n.id('restore.node.changes')}</th>
-        <th>{private.i18n.id('restore.node.actions')}</th>
+        <th>{private.i18n.id('restore.table.nodeType')}</th>
+        <th>{private.i18n.id('restore.table.deletedBy')}</th>
+        <th>{private.i18n.id('restore.table.deletedAt')}</th>
+        <th>{private.i18n.id('restore.table.actions')}</th>
       </tr>
       </thead>
       <tbody>
 
         <Neos.Fusion:Loop items={props.restoreListItems} itemName="restoreListItem">
           <Neos.Restore.Ui:Component.NodesTableRow
-            restorelistItem={props.restoreListItem}
-            @if={props.restoreListItem != null}
+            restorelistItem={restoreListItem}
+            @if={restoreListItem != null}
           />
         </Neos.Fusion:Loop>
       </tbody>

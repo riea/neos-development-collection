@@ -24,13 +24,14 @@ use Neos\Flow\Annotations as Flow;
 final readonly class RestoreListItem
 {
     public function __construct(
-        public string $name,
-        public string $status,
-        public string $nodTypeLabel,
+        public string $serializedNodeAddress,
+        public string $label,
+        public string $icon,
+        public string $nodeTypeLabel,
         public array $breadcrumb,
         public ?string $workspaceName,
-        public string $lastModifiedUser,
-        public \DateTime $lastModifiedDate,
+        public string $deletionUserName,
+        public ?\DateTimeImmutable $deletionDate = null,
         public bool $isUserAllowedToEdit
     ) {
     }

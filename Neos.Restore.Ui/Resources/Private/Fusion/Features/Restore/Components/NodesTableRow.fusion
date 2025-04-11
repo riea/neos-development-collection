@@ -11,54 +11,64 @@ prototype(Neos.Restore.Ui:Component.NodesTableRow) < prototype(Neos.Fusion:Compo
     i18n = ${I18n.id('').source('Main').package('Neos.Restore.Ui')}
 
     restoreUri = Neos.Fusion:ActionUri {
-      action = 'restoreChange'
+      action = 'restoreNodeConfirmation'
       format = 'html'
       arguments {
-        node = ${props.restorelistItem.name}
+        nodeAddressJson = ${props.restorelistItem.serializedNodeAddress}
       }
     }
     hardDeleteConfirmationUri = Neos.Fusion:ActionUri {
       action = 'hardDeleteConfirmation'
       format = 'htmx'
       arguments {
-        node = ${props.restorelistItem.name}
+        nodeAddressJson = ${props.restorelistItem.serializedNodeAddress}
       }
     }
     hardDeleteConfirmationPopoverId = 'hard-delete-confirm-modal'
+
+    restoreConfirmationPopoverId = 'restore-confirm-modal'
   }
 
   renderer = afx`
     <tr>
-      <td>
-        row 0
+      <td class="node-type-column">
+        <Neos.Restore.Ui:Component.Icon icon={props.restorelistItem.icon}/>
       </td>
       <td>
-        row 1
+        <span>{props.restorelistItem.label}</span><br />
+        <span class="breadcrumb">
+          <Neos.Fusion:Loop items={props.restorelistItem.breadcrumb} itemName="breadcrumbItem">
+            <Neos.Restore.Ui:Component.Icon icon="fas fa-caret-right" @if.notFirst={!iterator.isFirst} />
+            {breadcrumbItem}
+          </Neos.Fusion:Loop>
+        </span>
       </td>
       <td>
-        row 2
+        <span>{props.restorelistItem.nodeTypeLabel}</span>
       </td>
       <td>
-        row 3
+        <span>{props.restorelistItem.deletionUserName}</span>
       </td>
       <td>
-        row 4
+        <span @if.hasDeletionDate={props.restorelistItem.deletionDate}>{Date.format(props.restorelistItem.deletionDate, 'Y-m-d H:i')}</span>
+        <span @if.hasNoDeletionDate={!props.restorelistItem.deletionDate}>-</span>
       </td>
       <td class="restore-action-column">
         <Neos.Restore.Ui:Component.Button
-          title={private.i18n.id('restore.restoreChange')}
+          title={private.i18n.id('restore.actions.restoreChange')}
           icon="fa-solid fa-trash-can-arrow-up"
-          label={private.i18n.id('restore.restoreChange')}
+          label={private.i18n.id('restore.actions.restoreChange')}
           attributes.hx-get={private.restoreUri}
-          attributes.hx-replace-url={private.restoreUri}
-          attributes.hx-target="#restore-module-content"
-          attributes.hx-select="#restore-module-content"
+          attributes.hx-target='#popover-container'
+          attributes.hx-swap='innerHTML'
+          attributes.hx-on--after-request={'document.getElementById("' + private.restoreConfirmationPopoverId + '").showPopover()'}
+
         />
         <Neos.Restore.Ui:Component.Button
           isDanger
-          title={private.i18n.id('restore.hardDelete')}
+          title={private.i18n.id('restore.actions.hardDelete')}
           icon="trash-alt icon-white"
-          disabled={true}
+          disabled={!Security.hasAccess('Neos.Restore.Ui:Backend.HardDeleteNodes')}
           attributes.hx-get={private.hardDeleteConfirmationUri}
           attributes.hx-target='#popover-container'
           attributes.hx-swap='innerHTML'

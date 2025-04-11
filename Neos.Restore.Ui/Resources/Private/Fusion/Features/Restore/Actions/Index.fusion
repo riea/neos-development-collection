@@ -6,8 +6,8 @@ Neos.Restore.Ui.RestoreController.index = Neos.Fusion:Component {
   /// Neos\Restore\Ui\ViewModel\Sorting
   sorting = ${sorting}
 
-  hardDeleteAction = Neos.Fusion:UriBuilder {
-    action = 'hardDelete'
+  syncWorkspace = Neos.Fusion:UriBuilder {
+    action = 'syncWorkspace'
     format = 'htmx'
   }
 
@@ -27,6 +27,16 @@ Neos.Restore.Ui.RestoreController.index = Neos.Fusion:Component {
         </div>
       </main>
       <Neos.Restore.Ui:Component.Footer>
+        <button
+          id="syncButton"
+          type="button"
+          class="neos-button neos-button-success"
+          hx-get={props.syncWorkspace}
+          hx-target="#restore-module-content"
+          hx-swap="outerHTML"
+        >
+          {props.i18n.id('restore.syncWorkspace')}
+        </button>
       </Neos.Restore.Ui:Component.Footer>
     </Neos.Restore.Ui:Component.ModuleWrapper>
   `

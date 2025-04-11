@@ -1,6 +1,8 @@
-prototype(Neos.Restore.Ui:Component.Modal.HardDeleteConfirm) < prototype(Neos.Fusion:Component) {
+prototype(Neos.Restore.Ui:Component.Modal.HardDeleteConfirmation) < prototype(Neos.Fusion:Component) {
   /// string
-  name = ''
+  nodeAddress = ''
+  /// string
+  nodeLabel = ''
 
   @private {
     i18n = ${I18n.id('').source('Main').package('Neos.Restore.Ui')}
@@ -10,8 +12,7 @@ prototype(Neos.Restore.Ui:Component.Modal.HardDeleteConfirm) < prototype(Neos.Fu
       action = 'hardDelete'
       format = 'htmx'
       arguments {
-        name = ${props.name}
-        force = true
+        nodeAddressJson = ${props.nodeAddress}
       }
     }
   }
@@ -28,11 +29,12 @@ prototype(Neos.Restore.Ui:Component.Modal.HardDeleteConfirm) < prototype(Neos.Fu
           <Neos.Restore.Ui:Component.Icon icon="times"/>
         </button>
         <div class="neos-header">
-          <i class="fas fa-exclamation-triangle"></i> {private.i18n.id('restore.dialog.ConfirmationHardDeleteNodeTitle')}
+          <i class="fas fa-exclamation-triangle"></i> {private.i18n.id('restore.dialog.hardDelete.title')}
         </div>
       </header>
       <section>
-        <p>{private.i18n.id('restore.dialog.ConfirmationHardDeleteNodeText')}</p>
+        <p>{private.i18n.id('restore.dialog.hardDelete.text').arguments([props.nodeLabel])}</p>
+        <p>{private.i18n.id('restore.dialog.hardDelete.warning')}</p>
       </section>
       <footer>
         <button
@@ -41,11 +43,11 @@ prototype(Neos.Restore.Ui:Component.Modal.HardDeleteConfirm) < prototype(Neos.Fu
           popovertarget={private.popoverId}
           popovertargetaction="close"
         >
-          {private.i18n.id('cancel')}
+          {private.i18n.id('restore.dialog.hardDelete.cancel')}
         </button>
         <Neos.Restore.Ui:Component.Button
           isDanger
-          label={private.i18n.id('restore.modal.yesHardDelete')}
+          label={private.i18n.id('restore.dialog.hardDelete.confirm')}
           attributes.hx-get={private.hardDeleteUri}
           attributes.hx-target="#restore-module-content"
           attributes.hx-swap="outerHTML"

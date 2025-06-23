@@ -29,6 +29,7 @@ final readonly class RestoreListItem
         public string $icon,
         public string $nodeTypeLabel,
         public array $breadcrumb,
+        public array $dimensions,
         public ?string $workspaceName,
         public string $deletionUserName,
         public ?\DateTimeImmutable $deletionDate = null,

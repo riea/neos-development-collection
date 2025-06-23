@@ -14,6 +14,7 @@ declare(strict_types=1);
 
 namespace Neos\Restore\Ui\Controller;
 
+use Neos\ContentRepository\Core\Dimension\ContentDimensionId;
 use Neos\ContentRepository\Core\DimensionSpace\DimensionSpacePoint;
 use Neos\ContentRepository\Core\Projection\ContentGraph\Filter\FindAncestorNodesFilter;
 use Neos\ContentRepository\Core\Projection\ContentGraph\VisibilityConstraints;
@@ -120,13 +121,21 @@ class RestoreController extends AbstractModuleController
                 }
                 $breadcrumbs[] = $this->nodeLabelGenerator->getLabel($ancestorNode);
             }
-
+            $dimensions = [];
+            foreach ($removedNode->dimensionSpacePoint->coordinates as $id => $coordinate) {
+                $contentDimension = new ContentDimensionId($id);
+                $dimensions[] = $contentRepository->getContentDimensionSource()
+                    ->getDimension($contentDimension)
+                    ?->getValue($coordinate)
+                    ?->configuration['label'] ?? $coordinate;
+            }
             $listItems[] = new RestoreListItem(
                 serializedNodeAddress: NodeAddress::fromNode($removedNode)->toJson(),
                 label: $this->nodeLabelGenerator->getLabel($removedNode),
                 icon: $nodeType?->getFullConfiguration()['ui']['icon'],
                 nodeTypeLabel: $removedNode->nodeTypeName->value,
                 breadcrumb: $breadcrumbs,
+                dimensions: $dimensions,
                 workspaceName: $removedNode->workspaceName->value,
                 deletionUserName: 'TODO last modified user',
                 deletionDate: $removedNode->timestamps->lastModified,

@@ -47,6 +47,11 @@ prototype(Neos.Restore.Ui:Component.NodesTableRow) < prototype(Neos.Fusion:Compo
         <span>{props.restorelistItem.nodeTypeLabel}</span>
       </td>
       <td>
+        <Neos.Fusion:Loop items={props.restorelistItem.dimensions} itemKey="key" itemName="dimension">
+          <span class="neos-label" title={dimension}>{dimension}</span>
+        </Neos.Fusion:Loop>
+      </td>
+      <td>
         <span>{props.restorelistItem.deletionUserName}</span>
       </td>
       <td>

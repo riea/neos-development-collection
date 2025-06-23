@@ -38,6 +38,7 @@ prototype(Neos.Restore.Ui:Component.NodesTable) < prototype(Neos.Fusion:Componen
           </button>
         </th>
         <th>{private.i18n.id('restore.table.nodeType')}</th>
+        <th>{private.i18n.id('restore.table.dimensions')}</th>
         <th>{private.i18n.id('restore.table.deletedBy')}</th>
         <th>{private.i18n.id('restore.table.deletedAt')}</th>
         <th>{private.i18n.id('restore.table.actions')}</th>

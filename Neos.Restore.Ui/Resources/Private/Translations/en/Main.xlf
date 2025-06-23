@@ -17,6 +17,9 @@
       <trans-unit id="restore.table.nodeType" xml:space="preserve">
 				<source>Node Type</source>
 			</trans-unit>
+      <trans-unit id="restore.table.dimensions" xml:space="preserve">
+				<source>Dimensions</source>
+			</trans-unit>
       <trans-unit id="restore.table.deletedBy" xml:space="preserve">
 				<source>Deleted by</source>
 			</trans-unit>

@@ -15,7 +15,10 @@ declare(strict_types=1);
 namespace Neos\Restore\Ui\Controller;
 
 use Neos\ContentRepository\Core\DimensionSpace\DimensionSpacePoint;
+use Neos\ContentRepository\Core\Projection\ContentGraph\Filter\FindAncestorNodesFilter;
+use Neos\ContentRepository\Core\Projection\ContentGraph\VisibilityConstraints;
 use Neos\ContentRepository\Core\SharedModel\Node\NodeAddress;
+use Neos\ContentRepository\Core\SharedModel\Node\NodeAggregateClassification;
 use Neos\ContentRepositoryRegistry\ContentRepositoryRegistry;
 use Neos\ContentRepository\Core\SharedModel\Workspace\WorkspaceName;
 use Neos\ContentRepository\Core\Projection\ContentGraph\Filter\FindChildNodesFilter;
@@ -32,6 +35,9 @@ use Neos\Neos\Domain\Service\NodeTypeNameFactory;
 use Neos\Neos\Domain\Service\UserService;
 use Neos\Neos\Domain\Service\WorkspaceService;
 use Neos\Neos\FrontendRouting\SiteDetection\SiteDetectionResult;
+use Neos\Neos\PendingChangesProjection\ChangeFinder;
+use Neos\Neos\PendingChangesProjection\ChangeProjection;
+use Neos\Neos\PendingChangesProjection\ChangeType;
 use Neos\Neos\Utility\NodeTypeWithFallbackProvider;
 use Neos\Restore\Ui\ViewModel\RestoreListItem;
 use Neos\Restore\Ui\ViewModel\RestoreListItems;
@@ -89,34 +95,41 @@ class RestoreController extends AbstractModuleController
 
         $contentRepositoryId = SiteDetectionResult::fromRequest($this->request->getHttpRequest())->contentRepositoryId;
         $contentRepository = $this->contentRepositoryRegistry->get($contentRepositoryId);
-        $contentSubgraph = $contentRepository->getContentSubgraph(
-            WorkspaceName::forLive(),
-            DimensionSpacePoint::fromArray(['language' => 'de']),
-        );
-        $sitesRootNodeNode = $contentSubgraph->findRootNodeByType(NodeTypeNameFactory::forSites());
 
-        $homepage = $contentSubgraph->findChildNodes(
-            $sitesRootNodeNode->aggregateId,
-            FindChildNodesFilter::create()
+        $currentUser = $this->userService->getCurrentUser();
+        $currentUserWorkspace = $this->workspaceService->getPersonalWorkspaceForUser($contentRepositoryId, $currentUser->getId());
+        $contentGraph = $contentRepository->getContentGraph(
+            $currentUserWorkspace->workspaceName
         );
+        $changeProjection = $contentRepository->projectionState(ChangeFinder::class);
+        $changes = $changeProjection->findByContentStreamIdAndChangeType($currentUserWorkspace->currentContentStreamId, ChangeType::DELETED);
 
-        $children = $contentSubgraph->findChildNodes(
-            $homepage[0]->aggregateId,
-            FindChildNodesFilter::create()
-        );
         $listItems = array();
-        foreach ($children as $child) {
-            $nodeType = $contentRepository->getNodeTypeManager()->getNodeType($child->nodeTypeName);
+        foreach ($changes as $change) {
+            $subgraph = $contentGraph->getSubgraph(
+                $change->originDimensionSpacePoint->toDimensionSpacePoint(),
+                VisibilityConstraints::createEmpty()
+            );
+            $removedNode = $subgraph->findNodeById($change->nodeAggregateId);
+            $nodeType = $contentRepository->getNodeTypeManager()->getNodeType($removedNode->nodeTypeName);
+
+            $breadcrumbs = [];
+            foreach( $subgraph->findAncestorNodes($removedNode->aggregateId, FindAncestorNodesFilter::create())->reverse() as $ancestorNode) {
+                if($ancestorNode->classification === NodeAggregateClassification::CLASSIFICATION_ROOT){
+                    continue;
+                }
+                $breadcrumbs[] = $this->nodeLabelGenerator->getLabel($ancestorNode);
+            }
 
             $listItems[] = new RestoreListItem(
-                serializedNodeAddress: NodeAddress::fromNode($child)->toJson(),
-                label: $this->nodeLabelGenerator->getLabel($child),
+                serializedNodeAddress: NodeAddress::fromNode($removedNode)->toJson(),
+                label: $this->nodeLabelGenerator->getLabel($removedNode),
                 icon: $nodeType?->getFullConfiguration()['ui']['icon'],
-                nodeTypeLabel: $child->nodeTypeName->value,
-                breadcrumb: array('TODO testing', 'testing2', 'testing3'),
-                workspaceName: $child->workspaceName->value,
+                nodeTypeLabel: $removedNode->nodeTypeName->value,
+                breadcrumb: $breadcrumbs,
+                workspaceName: $removedNode->workspaceName->value,
                 deletionUserName: 'TODO last modified user',
-                deletionDate: $child->timestamps->lastModified,
+                deletionDate: $removedNode->timestamps->lastModified,
                 isUserAllowedToEdit: true
             );
         }

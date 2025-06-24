@@ -15,34 +15,37 @@ declare(strict_types=1);
 namespace Neos\Restore\Ui\Controller;
 
 use Neos\ContentRepository\Core\Dimension\ContentDimensionId;
-use Neos\ContentRepository\Core\DimensionSpace\DimensionSpacePoint;
+use Neos\ContentRepository\Core\DimensionSpace\DimensionSpacePointSet;
+use Neos\ContentRepository\Core\DimensionSpace\OriginDimensionSpacePointSet;
+use Neos\ContentRepository\Core\Feature\NodeRemoval\Command\RemoveNodeAggregate;
+use Neos\ContentRepository\Core\Feature\SubtreeTagging\Command\UntagSubtree;
 use Neos\ContentRepository\Core\Projection\ContentGraph\Filter\FindAncestorNodesFilter;
+use Neos\ContentRepository\Core\Projection\ContentGraph\Node;
 use Neos\ContentRepository\Core\Projection\ContentGraph\VisibilityConstraints;
 use Neos\ContentRepository\Core\SharedModel\Node\NodeAddress;
-use Neos\ContentRepository\Core\SharedModel\Node\NodeAggregateClassification;
+use Neos\ContentRepository\Core\SharedModel\Node\NodeAggregateId;
+use Neos\ContentRepository\Core\SharedModel\Node\NodeVariantSelectionStrategy;
 use Neos\ContentRepositoryRegistry\ContentRepositoryRegistry;
 use Neos\ContentRepository\Core\SharedModel\Workspace\WorkspaceName;
-use Neos\ContentRepository\Core\Projection\ContentGraph\Filter\FindChildNodesFilter;
 use Neos\Flow\Annotations as Flow;
 use Neos\Flow\I18n\Translator;
-use Neos\Flow\Package\PackageManager;
-use Neos\Flow\Property\PropertyMapper;
+use Neos\Flow\Security\Authorization\PrivilegeManager;
 use Neos\Flow\Security\Context;
 use Neos\Fusion\View\FusionView;
 use Neos\Neos\Controller\Module\AbstractModuleController;
 use Neos\Neos\Domain\NodeLabel\NodeLabelGeneratorInterface;
-use Neos\Neos\Domain\Repository\SiteRepository;
-use Neos\Neos\Domain\Service\NodeTypeNameFactory;
+use Neos\Neos\Domain\Repository\UserRepository;
 use Neos\Neos\Domain\Service\UserService;
-use Neos\Neos\Domain\Service\WorkspaceService;
+use Neos\Neos\Domain\SubtreeTagging\NeosSubtreeTag;
 use Neos\Neos\FrontendRouting\SiteDetection\SiteDetectionResult;
-use Neos\Neos\PendingChangesProjection\ChangeFinder;
-use Neos\Neos\PendingChangesProjection\ChangeProjection;
-use Neos\Neos\PendingChangesProjection\ChangeType;
-use Neos\Neos\Utility\NodeTypeWithFallbackProvider;
+use Neos\Neos\Security\Authorization\ContentRepositoryAuthorizationService;
+use Neos\Restore\Ui\Domain\TrashBin;
+use Neos\Restore\Ui\Domain\TrashBin\TrashBinPagination;
 use Neos\Restore\Ui\ViewModel\RestoreListItem;
 use Neos\Restore\Ui\ViewModel\RestoreListItems;
-use Neos\Workspace\Ui\ViewModel\Sorting;
+use Neos\Restore\Ui\Domain\TrashBin\TrashBinSorting;
+use Neos\Restore\Ui\ViewModel\RestoreListItemVariantDetails;
+use Neos\Restore\Ui\ViewModel\RestoreListItemVariantDetailsCollection;
 
 /**
  * The Neos Restore module controller
@@ -52,8 +55,6 @@ use Neos\Workspace\Ui\ViewModel\Sorting;
 #[Flow\Scope('singleton')]
 class RestoreController extends AbstractModuleController
 {
-    use NodeTypeWithFallbackProvider;
-
     protected $defaultViewObjectName = FusionView::class;
 
     #[Flow\Inject]
@@ -63,110 +64,162 @@ class RestoreController extends AbstractModuleController
     protected ContentRepositoryRegistry $contentRepositoryRegistry;
 
     #[Flow\Inject]
-    protected SiteRepository $siteRepository;
-
-    #[Flow\Inject]
-    protected PropertyMapper $propertyMapper;
-
-    #[Flow\Inject]
     protected Context $securityContext;
 
     #[Flow\Inject]
     protected UserService $userService;
 
     #[Flow\Inject]
-    protected PackageManager $packageManager;
-
-    #[Flow\Inject]
-    protected WorkspaceService $workspaceService;
-
-    #[Flow\Inject]
     protected Translator $translator;
 
+    #[Flow\Inject]
+    protected TrashBin $trashBin;
+
+    #[Flow\Inject]
+    protected UserRepository $userRepository;
+
+    #[Flow\Inject]
+    protected PrivilegeManager $privilegeManager;
+
+    #[Flow\Inject]
+    protected ContentRepositoryAuthorizationService $authorizationService;
 
     /**
      * Display a list of unpublished content
      */
-    public function indexAction(Sorting|null $sorting = null): void
+    public function showAction(WorkspaceName $workspaceName, TrashBinSorting $sorting, TrashBinPagination $pagination): void
     {
-        $sorting ??= new Sorting(
-            sortBy: 'title',
-            sortAscending: true
-        );
-
         $contentRepositoryId = SiteDetectionResult::fromRequest($this->request->getHttpRequest())->contentRepositoryId;
         $contentRepository = $this->contentRepositoryRegistry->get($contentRepositoryId);
+        $contentGraph = $contentRepository->getContentGraph($workspaceName);
+        $liveContentGraph = $contentRepository->getContentGraph(WorkspaceName::forLive());
 
-        $currentUser = $this->userService->getCurrentUser();
-        $currentUserWorkspace = $this->workspaceService->getPersonalWorkspaceForUser($contentRepositoryId, $currentUser->getId());
-        $contentGraph = $contentRepository->getContentGraph(
-            $currentUserWorkspace->workspaceName
-        );
-        $changeProjection = $contentRepository->projectionState(ChangeFinder::class);
-        $changes = $changeProjection->findByContentStreamIdAndChangeType($currentUserWorkspace->currentContentStreamId, ChangeType::DELETED);
+        $hasHardRemovalPrivileges = $this->privilegeManager->isPrivilegeTargetGranted('Neos.Restore.Ui:Backend.HardDeleteNodes');
 
-        $listItems = array();
-        foreach ($changes as $change) {
-            $subgraph = $contentGraph->getSubgraph(
-                $change->originDimensionSpacePoint->toDimensionSpacePoint(),
-                VisibilityConstraints::createEmpty()
-            );
-            $removedNode = $subgraph->findNodeById($change->nodeAggregateId);
-            $nodeType = $contentRepository->getNodeTypeManager()->getNodeType($removedNode->nodeTypeName);
+        $listItems = [];
+        foreach ($this->trashBin->findItemsByWorkspaceNameWithParameters(
+            $workspaceName,
+            $sorting,
+            $pagination
+        ) as $trashBinItem) {
+            $nodeAggregate = $contentGraph->findNodeAggregateById($trashBinItem->nodeAggregateId);
+            $details = [];
+            foreach (
+                $nodeAggregate->occupiedDimensionSpacePoints->getIntersection(
+                    OriginDimensionSpacePointSet::fromDimensionSpacePointSet($trashBinItem->affectedDimensionSpacePoints)
+                ) as $originDimensionSpacePoint
+            ) {
+                $subgraph = $contentGraph->getSubgraph(
+                    $originDimensionSpacePoint->toDimensionSpacePoint(),
+                    VisibilityConstraints::createEmpty()
+                );
+                $removedNode = $nodeAggregate->getNodeByOccupiedDimensionSpacePoint($originDimensionSpacePoint);
 
-            $breadcrumbs = [];
-            foreach( $subgraph->findAncestorNodes($removedNode->aggregateId, FindAncestorNodesFilter::create())->reverse() as $ancestorNode) {
-                if($ancestorNode->classification === NodeAggregateClassification::CLASSIFICATION_ROOT){
-                    continue;
+                $dimensionValueLabels = [];
+                foreach ($originDimensionSpacePoint->coordinates as $id => $coordinate) {
+                    $contentDimension = new ContentDimensionId($id);
+                    $dimensionValueLabels[] = $contentRepository->getContentDimensionSource()
+                        ->getDimension($contentDimension)
+                        ?->getValue($coordinate)
+                        ?->configuration['label'] ?? $coordinate;
                 }
-                $breadcrumbs[] = $this->nodeLabelGenerator->getLabel($ancestorNode);
+
+                $details[] = new RestoreListItemVariantDetails(
+                    label: $this->nodeLabelGenerator->getLabel($removedNode),
+                    ancestorLabels: array_map(
+                        fn (Node $ancestor): string => $this->nodeLabelGenerator->getLabel($ancestor),
+                        iterator_to_array($subgraph->findAncestorNodes(
+                            $trashBinItem->nodeAggregateId,
+                            FindAncestorNodesFilter::create()
+                        )->reverse())
+                    ),
+                    dimensionValueLabels: $dimensionValueLabels
+                );
             }
-            $dimensions = [];
-            foreach ($removedNode->dimensionSpacePoint->coordinates as $id => $coordinate) {
-                $contentDimension = new ContentDimensionId($id);
-                $dimensions[] = $contentRepository->getContentDimensionSource()
-                    ->getDimension($contentDimension)
-                    ?->getValue($coordinate)
-                    ?->configuration['label'] ?? $coordinate;
-            }
+            $nodeType = $contentRepository->getNodeTypeManager()->getNodeType($nodeAggregate->nodeTypeName);
+
+            $user = $this->userRepository->findByIdentifier($trashBinItem->userId->value);
+
             $listItems[] = new RestoreListItem(
-                serializedNodeAddress: NodeAddress::fromNode($removedNode)->toJson(),
-                label: $this->nodeLabelGenerator->getLabel($removedNode),
+                nodeAggregateId: $trashBinItem->nodeAggregateId,
                 icon: $nodeType?->getFullConfiguration()['ui']['icon'],
-                nodeTypeLabel: $removedNode->nodeTypeName->value,
-                breadcrumb: $breadcrumbs,
-                dimensions: $dimensions,
-                workspaceName: $removedNode->workspaceName->value,
-                deletionUserName: 'TODO last modified user',
-                deletionDate: $removedNode->timestamps->lastModified,
-                isUserAllowedToEdit: true
+                // @todo translate
+                nodeTypeLabel: $nodeAggregate->nodeTypeName->value,
+                details: RestoreListItemVariantDetailsCollection::create(...$details),
+                deletionUserName: $user
+                    ? $user->getUserName()
+                    : '[deleted user]',
+                deleteTime: $trashBinItem->deleteTime,
+                enableHardRemovalButton: $hasHardRemovalPrivileges
+                    && $trashBinItem->affectedDimensionSpacePoints->getDifference(
+                        $liveContentGraph->findNodeAggregateById($trashBinItem->nodeAggregateId)
+                            ?->getCoveredDimensionsTaggedBy(NeosSubtreeTag::removed(), true)
+                                ?: DimensionSpacePointSet::fromArray([])
+                    )->isEmpty(),
             );
         }
         $this->view->assignMultiple([
-            'restoreListItems' => RestoreListItems::fromArray($listItems),
+            'workspaceName' => $workspaceName,
+            'restoreListItems' => RestoreListItems::create(...$listItems),
             'flashMessages' => $this->controllerContext->getFlashMessageContainer()->getMessagesAndFlush(),
             'sorting' => $sorting,
+            'enableRestoreButtons' => $this->authorizationService->getWorkspacePermissions(
+                $contentRepositoryId,
+                $workspaceName,
+                $this->securityContext->getRoles(),
+                $this->userService->getCurrentUser()?->getId(),
+            )->write
         ]);
     }
 
-    public function restoreNodeConfirmationAction(string $nodeAddressJson): void
+    public function restoreNodeConfirmationAction(WorkspaceName $workspaceName, NodeAggregateId $nodeAggregateId): void
     {
-        $nodeAddress = NodeAddress::fromJsonString($nodeAddressJson);
+        // @todo validate that
+        // * the node is still removed
+        // inform about
+        // * there might be more variants restored than selected in the UI (due to split trash items); which ones?
 
         $this->view->assignMultiple([
-            'nodeAddress' => $nodeAddressJson,
+            'nodeAddress' => $nodeAggregateId->value,
             'nodeLabel' => 'TODO Node Label',
             'targetWorkspaceOptions' => array ('user-workspace'=> 'User Workspace', 'workspace-name' => 'Workspace 1', 'workspace-name2' => 'Workspace 2'),
         ]);
     }
-    public function restoreNodeAction(): void
+    public function restoreNodeAction(WorkspaceName $workspaceName, NodeAggregateId $nodeAggregateId): void
     {
+        // @todo check before failing;
+        $contentRepositoryId = SiteDetectionResult::fromRequest($this->request->getHttpRequest())->contentRepositoryId;
+        $contentRepository = $this->contentRepositoryRegistry->get($contentRepositoryId);
+        $nodeAggregate = $contentRepository->getContentGraph($workspaceName)->findNodeAggregateById($nodeAggregateId);
+        $coveredDimensionSpacePoints = iterator_to_array($nodeAggregate->coveredDimensionSpacePoints);
+
+        $contentRepository->handle(UntagSubtree::create(
+            workspaceName: $workspaceName,
+            nodeAggregateId: $nodeAggregateId,
+            coveredDimensionSpacePoint: reset($coveredDimensionSpacePoints),
+            nodeVariantSelectionStrategy: NodeVariantSelectionStrategy::STRATEGY_ALL_VARIANTS,
+            tag: NeosSubtreeTag::removed(),
+        ));
+
         $this->addFlashMessage($this->getModuleLabel('restore.feedback.hasBeenRestored'));
         $this->forward('index');
     }
 
-    public function hardDeleteAction(): void {
+    public function hardDeleteAction(NodeAggregateId $nodeAggregateId): void
+    {
+        $contentRepositoryId = SiteDetectionResult::fromRequest($this->request->getHttpRequest())->contentRepositoryId;
+        $contentRepository = $this->contentRepositoryRegistry->get($contentRepositoryId);
 
+        // @todo: resolve command(s) to result in removal of all soft-removed nodes on live (see GarbageCollector)
+        $nodeAggregate = $contentRepository->getContentGraph(WorkspaceName::forLive())->findNodeAggregateById($nodeAggregateId);
+        $coveredDimensionSpacePoints = iterator_to_array($nodeAggregate->coveredDimensionSpacePoints);
+
+        $contentRepository->handle(RemoveNodeAggregate::create(
+            workspaceName: WorkspaceName::forLive(),
+            nodeAggregateId: $nodeAggregateId,
+            coveredDimensionSpacePoint: reset($coveredDimensionSpacePoints),
+            nodeVariantSelectionStrategy: NodeVariantSelectionStrategy::STRATEGY_ALL_VARIANTS,
+        ));
         $this->addFlashMessage($this->getModuleLabel('restore.feedback.hasBeenHardDeleted'));
         $this->forward('index');
     }

@@ -12,26 +12,24 @@
 
 declare(strict_types=1);
 
-namespace Neos\Restore\Ui\ViewModel;
+namespace Neos\Restore\Ui\Domain\TrashBin;
 
+use Neos\ContentRepository\Core\DimensionSpace\DimensionSpacePointSet;
+use Neos\ContentRepository\Core\Feature\Security\Dto\UserId;
 use Neos\ContentRepository\Core\SharedModel\Node\NodeAggregateId;
 use Neos\Flow\Annotations as Flow;
-
 
 /**
  * @internal for communication within the Restore UI only
  */
 #[Flow\Proxy(false)]
-final readonly class RestoreListItem
+final readonly class TrashItem
 {
     public function __construct(
         public NodeAggregateId $nodeAggregateId,
-        public string $icon,
-        public string $nodeTypeLabel,
-        public RestoreListItemVariantDetailsCollection $details,
-        public string $deletionUserName,
+        public UserId $userId,
         public \DateTimeImmutable $deleteTime,
-        public bool $enableHardRemovalButton,
+        public DimensionSpacePointSet $affectedDimensionSpacePoints,
     ) {
     }
 }

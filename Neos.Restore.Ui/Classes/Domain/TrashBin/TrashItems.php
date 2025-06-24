@@ -12,32 +12,33 @@
 
 declare(strict_types=1);
 
-namespace Neos\Restore\Ui\ViewModel;
+namespace Neos\Restore\Ui\Domain\TrashBin;
 
 use Neos\Flow\Annotations as Flow;
+use Neos\Restore\Ui\Domain\TrashBin\TrashItem;
 
 /**
- * @implements \IteratorAggregate<int,RestoreListItems>
+ * @implements \IteratorAggregate<TrashItem>
  * @internal for communication within the Restore UI only
  */
 #[Flow\Proxy(false)]
-final readonly class RestoreListItems implements \IteratorAggregate, \Countable
+final readonly class TrashItems implements \IteratorAggregate, \Countable
 {
     /**
-     * @param array<int,RestoreListItem> $items
+     * @param array<int,TrashItem> $items
      */
     private function __construct(
         private array $items,
     ) {
     }
 
-    public static function create(RestoreListItem ...$items): self
+    public static function create(TrashItem ...$items): self
     {
         return new self(...array_values($items));
     }
 
     /**
-     * @return \Traversable<int,RestoreListItem>
+     * @return \Traversable<int,TrashItem>
      */
     public function getIterator(): \Traversable
     {

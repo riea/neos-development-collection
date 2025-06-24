@@ -4,7 +4,7 @@
 prototype(Neos.Restore.Ui:Component.NodesTable) < prototype(Neos.Fusion:Component) {
   /// \Neos\Restore\Ui\ViewModel\RestoreListItems
   restoreListItems = null
-  /// Neos\Restore\Ui\ViewModel\Sorting
+  /// Neos\Restore\Ui\Domain\Sorting
   sorting = null
 
   @private {
@@ -13,7 +13,7 @@ prototype(Neos.Restore.Ui:Component.NodesTable) < prototype(Neos.Fusion:Componen
       action = 'index'
       format = 'html'
       arguments {
-        // Todo hack convert to array manually, flows routing chokes on value objects: Tried to convert an object of type "Neos\Restore\Ui\ViewModel\Sorting" to an identity array, but it is unknown to the Persistence Manager.
+        // Todo hack convert to array manually, flows routing chokes on value objects: Tried to convert an object of type "Neos\Restore\Ui\Domain\Sorting" to an identity array, but it is unknown to the Persistence Manager.
         sorting = ${sorting.withInvertedSorting().jsonSerialize()}
       }
     }

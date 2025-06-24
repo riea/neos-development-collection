@@ -14,24 +14,22 @@ declare(strict_types=1);
 
 namespace Neos\Restore\Ui\ViewModel;
 
-use Neos\ContentRepository\Core\SharedModel\Node\NodeAggregateId;
 use Neos\Flow\Annotations as Flow;
-
 
 /**
  * @internal for communication within the Restore UI only
  */
 #[Flow\Proxy(false)]
-final readonly class RestoreListItem
+final readonly class RestoreListItemVariantDetails
 {
+    /**
+     * @param array<int,string> $ancestorLabels
+     * @param array<string,string> $dimensionValueLabels
+     */
     public function __construct(
-        public NodeAggregateId $nodeAggregateId,
-        public string $icon,
-        public string $nodeTypeLabel,
-        public RestoreListItemVariantDetailsCollection $details,
-        public string $deletionUserName,
-        public \DateTimeImmutable $deleteTime,
-        public bool $enableHardRemovalButton,
+        public string $label,
+        public array $ancestorLabels,
+        public array $dimensionValueLabels,
     ) {
     }
 }

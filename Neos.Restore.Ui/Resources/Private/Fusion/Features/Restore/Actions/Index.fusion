@@ -3,7 +3,7 @@ Neos.Restore.Ui.RestoreController.index = Neos.Fusion:Component {
   restoreListItems = ${restoreListItems}
   /// array
   flashMessages = ${flashMessages}
-  /// Neos\Restore\Ui\ViewModel\Sorting
+  /// Neos\Restore\Ui\Domain\Sorting
   sorting = ${sorting}
 
   syncWorkspace = Neos.Fusion:UriBuilder {

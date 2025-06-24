@@ -17,27 +17,27 @@ namespace Neos\Restore\Ui\ViewModel;
 use Neos\Flow\Annotations as Flow;
 
 /**
- * @implements \IteratorAggregate<int,RestoreListItems>
+ * @implements \IteratorAggregate<int,RestoreListItemVariantDetails>
  * @internal for communication within the Restore UI only
  */
 #[Flow\Proxy(false)]
-final readonly class RestoreListItems implements \IteratorAggregate, \Countable
+final readonly class RestoreListItemVariantDetailsCollection implements \IteratorAggregate, \Countable
 {
     /**
-     * @param array<int,RestoreListItem> $items
+     * @param array<int,RestoreListItemVariantDetails> $items
      */
     private function __construct(
         private array $items,
     ) {
     }
 
-    public static function create(RestoreListItem ...$items): self
+    public static function create(RestoreListItemVariantDetails ...$items): self
     {
         return new self(...array_values($items));
     }
 
     /**
-     * @return \Traversable<int,RestoreListItem>
+     * @return \Traversable<int,RestoreListItemVariantDetails>
      */
     public function getIterator(): \Traversable
     {

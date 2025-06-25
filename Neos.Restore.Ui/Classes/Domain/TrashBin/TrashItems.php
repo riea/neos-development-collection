@@ -15,7 +15,6 @@ declare(strict_types=1);
 namespace Neos\Restore\Ui\Domain\TrashBin;
 
 use Neos\Flow\Annotations as Flow;
-use Neos\Restore\Ui\Domain\TrashBin\TrashItem;
 
 /**
  * @implements \IteratorAggregate<TrashItem>
@@ -34,7 +33,7 @@ final readonly class TrashItems implements \IteratorAggregate, \Countable
 
     public static function create(TrashItem ...$items): self
     {
-        return new self(...array_values($items));
+        return new self(array_values($items));
     }
 
     /**

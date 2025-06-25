@@ -1,0 +1,33 @@
+##
+# Renders a pagination
+#
+prototype(Neos.Workspace.Ui:Component.Pagination) < prototype(Neos.Fusion:Component) {
+  /// integer
+  totalPages = 20
+  /// integer
+  currentPage = 1
+  ///integer
+  resultsPerPage = 0
+  /// string
+  workspaceName = ''
+
+  @private {
+    i18n = ${I18n.id('').source('Main').package('Neos.Workspace.Ui')}
+  }
+
+  renderer = afx`
+    <div @if.hasMoreThanOnePage={props.totalPages > 1} class="page-navigation">
+      <ul>
+
+        <Neos.Fusion:Loop items={Array.range(1, props.totalPages, 1)} itemName="paginationItem">
+          <Neos.Workspace.Ui:Component.PaginationItem
+            isCurrent={props.currentPage == paginationItem}
+            resultsPerPage={props.resultsPerPage}
+            pageNumber={paginationItem}
+            workspaceName={props.workspaceName}/>
+        </Neos.Fusion:Loop>
+      </ul>
+
+    </div>
+  `
+}

@@ -87,8 +87,11 @@ class RestoreController extends AbstractModuleController
     /**
      * Display a list of unpublished content
      */
-    public function showAction(WorkspaceName $workspaceName, TrashBinSorting $sorting, TrashBinPagination $pagination): void
+    public function showAction(WorkspaceName $workspaceName, TrashBinSorting|null $sorting = null, TrashBinPagination|null $pagination = null): void
     {
+        $sorting ??= TrashBinSorting::default();
+        $pagination ??= TrashBinPagination::default();
+
         $contentRepositoryId = SiteDetectionResult::fromRequest($this->request->getHttpRequest())->contentRepositoryId;
         $contentRepository = $this->contentRepositoryRegistry->get($contentRepositoryId);
         $contentGraph = $contentRepository->getContentGraph($workspaceName);
@@ -98,6 +101,7 @@ class RestoreController extends AbstractModuleController
 
         $listItems = [];
         foreach ($this->trashBin->findItemsByWorkspaceNameWithParameters(
+            $contentRepositoryId,
             $workspaceName,
             $sorting,
             $pagination
@@ -159,8 +163,8 @@ class RestoreController extends AbstractModuleController
             );
         }
         $this->view->assignMultiple([
-            'workspaceName' => $workspaceName,
-            'restoreListItems' => RestoreListItems::create(...$listItems),
+            'workspaceName' => $workspaceName->value,
+            'restoreListItems' => $listItems ? RestoreListItems::create(...$listItems) : array(),
             'flashMessages' => $this->controllerContext->getFlashMessageContainer()->getMessagesAndFlush(),
             'sorting' => $sorting,
             'enableRestoreButtons' => $this->authorizationService->getWorkspacePermissions(

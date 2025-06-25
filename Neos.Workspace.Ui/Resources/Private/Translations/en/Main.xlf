@@ -353,6 +353,81 @@
       <trans-unit id="workspaces.ForceRebaseWorkspaceFailed" xml:space="preserve">
 				<source>Forcing the sync has failed. Please try discarding your changes.</source>
 			</trans-unit>
+      <trans-unit id="restore.label" xml:space="preserve">
+				<source>Restore</source>
+			</trans-unit>
+      <trans-unit id="restore.description" xml:space="preserve">
+				<source>This module contains an overview of Elements and Documents that have been deleted and the option to restore or finally delete them.</source>
+			</trans-unit>
+      <trans-unit id="restore.table.label" xml:space="preserve">
+				<source>Title</source>
+			</trans-unit>
+      <trans-unit id="restore.table.label" xml:space="preserve">
+				<source>Element</source>
+			</trans-unit>
+      <trans-unit id="restore.table.nodeType" xml:space="preserve">
+				<source>Node Type</source>
+			</trans-unit>
+      <trans-unit id="restore.table.dimensions" xml:space="preserve">
+				<source>Dimensions</source>
+			</trans-unit>
+      <trans-unit id="restore.table.deletedBy" xml:space="preserve">
+				<source>Deleted by</source>
+			</trans-unit>
+      <trans-unit id="restore.table.deletedAt" xml:space="preserve">
+				<source>Deleted at </source>
+			</trans-unit>
+      <trans-unit id="restore.table.actions" xml:space="preserve">
+				<source>Actions</source>
+			</trans-unit>
+      <trans-unit id="restore.table.actions.restoreElement" xml:space="preserve">
+				<source>Restore this element to workspace</source>
+			</trans-unit>
+      <trans-unit id="restore.table.actions.hardDeleteElement" xml:space="preserve">
+				<source>Delete this element forever</source>
+			</trans-unit>
+      <trans-unit id="restore.dialog.restore.title" xml:space="preserve">
+				<source>Restore element to workspace</source>
+			</trans-unit>
+      <trans-unit id="restore.dialog.restore.text" xml:space="preserve">
+				<source>Which Workspace do you want to restore the Element "{0}" to?</source>
+			</trans-unit>
+      <trans-unit id="restore.dialog.restore.warning" xml:space="preserve">
+				<source>This will also restore all deleted parent nodes.</source>
+			</trans-unit>
+      <trans-unit id="restore.dialog.restore.cancel" xml:space="preserve">
+				<source>Cancel</source>
+			</trans-unit>
+      <trans-unit id="restore.dialog.restore.confirm" xml:space="preserve">
+				<source>Restore now</source>
+			</trans-unit>
+      <trans-unit id="restore.dialog.hardDelete.title" xml:space="preserve">
+				<source>Delete element forever?</source>
+			</trans-unit>
+      <trans-unit id="restore.dialog.hardDelete.text" xml:space="preserve">
+				<source>This will delete the element "{0}" and all of its descendant elements forever.</source>
+			</trans-unit>
+      <trans-unit id="restore.dialog.hardDelete.warning" xml:space="preserve">
+				<source>This action cannot be undone. Are you sure you want to delete the element?</source>
+			</trans-unit>
+      <trans-unit id="restore.dialog.hardDelete.cancel" xml:space="preserve">
+				<source>Cancel</source>
+			</trans-unit>
+      <trans-unit id="restore.dialog.hardDelete.confirm" xml:space="preserve">
+				<source>Yes, delete forever</source>
+			</trans-unit>
+      <trans-unit id="restore.feedback.hasBeenRestored" xml:space="preserve">
+				<source>The Element and all of its parent elements have been restored</source>
+			</trans-unit>
+      <trans-unit id="restore.feedback.workspaceHasBeenSynchronized" xml:space="preserve">
+				<source>Your Workspace has been synchronized and the list of deleted elements has been updated.</source>
+			</trans-unit>
+      <trans-unit id="restore.feedback.hasBeenHardDeleted" xml:space="preserve">
+				<source>The element and all of its descendant elements have been deleted forever.</source>
+			</trans-unit>
+      <trans-unit id="restore.syncWorkspace" xml:space="preserve">
+				<source>Update list</source>
+			</trans-unit>
     </body>
   </file>
 </xliff>

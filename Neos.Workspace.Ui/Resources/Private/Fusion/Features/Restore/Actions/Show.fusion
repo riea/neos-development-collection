@@ -1,10 +1,12 @@
-Neos.Workspace.Ui.RestoreController.index = Neos.Fusion:Component {
+Neos.Workspace.Ui.RestoreController.show = Neos.Fusion:Component {
   /// Neos\Workspace\Ui\ViewModel\RestoreListItems
   restoreListItems = ${restoreListItems}
   /// array
   flashMessages = ${flashMessages}
   /// Neos\Workspace\Ui\Domain\Sorting
   sorting = ${sorting}
+  /// string
+  workspaceName = ${workspaceName}
 
   syncWorkspace = Neos.Fusion:UriBuilder {
     action = 'syncWorkspace'
@@ -23,6 +25,9 @@ Neos.Workspace.Ui.RestoreController.index = Neos.Fusion:Component {
           <Neos.Workspace.Ui:Component.NodesTable
             restoreListItems={props.restoreListItems}
             sorting={props.sorting}
+          />
+          <Neos.Workspace.Ui:Component.Pagination
+            workspaceName={props.workspaceName}
           />
         </div>
       </main>

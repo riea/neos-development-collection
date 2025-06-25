@@ -1,0 +1,13 @@
+Neos.Workspace.Ui.RestoreController.hardDeleteConfirmation = Neos.Fusion:Component {
+  /// string
+  nodeAddress = ${nodeAddress}
+  /// string
+  nodeLabel = ${nodeLabel}
+
+  renderer = afx`
+    <Neos.Workspace.Ui:Component.Modal.HardDeleteConfirmation
+      nodeAddress={props.nodeAddress}
+      nodeLabel={props.nodeLabel}
+    />
+  `
+}

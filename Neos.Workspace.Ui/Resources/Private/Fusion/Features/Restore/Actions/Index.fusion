@@ -1,0 +1,43 @@
+Neos.Workspace.Ui.RestoreController.index = Neos.Fusion:Component {
+  /// Neos\Workspace\Ui\ViewModel\RestoreListItems
+  restoreListItems = ${restoreListItems}
+  /// array
+  flashMessages = ${flashMessages}
+  /// Neos\Workspace\Ui\Domain\Sorting
+  sorting = ${sorting}
+
+  syncWorkspace = Neos.Fusion:UriBuilder {
+    action = 'syncWorkspace'
+    format = 'htmx'
+  }
+
+
+  i18n = ${I18n.id('').source('Main').package('Neos.Workspace.Ui')}
+
+  renderer = afx`
+    <Neos.Workspace.Ui:Component.ModuleWrapper
+      flashMessages={props.flashMessages}
+    >
+      <main class="neos-content neos-container-fluid">
+        <div class="neos-row-fluid">
+          <Neos.Workspace.Ui:Component.NodesTable
+            restoreListItems={props.restoreListItems}
+            sorting={props.sorting}
+          />
+        </div>
+      </main>
+      <Neos.Workspace.Ui:Component.Footer>
+        <button
+          id="syncButton"
+          type="button"
+          class="neos-button neos-button-success"
+          hx-get={props.syncWorkspace}
+          hx-target="#restore-module-content"
+          hx-swap="outerHTML"
+        >
+          {props.i18n.id('restore.syncWorkspace')}
+        </button>
+      </Neos.Workspace.Ui:Component.Footer>
+    </Neos.Workspace.Ui:Component.ModuleWrapper>
+  `
+}

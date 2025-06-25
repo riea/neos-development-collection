@@ -16,7 +16,6 @@ namespace Neos\Workspace\Ui\Controller;
 
 use Neos\ContentRepository\Core\ContentRepository;
 use Neos\ContentRepository\Core\Dimension\ContentDimensionId;
-use Neos\ContentRepository\Core\DimensionSpace\DimensionSpacePoint;
 use Neos\ContentRepository\Core\Feature\WorkspaceCreation\Exception\WorkspaceAlreadyExists;
 use Neos\ContentRepository\Core\Feature\WorkspaceRebase\ConflictingEvent;
 use Neos\ContentRepository\Core\Feature\WorkspaceRebase\Dto\RebaseErrorHandlingStrategy;
@@ -66,22 +65,22 @@ use Neos\Neos\PendingChangesProjection\ChangeFinder;
 use Neos\Neos\PendingChangesProjection\Changes;
 use Neos\Neos\Security\Authorization\ContentRepositoryAuthorizationService;
 use Neos\Neos\Utility\NodeTypeWithFallbackProvider;
-use Neos\Workspace\Ui\ViewModel\ChangeItem;
-use Neos\Workspace\Ui\ViewModel\ContentChangeItem;
-use Neos\Workspace\Ui\ViewModel\ContentChangeItems;
-use Neos\Workspace\Ui\ViewModel\ContentChangeProperties;
-use Neos\Workspace\Ui\ViewModel\ContentChanges\AssetContentChange;
-use Neos\Workspace\Ui\ViewModel\ContentChanges\DateTimeContentChange;
-use Neos\Workspace\Ui\ViewModel\ContentChanges\ImageContentChange;
-use Neos\Workspace\Ui\ViewModel\ContentChanges\TagContentChange;
-use Neos\Workspace\Ui\ViewModel\ContentChanges\TextContentChange;
-use Neos\Workspace\Ui\ViewModel\DocumentChangeItem;
-use Neos\Workspace\Ui\ViewModel\DocumentItem;
-use Neos\Workspace\Ui\ViewModel\EditWorkspaceFormData;
-use Neos\Workspace\Ui\ViewModel\PendingChanges;
-use Neos\Workspace\Ui\ViewModel\Sorting;
-use Neos\Workspace\Ui\ViewModel\WorkspaceListItem;
-use Neos\Workspace\Ui\ViewModel\WorkspaceListItems;
+use Neos\Workspace\Ui\ViewModel\Review\ChangeItem;
+use Neos\Workspace\Ui\ViewModel\Review\ContentChangeItem;
+use Neos\Workspace\Ui\ViewModel\Review\ContentChangeItems;
+use Neos\Workspace\Ui\ViewModel\Review\ContentChangeProperties;
+use Neos\Workspace\Ui\ViewModel\Review\ContentChanges\AssetContentChange;
+use Neos\Workspace\Ui\ViewModel\Review\ContentChanges\DateTimeContentChange;
+use Neos\Workspace\Ui\ViewModel\Review\ContentChanges\ImageContentChange;
+use Neos\Workspace\Ui\ViewModel\Review\ContentChanges\TagContentChange;
+use Neos\Workspace\Ui\ViewModel\Review\ContentChanges\TextContentChange;
+use Neos\Workspace\Ui\ViewModel\Review\DocumentChangeItem;
+use Neos\Workspace\Ui\ViewModel\Review\DocumentItem;
+use Neos\Workspace\Ui\ViewModel\Workspace\EditWorkspaceFormData;
+use Neos\Workspace\Ui\ViewModel\Workspace\PendingChanges;
+use Neos\Workspace\Ui\ViewModel\Workspace\Sorting;
+use Neos\Workspace\Ui\ViewModel\Workspace\WorkspaceListItem;
+use Neos\Workspace\Ui\ViewModel\Workspace\WorkspaceListItems;
 
 /**
  * The Neos Workspace module controller

@@ -1,0 +1,16 @@
+Neos.Workspace.Ui.RestoreController.restoreNodeConfirmation = Neos.Fusion:Component {
+  /// string
+  nodeAddress = ${nodeAddress}
+  /// string
+  nodeLabel = ${nodeLabel}
+  /// array
+  targetWorkspaceOptions = ${targetWorkspaceOptions}
+
+  renderer = afx`
+    <Neos.Workspace.Ui:Component.Modal.RestoreNodeConfirmation
+      nodeAddress={props.nodeAddress}
+      nodeLabel={props.nodeLabel}
+      targetWorkspaceOptions={props.targetWorkspaceOptions}
+    />
+  `
+}

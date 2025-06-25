@@ -5,10 +5,6 @@ declare(strict_types=1);
 namespace Neos\Restore\Ui\Domain\TrashBin;
 
 use Neos\Flow\Annotations as Flow;
-use Neos\Restore\Ui\Domain\TrashBin\TrashBinSortingDirection;
-use Neos\Restore\Ui\Domain\TrashBin\TrashBinSortingDirection;
-use Neos\Restore\Ui\Domain\TrashBin\TrashBinSortingPropertyName;
-use Neos\Restore\Ui\Domain\TrashBin\TrashBinSortingPropertyName;
 
 #[Flow\Proxy(false)]
 final readonly class TrashBinSorting implements \JsonSerializable

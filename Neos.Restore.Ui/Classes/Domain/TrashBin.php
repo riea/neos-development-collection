@@ -14,7 +14,9 @@ declare(strict_types=1);
 
 namespace Neos\Restore\Ui\Domain;
 
+use Neos\ContentRepository\Core\SharedModel\ContentRepository\ContentRepositoryId;
 use Neos\ContentRepository\Core\SharedModel\Workspace\WorkspaceName;
+use Neos\ContentRepositoryRegistry\ContentRepositoryRegistry;
 use Neos\Flow\Annotations as Flow;
 use Neos\Restore\Ui\Domain\TrashBin\TrashBinPagination;
 use Neos\Restore\Ui\Domain\TrashBin\TrashBinSorting;
@@ -25,14 +27,25 @@ use Neos\Restore\Ui\Domain\TrashBin\TrashItems;
  * @internal for communication within the Restore UI only
  */
 #[Flow\Scope('singleton')]
-final readonly class TrashBin
+class TrashBin
 {
+    public function __construct(
+        private readonly ContentRepositoryRegistry $contentRepositoryRegistry,
+    ) {
+    }
+
     public function findItemsByWorkspaceNameWithParameters(
+        ContentRepositoryId $contentRepositoryId,
         WorkspaceName $workspaceName,
         TrashBinSorting $sorting,
         TrashBinPagination $pagination
-    ): TrashItems
-    {
+    ): TrashItems {
+        return TrashItems::create();
+    }
+
+    public function pruneForContentRepository(
+        ContentRepositoryId $contentRepositoryId,
+    ): void {
 
     }
 }

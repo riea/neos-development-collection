@@ -1,0 +1,8 @@
+Neos:
+  ContentRepositoryRegistry:
+    presets:
+      'default':
+        contentGraphProjection:
+          catchUpHooks:
+            'Neos.Restore.Ui:TrashBinPopulation':
+              factoryObjectName: Neos\Restore\Ui\Domain\TrashBin\TrashBinPopulationHookFactory

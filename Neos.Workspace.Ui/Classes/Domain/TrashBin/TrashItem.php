@@ -1,7 +1,7 @@
 <?php
 
 /*
- * This file is part of the Neos.Restore.Ui package.
+ * This file is part of the Neos.Workspace.Ui package.
  *
  * (c) Contributors of the Neos Project - www.neos.io
  *
@@ -20,7 +20,7 @@ use Neos\ContentRepository\Core\SharedModel\Node\NodeAggregateId;
 use Neos\Flow\Annotations as Flow;
 
 /**
- * @internal for communication within the Restore UI only
+ * @internal for communication within the Workspace UI only
  */
 #[Flow\Proxy(false)]
 final readonly class TrashItem

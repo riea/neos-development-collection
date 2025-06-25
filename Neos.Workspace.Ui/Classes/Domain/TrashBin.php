@@ -1,7 +1,7 @@
 <?php
 
 /*
- * This file is part of the Neos.Restore.Ui package.
+ * This file is part of the Neos.Workspace.Ui package.
  *
  * (c) Contributors of the Neos Project - www.neos.io
  *
@@ -18,13 +18,13 @@ use Neos\ContentRepository\Core\SharedModel\ContentRepository\ContentRepositoryI
 use Neos\ContentRepository\Core\SharedModel\Workspace\WorkspaceName;
 use Neos\ContentRepositoryRegistry\ContentRepositoryRegistry;
 use Neos\Flow\Annotations as Flow;
-use Neos\Restore\Ui\Domain\TrashBin\TrashBinPagination;
-use Neos\Restore\Ui\Domain\TrashBin\TrashBinSorting;
-use Neos\Restore\Ui\Domain\TrashBin\TrashItems;
+use Neos\Workspace\Ui\Domain\TrashBin\TrashBinPagination;
+use Neos\Workspace\Ui\Domain\TrashBin\TrashBinSorting;
+use Neos\Workspace\Ui\Domain\TrashBin\TrashItems;
 
 
 /**
- * @internal for communication within the Restore UI only
+ * @internal for communication within the Workspace UI only
  */
 #[Flow\Scope('singleton')]
 class TrashBin

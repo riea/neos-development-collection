@@ -21,6 +21,14 @@ final readonly class TrashBinPagination implements \JsonSerializable
         }
     }
 
+    public static function default(): self
+    {
+        return new self(
+            offset: 0,
+            limit: 20
+        );
+    }
+
     public static function create(int $offset, ?int $limit): self
     {
         return new self($offset, $limit);

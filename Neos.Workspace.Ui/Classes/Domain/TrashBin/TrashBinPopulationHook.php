@@ -46,7 +46,7 @@ use Neos\EventStore\Model\EventEnvelope;
 use Neos\Neos\Domain\SubtreeTagging\NeosSubtreeTag;
 use Neos\Neos\Domain\SubtreeTagging\SoftRemoval\ImpendingHardRemovalConflict;
 use Neos\Neos\Domain\SubtreeTagging\SoftRemoval\ImpendingHardRemovalConflicts;
-use Neos\Restore\Ui\Domain\TrashBin;
+use Neos\Workspace\Ui\Domain\TrashBin;
 
 /** @internal */
 final class TrashBinPopulationHook implements CatchUpHookInterface

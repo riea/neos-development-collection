@@ -18,7 +18,7 @@ use Neos\ContentRepository\Core\Projection\CatchUpHook\CatchUpHookFactoryDepende
 use Neos\ContentRepository\Core\Projection\CatchUpHook\CatchUpHookFactoryInterface;
 use Neos\ContentRepository\Core\Projection\CatchUpHook\CatchUpHookInterface;
 use Neos\ContentRepository\Core\Projection\ContentGraph\ContentGraphReadModelInterface;
-use Neos\Restore\Ui\Domain\TrashBin;
+use Neos\Workspace\Ui\Domain\TrashBin;
 
 /**
  * @implements CatchUpHookFactoryInterface<ContentGraphReadModelInterface>

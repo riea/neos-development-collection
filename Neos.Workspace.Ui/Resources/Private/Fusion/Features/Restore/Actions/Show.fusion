@@ -1,18 +1,27 @@
 Neos.Workspace.Ui.RestoreController.show = Neos.Fusion:Component {
   /// Neos\Workspace\Ui\ViewModel\RestoreListItems
   restoreListItems = ${restoreListItems}
+
   /// array
   flashMessages = ${flashMessages}
+
   /// Neos\Workspace\Ui\Domain\Sorting
   sorting = ${sorting}
+
   /// string
   workspaceName = ${workspaceName}
 
+  /// boolean
+  enableSyncButton = ${enableSyncButton}
+
+  /// Neos\Workspace\Ui\Domain\TrashBin\TrashBinPagination
+  pagination = ${pagination}
+
   syncWorkspace = Neos.Fusion:UriBuilder {
     action = 'syncWorkspace'
+    controller = 'Restore'
     format = 'htmx'
   }
-
 
   i18n = ${I18n.id('').source('Main').package('Neos.Workspace.Ui')}
 
@@ -22,26 +31,32 @@ Neos.Workspace.Ui.RestoreController.show = Neos.Fusion:Component {
     >
       <main class="neos-content neos-container-fluid">
         <div class="neos-row-fluid">
+          <legend>
+            {props.i18n.id('restore.deletedElements').arguments([workspaceName]).translate()}
+          </legend>
           <Neos.Workspace.Ui:Component.NodesTable
+            @if.hasListItems={props.restoreListItems}
             restoreListItems={props.restoreListItems}
             sorting={props.sorting}
           />
           <Neos.Workspace.Ui:Component.Pagination
             workspaceName={props.workspaceName}
+            pagination={props.pagination}
           />
+          <p @if.hasNoListItems={!props.restoreListItems}>
+            {props.i18n.id('restore.noDeletedElements')}
+          </p>
         </div>
       </main>
       <Neos.Workspace.Ui:Component.Footer>
-        <button
-          id="syncButton"
-          type="button"
-          class="neos-button neos-button-success"
-          hx-get={props.syncWorkspace}
-          hx-target="#restore-module-content"
-          hx-swap="outerHTML"
-        >
-          {props.i18n.id('restore.syncWorkspace')}
-        </button>
+        <Neos.Workspace.Ui:Component.Button
+          @if.workspaceButtonIsEnabled={props.enableSyncButton && props.restoreListItems}
+          label={props.i18n.id('restore.syncWorkspace')}
+          icon="sync icon-white"
+          attributes.hx-get={props.syncWorkspace}
+          attributes.hx-target="#restore-module-content"
+          attributes.hx-swap="outerHTML"
+        />
       </Neos.Workspace.Ui:Component.Footer>
     </Neos.Workspace.Ui:Component.ModuleWrapper>
   `

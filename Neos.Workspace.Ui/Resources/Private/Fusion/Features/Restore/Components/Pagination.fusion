@@ -2,29 +2,30 @@
 # Renders a pagination
 #
 prototype(Neos.Workspace.Ui:Component.Pagination) < prototype(Neos.Fusion:Component) {
-  /// integer
-  totalPages = 20
-  /// integer
-  currentPage = 1
-  ///integer
-  resultsPerPage = 0
+  /// Neos\Workspace\Ui\Domain\TrashBin\TrashBinPagination
+  pagination = ${pagination}
+
   /// string
   workspaceName = ''
+
+  /// integer
+  currentPage = ${(pagination.offset / pagination.limit) + 1}
 
   @private {
     i18n = ${I18n.id('').source('Main').package('Neos.Workspace.Ui')}
   }
 
   renderer = afx`
-    <div @if.hasMoreThanOnePage={props.totalPages > 1} class="page-navigation">
+    <div @if.hasMoreThanOnePage={props.pagination.totalCount > props.pagination.limit} class="page-navigation">
       <ul>
-
-        <Neos.Fusion:Loop items={Array.range(1, props.totalPages, 1)} itemName="paginationItem">
+        <Neos.Fusion:Loop items={Array.range(1, props.pagination.totalCount / props.pagination.limit, 1)} itemName="paginationItem">
           <Neos.Workspace.Ui:Component.PaginationItem
-            isCurrent={props.currentPage == paginationItem}
-            resultsPerPage={props.resultsPerPage}
+            pagination={props.pagination}
+            workspaceName={props.workspaceName}
             pageNumber={paginationItem}
-            workspaceName={props.workspaceName}/>
+            offset={(paginationItem - 1) * props.pagination.limit}
+            isCurrentPage={props.currentPage == paginationItem}
+          />
         </Neos.Fusion:Loop>
       </ul>
 

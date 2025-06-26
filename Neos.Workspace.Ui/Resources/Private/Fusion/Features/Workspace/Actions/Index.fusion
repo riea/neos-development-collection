@@ -1,8 +1,10 @@
 Neos.Workspace.Ui.WorkspaceController.index = Neos.Fusion:Component {
   /// Neos\Workspace\Ui\ViewModel\WorkspaceListItems
   workspaceListItems = ${workspaceListItems}
+
   /// array
   flashMessages = ${flashMessages}
+
   /// Neos\Workspace\Ui\ViewModel\Sorting
   sorting = ${sorting}
 

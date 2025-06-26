@@ -14,6 +14,7 @@ declare(strict_types=1);
 
 namespace Neos\Workspace\Ui\Controller;
 
+use Neos\ContentRepository\Core\ContentRepository;
 use Neos\ContentRepository\Core\Dimension\ContentDimensionId;
 use Neos\ContentRepository\Core\DimensionSpace\DimensionSpacePointSet;
 use Neos\ContentRepository\Core\DimensionSpace\OriginDimensionSpacePointSet;
@@ -25,6 +26,7 @@ use Neos\ContentRepository\Core\Projection\ContentGraph\VisibilityConstraints;
 use Neos\ContentRepository\Core\SharedModel\Node\NodeAddress;
 use Neos\ContentRepository\Core\SharedModel\Node\NodeAggregateId;
 use Neos\ContentRepository\Core\SharedModel\Node\NodeVariantSelectionStrategy;
+use Neos\ContentRepository\Core\SharedModel\Workspace\WorkspaceStatus;
 use Neos\ContentRepositoryRegistry\ContentRepositoryRegistry;
 use Neos\ContentRepository\Core\SharedModel\Workspace\WorkspaceName;
 use Neos\Flow\Annotations as Flow;
@@ -91,7 +93,6 @@ class RestoreController extends AbstractModuleController
     {
         $sorting ??= TrashBinSorting::default();
         $pagination ??= TrashBinPagination::default();
-
         $contentRepositoryId = SiteDetectionResult::fromRequest($this->request->getHttpRequest())->contentRepositoryId;
         $contentRepository = $this->contentRepositoryRegistry->get($contentRepositoryId);
         $contentGraph = $contentRepository->getContentGraph($workspaceName);
@@ -162,11 +163,16 @@ class RestoreController extends AbstractModuleController
                 )->isEmpty(),
             );
         }
+
+        //@todo: check permissions for sync button?
+        //@todo: make pagination work
         $this->view->assignMultiple([
             'workspaceName' => $workspaceName->value,
             'restoreListItems' => $listItems ? RestoreListItems::create(...$listItems) : array(),
             'flashMessages' => $this->controllerContext->getFlashMessageContainer()->getMessagesAndFlush(),
             'sorting' => $sorting,
+            'pagination' => $pagination,
+            'enableSyncButton' => $this->isWorkspaceOutdated($workspaceName, $contentRepository),
             'enableRestoreButtons' => $this->authorizationService->getWorkspacePermissions(
                 $contentRepositoryId,
                 $workspaceName,
@@ -255,5 +261,13 @@ class RestoreController extends AbstractModuleController
             'Main',
             'Neos.Restore.Ui'
         ) ?: $id;
+    }
+
+    protected function isWorkspaceOutdated(WorkspaceName $workspaceName, ContentRepository $contentRepository): bool{
+        $workspace = $contentRepository->findWorkspaceByName($workspaceName);
+        if ($workspace->status->value == WorkspaceStatus::OUTDATED) {
+            return true;
+        }
+        return false;
     }
 }

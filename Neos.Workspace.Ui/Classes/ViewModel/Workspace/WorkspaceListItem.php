@@ -35,6 +35,7 @@ final readonly class WorkspaceListItem
         public ?string $baseWorkspaceName,
         public PendingChanges $pendingChanges,
         public bool $hasDependantWorkspaces,
+        public bool $enableRestoreIcon,
         public ?string $owner,
         public WorkspacePermissions $permissions,
         public WorkspaceRoleAssignments $roleAssignments,

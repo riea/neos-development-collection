@@ -155,7 +155,6 @@ class WorkspaceController extends AbstractModuleController
         $workspaceListItems = match($sorting->sortBy) {
             'title' => $workspaceListItems->sortByTitle($sorting->sortAscending),
         };
-
         $this->view->assignMultiple([
             'workspaceListItems' => $workspaceListItems,
             'flashMessages' => $this->controllerContext->getFlashMessageContainer()->getMessagesAndFlush(),
@@ -1318,6 +1317,7 @@ class WorkspaceController extends AbstractModuleController
                 $workspace->baseWorkspaceName->value,
                 $this->computePendingChanges($workspace, $contentRepository),
                 !$allWorkspaces->getDependantWorkspaces($workspace->workspaceName)->isEmpty(),
+                $this->hasRestorableNodes($workspace),
                 $workspaceOwner?->getLabel(),
                 $workspacesPermissions,
                 $workspaceRoleAssignments,
@@ -1331,5 +1331,10 @@ class WorkspaceController extends AbstractModuleController
             ->findByContentStreamId(
                 $selectedWorkspace->currentContentStreamId
             );
+    }
+
+    protected function hasRestorableNodes(Workspace $workspace) {
+        //@todo check if the workspace has restorable nodes
+        return true;
     }
 }

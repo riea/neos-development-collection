@@ -15,6 +15,7 @@ declare(strict_types=1);
 namespace Neos\Workspace\Ui\Domain\TrashBin;
 
 use Neos\Flow\Annotations as Flow;
+use Neos\Workspace\Ui\ViewModel\Review\ContentChangeItem;
 
 /**
  * @implements \IteratorAggregate<TrashItem>
@@ -47,5 +48,18 @@ final readonly class TrashItems implements \IteratorAggregate, \Countable
     public function count(): int
     {
         return count($this->items);
+    }
+
+    /**
+     * @param array<TrashItem> $items
+     */
+    public static function fromArray(array $items): self
+    {
+        foreach ($items as $item) {
+            if (!$item instanceof TrashItem) {
+                throw new \InvalidArgumentException(sprintf('Expected instance of %s, got: %s', TrashItem::class, get_debug_type($item)), 1718295710);
+            }
+        }
+        return new self($items);
     }
 }

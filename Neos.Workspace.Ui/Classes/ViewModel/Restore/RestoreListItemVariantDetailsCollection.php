@@ -37,6 +37,19 @@ final readonly class RestoreListItemVariantDetailsCollection implements \Iterato
     }
 
     /**
+     * @param array<RestoreListItemVariantDetails> $items
+     */
+    public static function fromArray(array $items): self
+    {
+        foreach ($items as $item) {
+            if (!$item instanceof RestoreListItemVariantDetails) {
+                throw new \InvalidArgumentException(sprintf('Expected instance of %s, got: %s', RestoreListItemVariantDetails::class, get_debug_type($item)), 1718295710);
+            }
+        }
+        return new self($items);
+    }
+
+    /**
      * @return \Traversable<int,RestoreListItemVariantDetails>
      */
     public function getIterator(): \Traversable

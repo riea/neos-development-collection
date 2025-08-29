@@ -18,8 +18,11 @@ use Neos\ContentRepository\Core\SharedModel\ContentRepository\ContentRepositoryI
 use Neos\ContentRepository\Core\SharedModel\Workspace\WorkspaceName;
 use Neos\ContentRepositoryRegistry\ContentRepositoryRegistry;
 use Neos\Flow\Annotations as Flow;
+use Neos\Neos\Domain\SubtreeTagging\NeosSubtreeTag;
+use Neos\Neos\Domain\Service\UserService;
 use Neos\Workspace\Ui\Domain\TrashBin\TrashBinPagination;
 use Neos\Workspace\Ui\Domain\TrashBin\TrashBinSorting;
+use Neos\Workspace\Ui\Domain\TrashBin\TrashItem;
 use Neos\Workspace\Ui\Domain\TrashBin\TrashItems;
 
 
@@ -29,6 +32,9 @@ use Neos\Workspace\Ui\Domain\TrashBin\TrashItems;
 #[Flow\Scope('singleton')]
 class TrashBin
 {
+    #[Flow\Inject]
+    protected UserService $userService;
+
     public function __construct(
         private readonly ContentRepositoryRegistry $contentRepositoryRegistry,
     ) {
@@ -40,7 +46,21 @@ class TrashBin
         TrashBinSorting $sorting,
         TrashBinPagination $pagination
     ): TrashItems {
-        return TrashItems::create();
+
+        $contentRepository = $this->contentRepositoryRegistry->get($contentRepositoryId);
+        $contentGraph = $contentRepository->getContentGraph($workspaceName);
+        $trashItems = [];
+        foreach ($contentGraph->findNodeAggregatesTaggedBy(NeosSubtreeTag::removed()) as $nodeAggregateTaggedRemoved) {
+
+            $trashItems[] = new TrashItem(
+                nodeAggregateId: $nodeAggregateTaggedRemoved->nodeAggregateId,
+                userId:  $this->userService->getCurrentUser()->getId(),
+                deleteTime: new \DateTimeImmutable(),
+                affectedDimensionSpacePoints: $nodeAggregateTaggedRemoved->getCoveredDimensionsTaggedBy(NeosSubtreeTag::removed(), withoutInherited: true)
+            );
+        }
+
+        return TrashItems::fromArray($trashItems);
     }
 
     public function pruneForContentRepository(

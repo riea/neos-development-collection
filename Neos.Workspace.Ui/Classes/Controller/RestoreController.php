@@ -143,16 +143,16 @@ class RestoreController extends AbstractModuleController
             }
             $nodeType = $contentRepository->getNodeTypeManager()->getNodeType($nodeAggregate->nodeTypeName);
 
-            $user = $this->userRepository->findByIdentifier($trashBinItem->userId->value);
+            $user = $this->userService->findUserById($trashBinItem->userId);
 
             $listItems[] = new RestoreListItem(
                 nodeAggregateId: $trashBinItem->nodeAggregateId,
                 icon: $nodeType?->getFullConfiguration()['ui']['icon'],
                 // @todo translate
                 nodeTypeLabel: $nodeAggregate->nodeTypeName->value,
-                details: RestoreListItemVariantDetailsCollection::create(...$details),
+                details: RestoreListItemVariantDetailsCollection::fromArray($details),
                 deletionUserName: $user
-                    ? $user->getUserName()
+                    ? $user->getName()->getFullName()
                     : '[deleted user]',
                 deleteTime: $trashBinItem->deleteTime,
                 enableHardRemovalButton: $hasHardRemovalPrivileges
@@ -168,7 +168,7 @@ class RestoreController extends AbstractModuleController
         //@todo: make pagination work
         $this->view->assignMultiple([
             'workspaceName' => $workspaceName->value,
-            'restoreListItems' => $listItems ? RestoreListItems::create(...$listItems) : array(),
+            'restoreListItems' => $listItems ? RestoreListItems::fromArray($listItems) : array(),
             'flashMessages' => $this->controllerContext->getFlashMessageContainer()->getMessagesAndFlush(),
             'sorting' => $sorting,
             'pagination' => $pagination,
@@ -184,6 +184,10 @@ class RestoreController extends AbstractModuleController
 
     public function restoreNodeConfirmationAction(WorkspaceName $workspaceName, NodeAggregateId $nodeAggregateId): void
     {
+        $contentRepositoryId = SiteDetectionResult::fromRequest($this->request->getHttpRequest())->contentRepositoryId;
+        $contentRepository = $this->contentRepositoryRegistry->get($contentRepositoryId);
+        $nodeAggregate = $contentRepository->getContentGraph($workspaceName)->findNodeAggregateById($nodeAggregateId);
+
         // @todo validate that
         // * the node is still removed
         // inform about
@@ -191,7 +195,7 @@ class RestoreController extends AbstractModuleController
 
         $this->view->assignMultiple([
             'nodeAddress' => $nodeAggregateId->value,
-            'nodeLabel' => 'TODO Node Label',
+            'nodeLabel' => $nodeAggregate->nodeName,
             'targetWorkspaceOptions' => array ('user-workspace'=> 'User Workspace', 'workspace-name' => 'Workspace 1', 'workspace-name2' => 'Workspace 2'),
         ]);
     }

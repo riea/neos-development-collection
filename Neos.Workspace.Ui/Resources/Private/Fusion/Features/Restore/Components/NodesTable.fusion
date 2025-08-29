@@ -7,6 +7,8 @@ prototype(Neos.Workspace.Ui:Component.NodesTable) < prototype(Neos.Fusion:Compon
   /// Neos\Workspace\Ui\Domain\Sorting
   sorting = null
 
+  workspaceName = ''
+
   @private {
     i18n = ${I18n.id('').source('Main').package('Neos.Workspace.Ui')}
     baseUri = Neos.Fusion:ActionUri {
@@ -37,7 +39,6 @@ prototype(Neos.Workspace.Ui:Component.NodesTable) < prototype(Neos.Fusion:Compon
             <Neos.Workspace.Ui:Component.Icon icon={props.sorting.sortAscending ? 'sort-alpha-down' : 'sort-alpha-up'}/>
           </button>
         </th>
-        <th>{private.i18n.id('restore.table.nodeType')}</th>
         <th>{private.i18n.id('restore.table.dimensions')}</th>
         <th>{private.i18n.id('restore.table.deletedBy')}</th>
         <th>{private.i18n.id('restore.table.deletedAt')}</th>
@@ -49,6 +50,7 @@ prototype(Neos.Workspace.Ui:Component.NodesTable) < prototype(Neos.Fusion:Compon
         <Neos.Fusion:Loop items={props.restoreListItems} itemName="restoreListItem">
           <Neos.Workspace.Ui:Component.NodesTableRow
             restorelistItem={restoreListItem}
+            workspaceName={props.workspaceName}
             @if={restoreListItem != null}
           />
         </Neos.Fusion:Loop>

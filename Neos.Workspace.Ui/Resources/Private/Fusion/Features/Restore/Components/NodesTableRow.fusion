@@ -7,21 +7,25 @@ prototype(Neos.Workspace.Ui:Component.NodesTableRow) < prototype(Neos.Fusion:Com
   /// integer
   level = 0
 
+  workspaceName = ''
+
   @private {
     i18n = ${I18n.id('').source('Main').package('Neos.Workspace.Ui')}
 
     restoreUri = Neos.Fusion:ActionUri {
       action = 'restoreNodeConfirmation'
-      format = 'html'
+      format = 'htmx'
       arguments {
-        nodeAddressJson = ${props.restorelistItem.serializedNodeAddress}
+        workspaceName = ${props.workspaceName}
+        nodeAggregateId = ${props.restorelistItem.nodeAggregateId}
       }
     }
     hardDeleteConfirmationUri = Neos.Fusion:ActionUri {
       action = 'hardDeleteConfirmation'
       format = 'htmx'
       arguments {
-        nodeAddressJson = ${props.restorelistItem.serializedNodeAddress}
+        workspaceName = ${props.workspaceName}
+        nodeAggregateId = ${props.restorelistItem.nodeAggregateId}
       }
     }
     hardDeleteConfirmationPopoverId = 'hard-delete-confirm-modal'
@@ -35,22 +39,9 @@ prototype(Neos.Workspace.Ui:Component.NodesTableRow) < prototype(Neos.Fusion:Com
         <Neos.Workspace.Ui:Component.Icon icon={props.restorelistItem.icon}/>
       </td>
       <td>
-        <span>{props.restorelistItem.label}</span><br />
-        <span class="breadcrumb">
-          <Neos.Fusion:Loop items={props.restorelistItem.breadcrumb} itemName="breadcrumbItem">
-            <Neos.Workspace.Ui:Component.Icon icon="fas fa-caret-right" @if.notFirst={!iterator.isFirst} />
-            {breadcrumbItem}
-          </Neos.Fusion:Loop>
-        </span>
-      </td>
-      <td>
         <span>{props.restorelistItem.nodeTypeLabel}</span>
       </td>
-      <td>
-        <Neos.Fusion:Loop items={props.restorelistItem.dimensions} itemKey="key" itemName="dimension">
-          <span class="neos-label" title={dimension}>{dimension}</span>
-        </Neos.Fusion:Loop>
-      </td>
+      <td></td>
       <td>
         <span>{props.restorelistItem.deletionUserName}</span>
       </td>
@@ -80,6 +71,27 @@ prototype(Neos.Workspace.Ui:Component.NodesTableRow) < prototype(Neos.Fusion:Com
           attributes.hx-on--after-request={'document.getElementById("' + private.hardDeleteConfirmationPopoverId + '").showPopover()'}
         />
       </td>
+    </tr>
+    <tr>
+    <Neos.Fusion:Loop items={props.restorelistItem.details} itemName="detail">
+      <td></td>
+      <td class="node-information">
+        <span >
+          <Neos.Fusion:Loop items={detail.ancestorLabels} itemName="breadcrumbItem">
+            <Neos.Workspace.Ui:Component.Icon icon="fas fa-caret-right" @if.notFirst={!iterator.isFirst} />
+            {breadcrumbItem}
+          </Neos.Fusion:Loop>
+        </span> <br />
+        <span>{detail.label}</span><br />
+
+      </td>
+      <td>
+        <Neos.Fusion:Loop items={detail.dimensionValueLabels} itemKey="key" itemName="dimension">
+          <span class="neos-label" title={dimension}>{dimension}</span>
+        </Neos.Fusion:Loop>
+      </td>
+      <td colspan="3"></td>
+    </Neos.Fusion:Loop>
     </tr>
   `
 }

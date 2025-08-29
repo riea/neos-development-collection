@@ -84,12 +84,12 @@ final class TrashBinPopulationHook implements CatchUpHookInterface
             return;
         }
 
-        $referenceCoordinates = $eventEnvelope->event->metadata->get('commandPayload')['coveredDimensionSpacePoint'];
-        $referenceHash = DimensionSpacePoint::fromArray($referenceCoordinates)->hash;
-        $relevantCommandPayload = [
+        //$referenceCoordinates = $eventEnvelope->event->metadata->get('commandPayload')['coveredDimensionSpacePoint'];
+        //$referenceHash = DimensionSpacePoint::fromArray($referenceCoordinates)->hash;
+        /*$relevantCommandPayload = [
             'coveredDimensionSpacePoint' => $referenceCoordinates,
             'nodeVariantSelectionStrategy' => $eventEnvelope->event->metadata->get('commandPayload')['nodeVariantSelectionStrategy'],
-        ];
+        ];*/
 
         /** @todo write command and event data to trash bin item */
     }

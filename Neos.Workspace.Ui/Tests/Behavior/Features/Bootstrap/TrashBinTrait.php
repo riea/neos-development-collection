@@ -2,16 +2,14 @@
 
 declare(strict_types=1);
 
-namespace Neos\Workspace\Tests\Behavior\Features\Bootstrap;
+namespace Neos\Workspace\Ui\Tests\Behavior\Features\Bootstrap;
 
 use Behat\Gherkin\Node\TableNode;
-use Neos\ContentRepository\Core\SharedModel\ContentRepository\ContentRepositoryId;
 use Neos\ContentRepository\Core\SharedModel\Workspace\WorkspaceName;
-use Neos\Neos\Domain\SubtreeTagging\SoftRemoval\SoftRemovalGarbageCollector;
-use Neos\Restore\Ui\Domain\TrashBin;
-use Neos\Restore\Ui\Domain\TrashBin\TrashBinPagination;
-use Neos\Restore\Ui\Domain\TrashBin\TrashBinSorting;
-use Neos\Restore\Ui\Domain\TrashBin\TrashItem;
+use Neos\Workspace\Ui\Domain\TrashBin;
+use Neos\Workspace\Ui\Domain\TrashBin\TrashBinPagination;
+use Neos\Workspace\Ui\Domain\TrashBin\TrashBinSorting;
+use Neos\Workspace\Ui\Domain\TrashBin\TrashItem;
 use PHPUnit\Framework\Assert;
 
 /**
@@ -29,25 +27,17 @@ trait TrashBinTrait
                 contentRepositoryId: $this->currentContentRepository->id,
                 workspaceName: WorkspaceName::fromString($workspaceName),
                 sorting: TrashBinSorting::default(),
-                pagination: TrashBinPagination::create(0, null)
+                pagination: TrashBinPagination::create(0, null, 0)
             );
 
         $actualItemsTable = array_map(static fn(TrashItem $trashItem): array => [
             'nodeAggregateId' => $trashItem->nodeAggregateId,
-            'deleteTime' => $trashItem->deleteTime->format(DateTimeInterface::ATOM),
+            'deleteTime' => $trashItem->deleteTime->format(\DateTimeInterface::ATOM),
             'userId' => $trashItem->userId->value,
             'affectedDimensionSpacePoints' => $trashItem->affectedDimensionSpacePoints->toJson(),
         ], iterator_to_array($actualTrashItems));
 
         Assert::assertSame($payloadTable->getHash(), $actualItemsTable);
-    }
-
-    /**
-     * @When soft removal garbage collection is run for content repository :contentRepositoryId
-     */
-    public function softRemovalGarbageCollectionIsRunForContentRepository(string $contentRepositoryId): void
-    {
-        $this->getObject(SoftRemovalGarbageCollector::class)->run(ContentRepositoryId::fromString($contentRepositoryId));
     }
 
     /**

@@ -1,26 +1,16 @@
 <?php
 
-/*
- * This file is part of the Neos.Neos package.
- *
- * (c) Contributors of the Neos Project - www.neos.io
- *
- * This package is Open Source Software. For the full copyright and license
- * information, please view the LICENSE file which was distributed with this
- * source code.
- */
-
-namespace Neos\Workspace\Tests\Behavior\Features\Bootstrap;
+namespace Neos\Workspace\Ui\Tests\Behavior\Features\Bootstrap;
 
 use Behat\Behat\Context\Context as BehatContext;
 use Neos\Behat\FlowBootstrapTrait;
 use Neos\Behat\FlowEntitiesTrait;
-use Neos\ContentRepository\BehavioralTests\TestSuite\Behavior\CRBehavioralTestsSubjectProvider;
 use Neos\ContentRepository\Core\ContentRepository;
 use Neos\ContentRepository\Core\Factory\ContentRepositoryServiceFactoryInterface;
 use Neos\ContentRepository\Core\Factory\ContentRepositoryServiceInterface;
 use Neos\ContentRepository\Core\Feature\NodeModification\Dto\PropertyValuesToWrite;
 use Neos\ContentRepository\Core\SharedModel\ContentRepository\ContentRepositoryId;
+use Neos\ContentRepository\TestSuite\Behavior\Features\Bootstrap\CRBehavioralTestsSubjectProvider;
 use Neos\ContentRepository\TestSuite\Behavior\Features\Bootstrap\CRTestSuiteTrait;
 use Neos\ContentRepository\TestSuite\Behavior\Features\Bootstrap\MigrationsTrait;
 use Neos\ContentRepository\TestSuite\Fakes\FakeContentDimensionSourceFactory;
@@ -28,10 +18,6 @@ use Neos\ContentRepository\TestSuite\Fakes\FakeNodeTypeManagerFactory;
 use Neos\ContentRepositoryRegistry\ContentRepositoryRegistry;
 use Neos\Flow\Persistence\PersistenceManagerInterface;
 use Neos\Flow\Utility\Environment;
-use Neosuse;
-use TrashBinTrait;
-
-Neos\Behat\FlowBootstrapTrait;
 
 class FeatureContext implements BehatContext
 {

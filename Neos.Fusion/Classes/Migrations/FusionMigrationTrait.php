@@ -11,6 +11,7 @@ use Neos\Fusion\Migrations\EelExpression\RegexCommentTemplatePair;
 use Neos\Fusion\Migrations\FusionPrototype\FusionPrototypeNameAddComment;
 use Neos\Fusion\Migrations\FusionPrototype\FusionPrototypeNameReplacement;
 use Neos\Fusion\Migrations\FusionPrototype\FusionPrototypeTransformer;
+use Neos\Utility\Files;
 
 trait FusionMigrationTrait
 {
@@ -94,7 +95,13 @@ trait FusionMigrationTrait
         foreach ($filePaths as $filePath => $_) {
             $originalContents = file_get_contents($filePath);
 
-            $eelTransformer = EelExpressionTransformer::forContent($originalContents);
+            $commentPrefix = sprintf('TODO %s ', $this->getIdentifier());
+            $onWarning = fn (string $comment) => $this->showWarning(sprintf('File %s: %s', Files::getRelativePath(
+                $this->targetPackageData['path'],
+                $filePath
+            ), $comment));
+
+            $eelTransformer = EelExpressionTransformer::forContent($originalContents, $commentPrefix, $onWarning);
             $eelTransformer = $eelTransformer->process(function (string $expression, EelExpressionFusionPath $currentFusionPath) use ($pregSearches, $pregReplacements) {
                 foreach ($this->eelReplacementOperationsPerFusionPath as $fusionPath => $operations) {
                     if ($currentFusionPath->contains($fusionPath)) {
@@ -114,7 +121,7 @@ trait FusionMigrationTrait
 
             $newContents = $eelTransformer->getProcessedContent();
 
-            $fusionPrototypeTransformer = FusionPrototypeTransformer::forContent($newContents);
+            $fusionPrototypeTransformer = FusionPrototypeTransformer::forContent($newContents, $commentPrefix, $onWarning);
 
             if ($this->fusionPrototypeNameReplacements !== []) {
                 $fusionPrototypeTransformer = $fusionPrototypeTransformer->processFusionPrototypeNameReplacements(

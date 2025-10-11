@@ -31,6 +31,10 @@ jobs:
             static-analysis: 'yes'
             experimental: false
             dependencies: 'highest'
+          - php-versions: '8.4'
+            static-analysis: 'yes'
+            experimental: false
+            dependencies: 'highest'
 
     runs-on: ubuntu-latest
     services:

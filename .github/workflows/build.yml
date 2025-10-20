@@ -26,11 +26,23 @@ jobs:
         composer-arguments: [''] # to run --ignore-platform-reqs in experimental builds
         static-analysis: ['no']
         experimental: [false]
+        mysqlport: [3306]
         include:
           - php-versions: '8.1'
             static-analysis: 'yes'
             experimental: false
             dependencies: 'highest'
+            mysqlport: 3306
+          - php-versions: '8.4'
+            static-analysis: 'yes'
+            experimental: false
+            dependencies: 'highest'
+            mysqlport: 3307
+          - php-versions: '8.4'
+            static-analysis: 'yes'
+            experimental: false
+            dependencies: 'highest'
+            mysqlport: 3308
 
     runs-on: ubuntu-latest
     services:
@@ -45,6 +57,26 @@ jobs:
           MYSQL_ROOT_PASSWORD: neos
         ports:
           - "3306:3306"
+        options: --health-cmd="mysqladmin ping" --health-interval=10s --health-timeout=5s --health-retries=3
+      mysql80:
+        image: mysql:8.0
+        env:
+          MYSQL_USER: neos
+          MYSQL_PASSWORD: neos
+          MYSQL_DATABASE: flow_functional_testing
+          MYSQL_ROOT_PASSWORD: neos
+        ports:
+          - "3307:3306"
+        options: --health-cmd="mysqladmin ping" --health-interval=10s --health-timeout=5s --health-retries=3
+      mysql84:
+        image: mysql:8.4
+        env:
+          MYSQL_USER: neos
+          MYSQL_PASSWORD: neos
+          MYSQL_DATABASE: flow_functional_testing
+          MYSQL_ROOT_PASSWORD: neos
+        ports:
+          - "3308:3306"
         options: --health-cmd="mysqladmin ping" --health-interval=10s --health-timeout=5s --health-retries=3
       postgres:
         # see https://www.postgresql.org/support/versioning/
@@ -139,6 +171,7 @@ jobs:
               persistence:
                 backendOptions:
                   host: '127.0.0.1'
+                  port: ${{ matrix.mysqlport }}
                   driver: pdo_mysql
                   user: 'neos'
                   password: 'neos'

@@ -171,6 +171,7 @@ jobs:
               persistence:
                 backendOptions:
                   host: '127.0.0.1'
+                  port: ${{ matrix.mysqlport }}
                   driver: pdo_mysql
                   user: 'neos'
                   password: 'neos'

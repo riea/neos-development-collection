@@ -33,7 +33,7 @@ jobs:
             experimental: false
             dependencies: 'highest'
             mysqlport: 3306
-          - php-versions: '8.4'
+          - php-versions: '8.3'
             static-analysis: 'yes'
             experimental: false
             dependencies: 'highest'

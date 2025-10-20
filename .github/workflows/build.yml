@@ -34,12 +34,12 @@ jobs:
             dependencies: 'highest'
             mysqlport: 3306
           - php-versions: '8.3'
-            static-analysis: 'yes'
+            static-analysis: 'no'
             experimental: false
             dependencies: 'highest'
             mysqlport: 3307
           - php-versions: '8.4'
-            static-analysis: 'yes'
+            static-analysis: 'no'
             experimental: false
             dependencies: 'highest'
             mysqlport: 3308

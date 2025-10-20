@@ -1,7 +1,5 @@
 <?php
 
-namespace Neos\Workspace\Ui\Tests\Behavior\Features\Bootstrap;
-
 use Behat\Behat\Context\Context as BehatContext;
 use Neos\Behat\FlowBootstrapTrait;
 use Neos\Behat\FlowEntitiesTrait;

@@ -2,8 +2,6 @@
 
 declare(strict_types=1);
 
-namespace Neos\Workspace\Ui\Tests\Behavior\Features\Bootstrap;
-
 use Behat\Gherkin\Node\TableNode;
 use Neos\ContentRepository\Core\SharedModel\Workspace\WorkspaceName;
 use Neos\Workspace\Ui\Domain\TrashBin;
@@ -31,22 +29,12 @@ trait TrashBinTrait
             );
 
         $actualItemsTable = array_map(static fn(TrashItem $trashItem): array => [
-            'nodeAggregateId' => $trashItem->nodeAggregateId,
-            'deleteTime' => $trashItem->deleteTime->format(\DateTimeInterface::ATOM),
+            'nodeAggregateId' => $trashItem->nodeAggregateId->value,
             'userId' => $trashItem->userId->value,
+            'deleteTime' => $trashItem->deleteTime->format(\DateTimeInterface::ATOM),
             'affectedDimensionSpacePoints' => $trashItem->affectedDimensionSpacePoints->toJson(),
         ], iterator_to_array($actualTrashItems));
 
         Assert::assertSame($payloadTable->getHash(), $actualItemsTable);
-    }
-
-    /**
-     * @BeforeScenario
-     */
-    final public function pruneTrashBin(): void
-    {
-        foreach (static::$alreadySetUpContentRepositories as $contentRepositoryId) {
-            $this->getObject(TrashBin::class)->pruneForContentRepository($contentRepositoryId);
-        }
     }
 }

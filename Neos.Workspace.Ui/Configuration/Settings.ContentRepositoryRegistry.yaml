@@ -2,7 +2,6 @@ Neos:
   ContentRepositoryRegistry:
     presets:
       'default':
-        contentGraphProjection:
-          catchUpHooks:
-            'Neos.Workspace.Ui:TrashBinPopulation':
-              factoryObjectName: Neos\Workspace\Ui\Domain\TrashBin\TrashBinPopulationHookFactory
+        projections:
+          'Neos.Workspace.Ui:TrashBinProjection':
+            factoryObjectName: Neos\Workspace\Ui\Domain\TrashBin\TrashBinProjectionFactory

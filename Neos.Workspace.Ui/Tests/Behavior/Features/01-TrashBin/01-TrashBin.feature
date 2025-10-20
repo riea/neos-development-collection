@@ -11,6 +11,7 @@ Feature: Tests for the trash bin
       superTypes:
         'Neos.ContentRepository:Root': true
     'Neos.Neos:Document':
+      label: ${node.properties.title}
       properties:
         title:
           type: string
@@ -37,10 +38,10 @@ Feature: Tests for the trash bin
       | nodeAggregateId | "lady-eleonode-rootford" |
       | nodeTypeName    | "Neos.Neos:Sites"        |
     And the following CreateNodeAggregateWithNode commands are executed:
-      | nodeAggregateId        | parentNodeAggregateId  | nodeTypeName       |
-      | sir-david-nodenborough | lady-eleonode-rootford | Neos.Neos:Site     |
-      | nodingers-cat          | sir-david-nodenborough | Neos.Neos:Document |
-      | nodingers-kitten       | nodingers-cat          | Neos.Neos:Document |
+      | nodeAggregateId        | parentNodeAggregateId  | nodeTypeName       | initialPropertyValues |
+      | sir-david-nodenborough | lady-eleonode-rootford | Neos.Neos:Site     | {}                    |
+      | nodingers-cat          | sir-david-nodenborough | Neos.Neos:Document | {"title": "Cat"}      |
+      | nodingers-kitten       | nodingers-cat          | Neos.Neos:Document | {"title": "Kitten"}   |
     And the command CreateWorkspace is executed with payload:
       | Key                | Value              |
       | workspaceName      | "review-workspace" |
@@ -73,7 +74,7 @@ Feature: Tests for the trash bin
       | tag                          | "removed"            |
     Then I expect the trash bin for workspace "user-workspace" to contain the following items:
       | nodeAggregateId | userId                     | deleteTime                | affectedDimensionSpacePoints              |
-      | nodingers-cat   | initiating-user-identifier | 2025-06-24T17:56:25+02:00 | {"example":"source", "example":"special"} |
+      | nodingers-cat   | initiating-user-identifier | 2025-06-24T15:56:25+00:00 | [{"example":"source"},{"example":"special"}] |
 
     And I expect the trash bin for workspace "review-workspace" to contain the following items:
       | nodeAggregateId | userId | deleteTime | affectedDimensionSpacePoints |

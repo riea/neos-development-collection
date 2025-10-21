@@ -27,6 +27,10 @@ use Neos\ContentRepository\Core\EventStore\InitiatingEventMetadata;
 use Neos\ContentRepository\Core\Feature\NodeRemoval\Event\NodeAggregateWasRemoved;
 use Neos\ContentRepository\Core\Feature\SubtreeTagging\Event\SubtreeWasTagged;
 use Neos\ContentRepository\Core\Feature\SubtreeTagging\Event\SubtreeWasUntagged;
+use Neos\ContentRepository\Core\Feature\WorkspaceCreation\Event\WorkspaceWasCreated;
+use Neos\ContentRepository\Core\Feature\WorkspaceModification\Event\WorkspaceBaseWorkspaceWasChanged;
+use Neos\ContentRepository\Core\Feature\WorkspaceModification\Event\WorkspaceWasRemoved;
+use Neos\ContentRepository\Core\Feature\WorkspaceRebase\Event\WorkspaceWasRebased;
 use Neos\ContentRepository\Core\Projection\ProjectionInterface;
 use Neos\ContentRepository\Core\Projection\ProjectionStatus;
 use Neos\ContentRepository\Core\SharedModel\Node\NodeAggregateId;
@@ -48,11 +52,14 @@ class TrashBinProjection implements ProjectionInterface
 
     private string $itemTableName;
 
+    private string $workspaceHierarchyTableName;
+
     public function __construct(
         private readonly Connection $dbal,
         private readonly string $tableNamePrefix,
     ) {
         $this->itemTableName = $this->tableNamePrefix . '_items';
+        $this->workspaceHierarchyTableName = $this->tableNamePrefix . '_workspace_hierarchy';
         $this->trashItemFinder = new TrashItemFinder($this->dbal, $this->itemTableName);
     }
 
@@ -106,11 +113,19 @@ class TrashBinProjection implements ProjectionInterface
                 DbalSchemaFactory::columnForDimensionSpacePointHash('affected_dimension_space_points_hash', $platform)->setNotnull(false),
             ]
         );
-
         $trashItemTable->setPrimaryKey(['workspace_name', 'node_aggregate_id', 'affected_dimension_space_points_hash']);
         $trashItemTable->addIndex(['workspace_name', 'delete_time'], 'by_workspace');
 
-        $schema = DbalSchemaFactory::createSchemaWithTables($connection, [$trashItemTable]);
+        $workspaceHierarchyTable = new Table(
+            $this->workspaceHierarchyTableName,
+            [
+                DbalSchemaFactory::columnForWorkspaceName('parent_workspace_name', $platform)->setNotNull(true),
+                DbalSchemaFactory::columnForNodeAggregateId('child_workspace_name', $platform)->setNotnull(true),
+            ]
+        );
+        $workspaceHierarchyTable->setPrimaryKey(['parent_workspace_name', 'child_workspace_name']);
+
+        $schema = DbalSchemaFactory::createSchemaWithTables($connection, [$trashItemTable, $workspaceHierarchyTable]);
         $statements = DbalSchemaDiff::determineRequiredSqlStatements($connection, $schema);
 
         return $statements;
@@ -119,6 +134,7 @@ class TrashBinProjection implements ProjectionInterface
     public function resetState(): void
     {
         $this->dbal->exec('TRUNCATE ' . $this->itemTableName);
+        $this->dbal->exec('TRUNCATE ' . $this->workspaceHierarchyTableName);
     }
 
     public function apply(EventInterface $event, EventEnvelope $eventEnvelope): void
@@ -127,7 +143,11 @@ class TrashBinProjection implements ProjectionInterface
             SubtreeWasTagged::class => $this->whenSubtreeWasTagged($event, $eventEnvelope),
             SubtreeWasUntagged::class => $this->whenSubtreeWasUntagged($event),
             NodeAggregateWasRemoved::class => $this->whenNodeAggregateWasRemoved($event),
-            // we don't need to handle all events,
+            WorkspaceWasCreated::class => $this->whenWorkspaceWasCreated($event),
+            WorkspaceBaseWorkspaceWasChanged::class => $this->whenWorkspaceBaseWorkspaceWasChanged($event),
+            WorkspaceWasRebased::class => $this->whenWorkspaceWasRebased($event),
+            WorkspaceWasRemoved::class => $this->whenWorkspaceWasRemoved($event),
+            // we don't need to handle all events
             default => null,
         };
     }
@@ -157,7 +177,7 @@ class TrashBinProjection implements ProjectionInterface
             return;
         }
 
-        $this->removeOrRemoveRecord(
+        $this->reduceOrRemoveRecord(
             workspaceName: $event->workspaceName,
             nodeAggregateId: $event->nodeAggregateId,
             dimensionSpacePointsToReduceBy: $event->affectedDimensionSpacePoints,
@@ -166,10 +186,60 @@ class TrashBinProjection implements ProjectionInterface
 
     private function whenNodeAggregateWasRemoved(NodeAggregateWasRemoved $event): void
     {
-        $this->removeOrRemoveRecord(
+        $this->reduceOrRemoveRecord(
             workspaceName: $event->workspaceName,
             nodeAggregateId: $event->nodeAggregateId,
             dimensionSpacePointsToReduceBy: $event->affectedCoveredDimensionSpacePoints,
+        );
+    }
+
+    private function whenWorkspaceWasCreated(WorkspaceWasCreated $event): void
+    {
+        $this->dbal->insert(
+            $this->workspaceHierarchyTableName,
+            [
+                'parent_workspace_name' => $event->baseWorkspaceName->value,
+                'child_workspace_name' => $event->workspaceName->value,
+            ]
+        );
+    }
+
+    private function whenWorkspaceWasRebased(WorkspaceWasRebased $event): void
+    {
+        $workspaceHierarchyRecord = $this->dbal->executeQuery(
+            'SELECT * FROM ' . $this->workspaceHierarchyTableName . ' WHERE child_workspace_name = :childWorkspaceName',
+            [
+                'childWorkspaceName' => $event->workspaceName,
+            ]
+        )->fetchAssociative();
+
+        if (!$workspaceHierarchyRecord) {
+            throw new \Exception('Could not resolve base workspace for workspace ' . $event->workspaceName->value, 1761035918);
+        }
+
+        $this->replaceWorkspaceEntries($event->workspaceName, WorkspaceName::fromString($workspaceHierarchyRecord['parent_workspace_name']));
+    }
+
+    private function whenWorkspaceBaseWorkspaceWasChanged(WorkspaceBaseWorkspaceWasChanged $event): void
+    {
+        $this->dbal->update(
+            $this->workspaceHierarchyTableName,
+            [
+                'parent_workspace_name' => $event->baseWorkspaceName->value,
+            ],
+            [
+                'child_workspace_name' => $event->workspaceName->value,
+            ]
+        );
+    }
+
+    private function whenWorkspaceWasRemoved(WorkspaceWasRemoved $event): void
+    {
+        $this->dbal->delete(
+            $this->workspaceHierarchyTableName,
+            [
+                'child_workspace_name' => $event->workspaceName->value,
+            ]
         );
     }
 
@@ -195,7 +265,7 @@ class TrashBinProjection implements ProjectionInterface
         );
     }
 
-    private function removeOrRemoveRecord(
+    private function reduceOrRemoveRecord(
         WorkspaceName $workspaceName,
         NodeAggregateId $nodeAggregateId,
         DimensionSpacePointSet $dimensionSpacePointsToReduceBy,
@@ -203,6 +273,10 @@ class TrashBinProjection implements ProjectionInterface
         $presentRecords = $this->dbal->executeQuery(
             'SELECT * FROM ' . $this->itemTableName . ' WHERE workspace_name = :workspaceName
             AND node_aggregate_id = :nodeAggregateId',
+            [
+                'workspaceName' => $workspaceName->value,
+                'nodeAggregateId' => $nodeAggregateId->value,
+            ],
         )->fetchAllAssociative();
 
         foreach ($presentRecords as $presentRecord) {
@@ -234,6 +308,43 @@ class TrashBinProjection implements ProjectionInterface
                 );
             }
         }
+    }
+
+    private function replaceWorkspaceEntries(WorkspaceName $workspaceName, WorkspaceName $baseWorkspaceName): void
+    {
+        $this->dbal->executeStatement(
+            'DELETE FROM ' . $this->itemTableName . ' WHERE workspace_name = :workspaceName',
+            [
+                'workspaceName' => $workspaceName->value,
+            ]
+        );
+
+        $copyStatement = <<<SQL
+            INSERT INTO {$this->itemTableName} (
+                workspace_name,
+                node_aggregate_id,
+                affected_dimension_space_points_hash,
+                user_id,
+                delete_time,
+                affected_dimension_space_points
+            )
+            SELECT
+                "{$workspaceName->value}" AS workspace_name,
+                i.node_aggregate_id,
+                i.affected_dimension_space_points_hash,
+                i.user_id,
+                i.delete_time,
+                i.affected_dimension_space_points
+            FROM
+                {$this->itemTableName} i
+                WHERE i.workspace_name = :baseWorkspaceName
+        SQL;
+        $this->dbal->executeStatement(
+            $copyStatement,
+            [
+                'baseWorkspaceName' => $baseWorkspaceName->value,
+            ]
+        );
     }
 
     private function getDimensionSpacePointSetHash(DimensionSpacePointSet $dimensionSpacePointSet): string

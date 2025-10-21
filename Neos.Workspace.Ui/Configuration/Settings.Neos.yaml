@@ -16,6 +16,18 @@ Neos:
                 'Review': 'resource://Neos.Workspace.Ui/Public/Scripts/Review.js'
               styleSheets:
                 'Module': 'resource://Neos.Workspace.Ui/Public/Styles/Module.css'
+          restore:
+            label: 'Neos.Workspace.Ui:Main:restore.label'
+            controller: 'Neos\Workspace\Ui\Controller\RestoreController'
+            description: 'Neos.Workspace.Ui:Main:restore.description'
+            icon: fas fa-trash-arrow-up
+            mainStylesheet: 'Lite'
+            additionalResources:
+              javaScripts:
+                'HtmxLibrary': 'resource://Neos.Workspace.Ui/Public/Scripts/htmx.min.js'
+                'Module': 'resource://Neos.Workspace.Ui/Public/Scripts/Module.js'
+              styleSheets:
+                'Module': 'resource://Neos.Workspace.Ui/Public/Styles/Module.css'
 
     userInterface:
       translation:

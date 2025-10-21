@@ -82,8 +82,7 @@
         "neos/nodetypes": "self.version",
         "neos/site-kickstarter": "self.version",
         "neos/timeable-node-visibility": "self.version",
-        "neos/workspace-ui": "self.version",
-        "neos/restore-ui": "self.version"
+        "neos/workspace-ui": "self.version"
     },
     "suggest": {
         "neos/utility-schema": "Validate NodeType schema.",

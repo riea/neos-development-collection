@@ -38,6 +38,7 @@ use Neos\Neos\Controller\Module\AbstractModuleController;
 use Neos\Neos\Domain\NodeLabel\NodeLabelGeneratorInterface;
 use Neos\Neos\Domain\Repository\UserRepository;
 use Neos\Neos\Domain\Service\UserService;
+use Neos\Neos\Domain\Service\WorkspaceService;
 use Neos\Neos\Domain\SubtreeTagging\NeosSubtreeTag;
 use Neos\Neos\FrontendRouting\SiteDetection\SiteDetectionResult;
 use Neos\Neos\Security\Authorization\ContentRepositoryAuthorizationService;
@@ -78,13 +79,25 @@ class RestoreController extends AbstractModuleController
     protected TrashBin $trashBin;
 
     #[Flow\Inject]
-    protected UserRepository $userRepository;
-
-    #[Flow\Inject]
     protected PrivilegeManager $privilegeManager;
 
     #[Flow\Inject]
     protected ContentRepositoryAuthorizationService $authorizationService;
+
+    #[Flow\Inject]
+    protected WorkspaceService $workspaceService;
+
+    public function indexAction(): void
+    {
+        $currentUser = $this->userService->getCurrentUser();
+        if (!$currentUser) {
+            throw new \Exception('No user is logged in', 1761047616);
+        }
+        $siteDetectionResult = SiteDetectionResult::fromRequest($this->request->getHttpRequest());
+        $workspace = $this->workspaceService->getPersonalWorkspaceForUser($siteDetectionResult->contentRepositoryId, $currentUser->getId());
+
+        $this->redirect(actionName: 'show', arguments: ['workspaceName' => $workspace->workspaceName->value]);
+    }
 
     /**
      * Display a list of unpublished content

@@ -356,6 +356,9 @@
       <trans-unit id="restore.deletedElements" xml:space="preserve">
 				<source>Deleted elements in workspace "{0}"</source>
 			</trans-unit>
+      <trans-unit id="restore.label" xml:space="preserve">
+				<source>Restore</source>
+			</trans-unit>
       <trans-unit id="restore.table.label" xml:space="preserve">
 				<source>Title</source>
 			</trans-unit>

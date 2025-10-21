@@ -191,6 +191,9 @@ jobs:
         if: matrix.static-analysis == 'no'
         run: bin/phpunit --colors -c Build/BuildEssentials/PhpUnit/UnitTests.xml --verbose
 
+      - name: Run migrations to test if they work
+        run: FLOW_CONTEXT=Testing ./flow doctrine:migrate
+
       - name: Run functional tests
         if: matrix.static-analysis == 'no'
         run: bin/phpunit --colors --stop-on-failure -c Build/BuildEssentials/PhpUnit/FunctionalTests.xml --testsuite "Neos tests" --verbose

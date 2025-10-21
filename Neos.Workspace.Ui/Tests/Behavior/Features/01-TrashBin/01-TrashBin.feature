@@ -137,7 +137,7 @@ Feature: Tests for the trash bin
     And I expect the trash bin for workspace "review-workspace" to contain exactly the following items:
       | nodeAggregateId | userId | deleteTime | affectedDimensionSpacePoints |
 
-  Scenario: Soft removals in the base workspace will propagate to the user workspace on rebase
+  Scenario: Soft removals in the base workspace will propagate trash items to the user workspace on rebase
 
     When the current date and time is "2025-06-24T17:56:25+02:00"
     And the command TagSubtree is executed with payload:

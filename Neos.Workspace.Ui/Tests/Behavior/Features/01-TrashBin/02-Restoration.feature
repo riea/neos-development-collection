@@ -64,8 +64,6 @@ Feature: Tests for the trash bin
       | baseWorkspaceName  | "review-workspace" |
       | newContentStreamId | "user-cs-id"       |
 
-  Scenario: Restore soft removed content in the workspace it was removed in
-
     When the current date and time is "2025-06-24T17:56:25+02:00"
     And the command TagSubtree is executed with payload:
       | Key                          | Value                |
@@ -90,6 +88,7 @@ Feature: Tests for the trash bin
       | rebasedContentStreamId      | "rebased-user-cs-id" |
       | rebaseErrorHandlingStrategy | "force"              |
 
+  Scenario: Restore soft removed content in the workspace it was removed in
     When the command UntagSubtree is executed with payload:
       | Key                          | Value                |
       | workspaceName                | "review-workspace"   |
@@ -108,11 +107,64 @@ Feature: Tests for the trash bin
       | nodingers-cat   | initiating-user-identifier | 2025-06-24T15:56:25+00:00 | [{"example":"source"},{"example":"special"}] |
 
     When the command RebaseWorkspace is executed with payload:
-      | Key                         | Value                |
-      | workspaceName               | "user-workspace"     |
+      | Key                         | Value                  |
+      | workspaceName               | "user-workspace"       |
       | rebasedContentStreamId      | "rebased-user-cs-id-2" |
-      | rebaseErrorHandlingStrategy | "force"              |
+      | rebaseErrorHandlingStrategy | "force"                |
 
     And I expect the trash bin for workspace "user-workspace" to contain exactly the following items:
       | nodeAggregateId | userId                     | deleteTime                | affectedDimensionSpacePoints                 |
       | nodingers-cat   | initiating-user-identifier | 2025-06-24T15:56:25+00:00 | [{"example":"source"},{"example":"special"}] |
+
+  Scenario: Restore soft removed content in a workspace based on the one it was removed in
+    When the command UntagSubtree is executed with payload:
+      | Key                          | Value                |
+      | workspaceName                | "user-workspace"     |
+      | nodeAggregateId              | "nodingers-cat"      |
+      | coveredDimensionSpacePoint   | {"example":"peer"}   |
+      | nodeVariantSelectionStrategy | "allSpecializations" |
+      | tag                          | "removed"            |
+
+    Then I expect the trash bin for workspace "user-workspace" to contain exactly the following items:
+      | nodeAggregateId | userId                     | deleteTime                | affectedDimensionSpacePoints                 |
+      | nodingers-cat   | initiating-user-identifier | 2025-06-24T15:56:25+00:00 | [{"example":"source"},{"example":"special"}] |
+
+    And I expect the trash bin for workspace "review-workspace" to contain exactly the following items:
+      | nodeAggregateId | userId                     | deleteTime                | affectedDimensionSpacePoints                 |
+      | nodingers-cat   | initiating-user-identifier | 2025-06-26T07:10:15+00:00 | [{"example":"peer"}]                         |
+      | nodingers-cat   | initiating-user-identifier | 2025-06-24T15:56:25+00:00 | [{"example":"source"},{"example":"special"}] |
+
+    When the command PublishWorkspace is executed with payload:
+      | Key                | Value            |
+      | workspaceName      | "user-workspace" |
+      | newContentStreamId | "review-cs-id-2" |
+
+    And I expect the trash bin for workspace "review-workspace" to contain exactly the following items:
+      | nodeAggregateId | userId                     | deleteTime                | affectedDimensionSpacePoints                 |
+      | nodingers-cat   | initiating-user-identifier | 2025-06-24T15:56:25+00:00 | [{"example":"source"},{"example":"special"}] |
+
+  Scenario: Completely restore soft removed content
+    When the command UntagSubtree is executed with payload:
+      | Key                          | Value              |
+      | workspaceName                | "review-workspace" |
+      | nodeAggregateId              | "nodingers-cat"    |
+      | coveredDimensionSpacePoint   | {"example":"peer"} |
+      | nodeVariantSelectionStrategy | "allVariants"      |
+      | tag                          | "removed"          |
+
+    Then I expect the trash bin for workspace "user-workspace" to contain exactly the following items:
+      | nodeAggregateId | userId                     | deleteTime                | affectedDimensionSpacePoints                 |
+      | nodingers-cat   | initiating-user-identifier | 2025-06-26T07:10:15+00:00 | [{"example":"peer"}]                         |
+      | nodingers-cat   | initiating-user-identifier | 2025-06-24T15:56:25+00:00 | [{"example":"source"},{"example":"special"}] |
+
+    And I expect the trash bin for workspace "review-workspace" to contain exactly the following items:
+      | nodeAggregateId | userId | deleteTime | affectedDimensionSpacePoints |
+
+    When the command RebaseWorkspace is executed with payload:
+      | Key                         | Value                  |
+      | workspaceName               | "user-workspace"       |
+      | rebasedContentStreamId      | "rebased-user-cs-id-2" |
+      | rebaseErrorHandlingStrategy | "force"                |
+
+    And I expect the trash bin for workspace "user-workspace" to contain exactly the following items:
+      | nodeAggregateId | userId | deleteTime | affectedDimensionSpacePoints |

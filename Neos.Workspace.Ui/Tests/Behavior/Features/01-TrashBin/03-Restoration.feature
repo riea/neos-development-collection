@@ -1,4 +1,4 @@
-Feature: Tests for the trash bin
+Feature: Tests for restoration from the trash bin
 
   Background:
     Given using the following content dimensions:

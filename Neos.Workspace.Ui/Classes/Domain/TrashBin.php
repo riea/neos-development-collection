@@ -14,10 +14,15 @@ declare(strict_types=1);
 
 namespace Neos\Workspace\Ui\Domain;
 
+use Neos\ContentRepository\Core\DimensionSpace\OriginDimensionSpacePoint;
+use Neos\ContentRepository\Core\Projection\ContentGraph\Filter\SearchTerm\SearchTerm;
+use Neos\ContentRepository\Core\Projection\ContentGraph\Filter\SearchTerm\SearchTermMatcher;
 use Neos\ContentRepository\Core\SharedModel\ContentRepository\ContentRepositoryId;
+use Neos\ContentRepository\Core\SharedModel\Node\NodeAggregateIds;
 use Neos\ContentRepository\Core\SharedModel\Workspace\WorkspaceName;
 use Neos\ContentRepositoryRegistry\ContentRepositoryRegistry;
 use Neos\Flow\Annotations as Flow;
+use Neos\Neos\Domain\SubtreeTagging\NeosSubtreeTag;
 use Neos\Workspace\Ui\Domain\TrashBin\TrashBinPagination;
 use Neos\Workspace\Ui\Domain\TrashBin\TrashBinSorting;
 use Neos\Workspace\Ui\Domain\TrashBin\TrashItemFinder;
@@ -39,10 +44,31 @@ class TrashBin
         ContentRepositoryId $contentRepositoryId,
         WorkspaceName $workspaceName,
         TrashBinSorting $sorting,
-        TrashBinPagination $pagination
+        TrashBinPagination $pagination,
+        ?SearchTerm $searchTerm,
     ): TrashItems {
-        return $this->contentRepositoryRegistry->get($contentRepositoryId)
+        $contentRepository = $this->contentRepositoryRegistry->get($contentRepositoryId);
+        $filterToNodeAggregateIds = null;
+        if ($searchTerm) {
+            $filterToNodeAggregateIds = [];
+            foreach (
+                $contentRepository->getContentGraph($workspaceName)
+                    ->findNodeAggregatesTaggedBy(NeosSubtreeTag::removed()) as $taggedNodeAggregate
+            ) {
+                foreach ($taggedNodeAggregate->getCoveredDimensionsTaggedBy(NeosSubtreeTag::removed(), true) as $taggedDimensionSpacePoint) {
+                    $taggedOrigin = OriginDimensionSpacePoint::fromDimensionSpacePoint($taggedDimensionSpacePoint);
+                    if ($taggedNodeAggregate->occupiesDimensionSpacePoint($taggedOrigin)) {
+                        $removedNode = $taggedNodeAggregate->getNodeByOccupiedDimensionSpacePoint($taggedOrigin);
+                        if (SearchTermMatcher::matchesNode($removedNode, $searchTerm)) {
+                            $filterToNodeAggregateIds[$removedNode->aggregateId->value] = $removedNode->aggregateId;
+                        }
+                    }
+                }
+            }
+            $filterToNodeAggregateIds = NodeAggregateIds::fromArray(array_values($filterToNodeAggregateIds));
+        }
+        return $contentRepository
             ->projectionState(TrashItemFinder::class)
-            ->findItemsByWorkspaceNameWithParameters($workspaceName, $sorting, $pagination);
+            ->findItemsByWorkspaceNameWithParameters($workspaceName, $sorting, $pagination, $filterToNodeAggregateIds);
     }
 }

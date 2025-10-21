@@ -23,7 +23,6 @@ final readonly class TrashBinPagination implements \JsonSerializable, ProtectedC
     public function __construct(
         public int $offset,
         public ?int $limit,
-        public int $totalCount,
     ) {
         if ($offset < 0) {
             throw new \InvalidArgumentException('Trash bin pagination offset cannot be negative', 1750759093);
@@ -35,17 +34,15 @@ final readonly class TrashBinPagination implements \JsonSerializable, ProtectedC
 
     public static function default(): self
     {
-        //@todo: totalCount should not be set here
         return new self(
             offset: 0,
             limit: 20,
-            totalCount: 400,
         );
     }
 
-    public static function create(int $offset, ?int $limit, int $totalCount): self
+    public static function create(int $offset, ?int $limit): self
     {
-        return new self($offset, $limit, $totalCount);
+        return new self($offset, $limit);
     }
 
     /**
@@ -53,10 +50,10 @@ final readonly class TrashBinPagination implements \JsonSerializable, ProtectedC
      */
     public static function fromArray(array $array): self
     {
+        $limit = $array['limit'];
         return new self(
             offset: (int)$array['offset'],
-            limit: (int)$array['limit'],
-            totalCount: (int)$array['totalCount'],
+            limit: $limit === null ? null : (int)$limit,
         );
     }
 
@@ -65,7 +62,6 @@ final readonly class TrashBinPagination implements \JsonSerializable, ProtectedC
         return new self(
             offset: $offset,
             limit: $this->limit,
-            totalCount: $this->totalCount,
         );
     }
 

@@ -14,10 +14,14 @@ declare(strict_types=1);
 
 namespace Neos\Workspace\Ui\Domain\TrashBin;
 
+use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
+use Doctrine\DBAL\Types\Type;
+use Doctrine\DBAL\Types\Types;
 use Neos\ContentRepository\Core\DimensionSpace\DimensionSpacePointSet;
 use Neos\ContentRepository\Core\Projection\ProjectionStateInterface;
 use Neos\ContentRepository\Core\SharedModel\Node\NodeAggregateId;
+use Neos\ContentRepository\Core\SharedModel\Node\NodeAggregateIds;
 use Neos\ContentRepository\Core\SharedModel\Workspace\WorkspaceName;
 use Neos\Neos\Domain\Model\UserId;
 
@@ -35,9 +39,12 @@ class TrashItemFinder implements ProjectionStateInterface
     public function findItemsByWorkspaceNameWithParameters(
         WorkspaceName $workspaceName,
         TrashBinSorting $sorting,
-        TrashBinPagination $pagination
+        TrashBinPagination $pagination,
+        ?NodeAggregateIds $filterToNodeAggregateIds,
     ): TrashItems {
-        $query = 'SELECT * FROM ' . $this->itemTableName . ' WHERE workspace_name = :workspaceName
+        $query = 'SELECT * FROM ' . $this->itemTableName . ' WHERE workspace_name = :workspaceName ' . (
+                $filterToNodeAggregateIds ? ' AND node_aggregate_id IN (:nodeAggregateIds) ' : ''
+            ) . '
                 ORDER BY ' . match ($sorting->propertyName) {
                 TrashBinSortingPropertyName::SORTING_PROPERTY_DELETE_TIME => 'delete_time',
             } . ' ' . match ($sorting->direction) {
@@ -53,7 +60,11 @@ class TrashItemFinder implements ProjectionStateInterface
         $records = $this->connection->executeQuery(
             $query,
             [
-                'workspaceName' => $workspaceName->value
+                'workspaceName' => $workspaceName->value,
+                'nodeAggregateIds' => $filterToNodeAggregateIds?->toStringArray(),
+            ],
+            [
+                'nodeAggregateIds' => ArrayParameterType::STRING
             ]
         )->fetchAllAssociative();
 

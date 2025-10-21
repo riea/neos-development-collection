@@ -21,6 +21,7 @@ use Neos\ContentRepository\Core\DimensionSpace\OriginDimensionSpacePointSet;
 use Neos\ContentRepository\Core\Feature\NodeRemoval\Command\RemoveNodeAggregate;
 use Neos\ContentRepository\Core\Feature\SubtreeTagging\Command\UntagSubtree;
 use Neos\ContentRepository\Core\Projection\ContentGraph\Filter\FindAncestorNodesFilter;
+use Neos\ContentRepository\Core\Projection\ContentGraph\Filter\SearchTerm\SearchTerm;
 use Neos\ContentRepository\Core\Projection\ContentGraph\Node;
 use Neos\ContentRepository\Core\Projection\ContentGraph\VisibilityConstraints;
 use Neos\ContentRepository\Core\SharedModel\Node\NodeAddress;
@@ -102,7 +103,7 @@ class RestoreController extends AbstractModuleController
     /**
      * Display a list of unpublished content
      */
-    public function showAction(WorkspaceName $workspaceName, TrashBinSorting|null $sorting = null, TrashBinPagination|null $pagination = null): void
+    public function showAction(WorkspaceName $workspaceName, TrashBinSorting|null $sorting = null, TrashBinPagination|null $pagination = null, ?SearchTerm $searchTerm = null): void
     {
         $sorting ??= TrashBinSorting::default();
         $pagination ??= TrashBinPagination::default();
@@ -115,10 +116,11 @@ class RestoreController extends AbstractModuleController
 
         $listItems = [];
         foreach ($this->trashBin->findItemsByWorkspaceNameWithParameters(
-            $contentRepositoryId,
-            $workspaceName,
-            $sorting,
-            $pagination
+            contentRepositoryId: $contentRepositoryId,
+            workspaceName: $workspaceName,
+            sorting: $sorting,
+            pagination: $pagination,
+            searchTerm: $searchTerm,
         ) as $trashBinItem) {
             $nodeAggregate = $contentGraph->findNodeAggregateById($trashBinItem->nodeAggregateId);
             $details = [];

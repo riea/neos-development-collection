@@ -201,7 +201,7 @@ Feature: Tag and untag nodes after moving their children in or out
       | Key                          | Value                    |
       | nodeAggregateId              | "sir-david-nodenborough" |
       | coveredDimensionSpacePoint   | {"example": "source"}    |
-      | nodeVariantSelectionStrategy | "scatter"                |
+      | nodeVariantSelectionStrategy | "allVariants"            |
       | tag                          | "my-tag"                 |
     And the command TagSubtree is executed with payload:
       | Key                          | Value                        |
@@ -534,10 +534,10 @@ Feature: Tag and untag nodes after moving their children in or out
 
     And I am in dimension space point {"example": "general"}
     Then I expect node aggregate identifier "nody-mc-nodeface" to lead to node cs-identifier;nody-mc-nodeface;{"example":"general"}
-    And I expect this node to exactly inherit the tags ""
+    And I expect this node to exactly inherit the tags "my-tag"
     And I expect this node to be exactly explicitly tagged ""
     And I expect node aggregate identifier "nodimus-mediocre" to lead to node cs-identifier;nodimus-mediocre;{"example":"general"}
-    And I expect this node to exactly inherit the tags ""
+    And I expect this node to exactly inherit the tags "my-tag"
     And I expect this node to be exactly explicitly tagged ""
 
     And I am in dimension space point {"example": "source"}
@@ -550,10 +550,10 @@ Feature: Tag and untag nodes after moving their children in or out
 
     And I am in dimension space point {"example": "peer"}
     Then I expect node aggregate identifier "nody-mc-nodeface" to lead to node cs-identifier;nody-mc-nodeface;{"example":"general"}
-    And I expect this node to exactly inherit the tags ""
+    And I expect this node to exactly inherit the tags "my-tag"
     And I expect this node to be exactly explicitly tagged ""
     And I expect node aggregate identifier "nodimus-mediocre" to lead to node cs-identifier;nodimus-mediocre;{"example":"general"}
-    And I expect this node to exactly inherit the tags ""
+    And I expect this node to exactly inherit the tags "my-tag"
     And I expect this node to be exactly explicitly tagged ""
 
     And I am in dimension space point {"example": "spec"}
@@ -843,7 +843,7 @@ Feature: Tag and untag nodes after moving their children in or out
       | Key                          | Value                    |
       | nodeAggregateId              | "sir-david-nodenborough" |
       | coveredDimensionSpacePoint   | {"example": "source"}    |
-      | nodeVariantSelectionStrategy | "scatter"                |
+      | nodeVariantSelectionStrategy | "allVariants"            |
       | tag                          | "my-tag"                 |
     And the command TagSubtree is executed with payload:
       | Key                          | Value                        |
@@ -1164,7 +1164,7 @@ Feature: Tag and untag nodes after moving their children in or out
       | Key                          | Value                        |
       | dimensionSpacePoint          | {"example": "source"}        |
       | nodeAggregateId              | "nody-mc-nodeface"           |
-      | relationDistributionStrategy | "gatherSpecializations"      |
+      | relationDistributionStrategy | "gatherAll"                  |
       | newParentNodeAggregateId     | "sir-nodeward-nodington-iii" |
 
     And the command TagSubtree is executed with payload:
@@ -1244,10 +1244,10 @@ Feature: Tag and untag nodes after moving their children in or out
 
     And I am in dimension space point {"example": "source"}
     Then I expect node aggregate identifier "nody-mc-nodeface" to lead to node cs-identifier;nody-mc-nodeface;{"example":"general"}
-    And I expect this node to exactly inherit the tags ""
+    And I expect this node to exactly inherit the tags "my-tag"
     And I expect this node to be exactly explicitly tagged ""
     And I expect node aggregate identifier "nodimus-mediocre" to lead to node cs-identifier;nodimus-mediocre;{"example":"general"}
-    And I expect this node to exactly inherit the tags ""
+    And I expect this node to exactly inherit the tags "my-tag"
     And I expect this node to be exactly explicitly tagged ""
 
     And I am in dimension space point {"example": "peer"}
@@ -1260,10 +1260,10 @@ Feature: Tag and untag nodes after moving their children in or out
 
     And I am in dimension space point {"example": "spec"}
     Then I expect node aggregate identifier "nody-mc-nodeface" to lead to node cs-identifier;nody-mc-nodeface;{"example":"general"}
-    And I expect this node to exactly inherit the tags ""
+    And I expect this node to exactly inherit the tags "my-tag"
     And I expect this node to be exactly explicitly tagged ""
     And I expect node aggregate identifier "nodimus-mediocre" to lead to node cs-identifier;nodimus-mediocre;{"example":"general"}
-    And I expect this node to exactly inherit the tags ""
+    And I expect this node to exactly inherit the tags "my-tag"
     And I expect this node to be exactly explicitly tagged ""
 
   Scenario: Move a child node in via gatherAll strategy, then untag the parent and all its variants

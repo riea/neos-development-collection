@@ -431,6 +431,9 @@
       <trans-unit id="restore.syncWorkspace" xml:space="preserve">
 				<source>Sync workspace</source>
 			</trans-unit>
+        <trans-unit id="restore.searchTerm" xml:space="preserve">
+			<source>Search</source>
+		</trans-unit>
     </body>
   </file>
 </xliff>

@@ -13,11 +13,40 @@ prototype(Neos.Workspace.Ui:Component.Pagination) < prototype(Neos.Fusion:Compon
 
   @private {
     i18n = ${I18n.id('').source('Main').package('Neos.Workspace.Ui')}
+    paginationBackUri = Neos.Fusion:ActionUri {
+      action = 'show'
+      controller = 'Restore'
+      format = 'html'
+      arguments {
+        workspaceName = ${props.workspaceName}
+        page = ${currentPage - 1}
+      }
+    }
+    paginationNextUri = Neos.Fusion:ActionUri {
+      action = 'show'
+      controller = 'Restore'
+      format = 'html'
+      arguments {
+        workspaceName = ${props.workspaceName}
+        page = ${currentPage + 1}
+      }
+    }
   }
 
   renderer = afx`
     <div @if.hasMoreThanOnePage={props.numberOfPages > 1} class="page-navigation">
       <ul>
+        <li class="previous" @if.test={props.currentPage > 1}>
+          <a
+                  href="#"
+                  @if.isNotCurrent={!props.isCurrentPage}
+                  hx-get={private.paginationBackUri}
+                  hx-replace-url={private.paginationBackUri}
+                  hx-target="#workspace-module-content"
+                  hx-select="#workspace-module-content"
+                  hx-swap="outerHTML"
+          ></a>
+        </li>
         <Neos.Fusion:Loop items={Array.range(1, props.numberOfPages)} itemName="paginationItem">
           <Neos.Workspace.Ui:Component.PaginationItem
             workspaceName={props.workspaceName}
@@ -25,6 +54,17 @@ prototype(Neos.Workspace.Ui:Component.Pagination) < prototype(Neos.Fusion:Compon
             isCurrentPage={props.currentPage == paginationItem}
           />
         </Neos.Fusion:Loop>
+        <li class="next" @if.test={props.currentPage < props.numberOfPages}>
+          <a
+                  href="#"
+                  @if.isNotCurrent={!props.isCurrentPage}
+                  hx-get={private.paginationNextUri}
+                  hx-replace-url={private.paginationNextUri}
+                  hx-target="#workspace-module-content"
+                  hx-select="#workspace-module-content"
+                  hx-swap="outerHTML"
+          ></a>
+        </li>
       </ul>
     </div>
   `

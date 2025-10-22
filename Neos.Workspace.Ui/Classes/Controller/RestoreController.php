@@ -87,7 +87,7 @@ class RestoreController extends AbstractModuleController
 
     #[Flow\Inject]
     protected WorkspaceService $workspaceService;
-
+    
     public function indexAction(): void
     {
         $currentUser = $this->userService->getCurrentUser();
@@ -103,13 +103,15 @@ class RestoreController extends AbstractModuleController
     /**
      * Display a list of unpublished content
      */
-    public function showAction(WorkspaceName $workspaceName, TrashBinSorting|null $sorting = null, int $page = 1, ?SearchTerm $searchTerm = null): void
+    public function showAction(WorkspaceName $workspaceName, TrashBinSorting|null $sorting = null, int $page = 1, string $searchTerm = ''): void
     {
+        $searchTermObject = SearchTerm::fulltext($searchTerm);
+        
         $contentRepositoryId = SiteDetectionResult::fromRequest($this->request->getHttpRequest())->contentRepositoryId;
         $contentRepository = $this->contentRepositoryRegistry->get($contentRepositoryId);
         $sorting ??= TrashBinSorting::default();
         
-        $numberOfItems =  $this->trashBin->countItemsByWorkspaceName($contentRepositoryId, $workspaceName, $searchTerm);
+        $numberOfItems =  $this->trashBin->countItemsByWorkspaceName($contentRepositoryId, $workspaceName, $searchTermObject);
         $offset =  ($page -1) * TrashBinPagination::DEFAULT_LIMIT;
         $pagination ??= TrashBinPagination::create($offset, TrashBinPagination::DEFAULT_LIMIT);
         
@@ -124,7 +126,7 @@ class RestoreController extends AbstractModuleController
             workspaceName: $workspaceName,
             sorting: $sorting,
             pagination: $pagination,
-            searchTerm: $searchTerm,
+            searchTerm: $searchTermObject,
         ) as $trashBinItem) {
             $nodeAggregate = $contentGraph->findNodeAggregateById($trashBinItem->nodeAggregateId);
             $details = [];
@@ -182,7 +184,7 @@ class RestoreController extends AbstractModuleController
                 )->isEmpty(),
             );
         }
-
+        
         //@todo: check permissions for sync button?
         //@todo: make pagination work
         $this->view->assignMultiple([
@@ -192,6 +194,7 @@ class RestoreController extends AbstractModuleController
             'sorting' => $sorting,
             'currentPage' => $page,
             'numberOfPages' => ceil($numberOfItems / TrashBinPagination::DEFAULT_LIMIT),
+            'searchTerm' => $searchTerm,
             'enableSyncButton' => $this->isWorkspaceOutdated($workspaceName, $contentRepository),
             'enableRestoreButtons' => $this->authorizationService->getWorkspacePermissions(
                 $contentRepositoryId,

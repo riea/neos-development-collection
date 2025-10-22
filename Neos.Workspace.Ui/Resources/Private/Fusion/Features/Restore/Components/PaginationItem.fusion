@@ -2,9 +2,6 @@
 # Renders a pagination item
 #
 prototype(Neos.Workspace.Ui:Component.PaginationItem) < prototype(Neos.Fusion:Component) {
-  /// Neos\Workspace\Ui\Domain\TrashBin\TrashBinPagination
-  pagination = null
-
   /// string
   workspaceName = ''
 
@@ -14,9 +11,6 @@ prototype(Neos.Workspace.Ui:Component.PaginationItem) < prototype(Neos.Fusion:Co
   /// boolean
   isCurrentPage = false
 
-  /// integer
-  offset = 0
-
   @private {
     i18n = ${I18n.id('').source('Main').package('Neos.Workspace.Ui')}
     paginationItemUri = Neos.Fusion:ActionUri {
@@ -25,7 +19,7 @@ prototype(Neos.Workspace.Ui:Component.PaginationItem) < prototype(Neos.Fusion:Co
       format = 'html'
       arguments {
         workspaceName = ${props.workspaceName}
-        pagination = ${props.pagination.withOffset(props.offset)}
+        page = ${props.pageNumber}
       }
     }
   }

@@ -103,12 +103,16 @@ class RestoreController extends AbstractModuleController
     /**
      * Display a list of unpublished content
      */
-    public function showAction(WorkspaceName $workspaceName, TrashBinSorting|null $sorting = null, TrashBinPagination|null $pagination = null, ?SearchTerm $searchTerm = null): void
+    public function showAction(WorkspaceName $workspaceName, TrashBinSorting|null $sorting = null, int $page = 1, ?SearchTerm $searchTerm = null): void
     {
-        $sorting ??= TrashBinSorting::default();
-        $pagination ??= TrashBinPagination::default();
         $contentRepositoryId = SiteDetectionResult::fromRequest($this->request->getHttpRequest())->contentRepositoryId;
         $contentRepository = $this->contentRepositoryRegistry->get($contentRepositoryId);
+        $sorting ??= TrashBinSorting::default();
+        
+        $numberOfItems =  $this->trashBin->countItemsByWorkspaceName($contentRepositoryId, $workspaceName, $searchTerm);
+        $offset =  ($page -1) * TrashBinPagination::DEFAULT_LIMIT;
+        $pagination ??= TrashBinPagination::create($offset, TrashBinPagination::DEFAULT_LIMIT);
+        
         $contentGraph = $contentRepository->getContentGraph($workspaceName);
         $liveContentGraph = $contentRepository->getContentGraph(WorkspaceName::forLive());
 
@@ -186,7 +190,8 @@ class RestoreController extends AbstractModuleController
             'restoreListItems' => $listItems ? RestoreListItems::fromArray($listItems) : array(),
             'flashMessages' => $this->controllerContext->getFlashMessageContainer()->getMessagesAndFlush(),
             'sorting' => $sorting,
-            'pagination' => $pagination,
+            'currentPage' => $page,
+            'numberOfPages' => ceil($numberOfItems / TrashBinPagination::DEFAULT_LIMIT),
             'enableSyncButton' => $this->isWorkspaceOutdated($workspaceName, $contentRepository),
             'enableRestoreButtons' => $this->authorizationService->getWorkspacePermissions(
                 $contentRepositoryId,

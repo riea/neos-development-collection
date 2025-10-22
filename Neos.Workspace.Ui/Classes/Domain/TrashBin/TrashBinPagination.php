@@ -20,6 +20,8 @@ use Neos\Flow\Annotations as Flow;
 #[Flow\Proxy(false)]
 final readonly class TrashBinPagination implements \JsonSerializable, ProtectedContextAwareInterface
 {
+    public const DEFAULT_LIMIT = 20;
+    
     public function __construct(
         public int $offset,
         public ?int $limit,
@@ -36,7 +38,7 @@ final readonly class TrashBinPagination implements \JsonSerializable, ProtectedC
     {
         return new self(
             offset: 0,
-            limit: 20,
+            limit: self::DEFAULT_LIMIT,
         );
     }
 

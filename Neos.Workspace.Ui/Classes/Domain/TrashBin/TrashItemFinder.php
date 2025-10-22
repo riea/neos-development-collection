@@ -57,6 +57,7 @@ class TrashItemFinder implements ProjectionStateInterface
         if ($pagination->offset) {
             $query .= ' OFFSET ' . $pagination->offset;
         }
+        
         $records = $this->connection->executeQuery(
             $query,
             [
@@ -77,5 +78,29 @@ class TrashItemFinder implements ProjectionStateInterface
             ),
             $records,
         ));
+    }
+    
+    public function countItemsByWorkspaceName(
+        WorkspaceName $workspaceName,
+        ?NodeAggregateIds $filterToNodeAggregateIds
+    ): int
+    {
+        $query = 'SELECT count(*) count  FROM ' . $this->itemTableName .
+                 ' WHERE workspace_name = :workspaceName ' . (
+                    $filterToNodeAggregateIds ? ' AND node_aggregate_id IN (:nodeAggregateIds) ' : ''
+                );
+        
+        $records = $this->connection->executeQuery(
+            $query,
+            [
+                'workspaceName' => $workspaceName->value,
+                'nodeAggregateIds' => $filterToNodeAggregateIds?->toStringArray(),
+            ],
+            [
+                'nodeAggregateIds' => ArrayParameterType::STRING
+            ]
+        )->fetchAllAssociative();
+        
+        return $records[0]['count'];
     }
 }

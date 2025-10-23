@@ -114,6 +114,9 @@ class RestoreController extends AbstractModuleController
         $numberOfItems =  $this->trashBin->countItemsByWorkspaceName($contentRepositoryId, $workspaceName, $searchTermObject);
         $offset =  ($page -1) * TrashBinPagination::DEFAULT_LIMIT;
         $pagination ??= TrashBinPagination::create($offset, TrashBinPagination::DEFAULT_LIMIT);
+        $numberOfPages = (int)ceil($numberOfItems / TrashBinPagination::DEFAULT_LIMIT);
+        $displayPagination = $this->paginagtionRange($numberOfPages, $page);
+      
         
         $contentGraph = $contentRepository->getContentGraph($workspaceName);
         $liveContentGraph = $contentRepository->getContentGraph(WorkspaceName::forLive());
@@ -192,10 +195,8 @@ class RestoreController extends AbstractModuleController
             'restoreListItems' => $listItems ? RestoreListItems::fromArray($listItems) : array(),
             'flashMessages' => $this->controllerContext->getFlashMessageContainer()->getMessagesAndFlush(),
             'sorting' => $sorting,
-            'currentPage' => $page,
-            'numberOfPages' => ceil($numberOfItems / TrashBinPagination::DEFAULT_LIMIT),
             'searchTerm' => $searchTerm,
-            'hasMorePages' => TrashBinPagination::HASE_MORE_PAGES,
+            'pagination' => $displayPagination,
             'enableSyncButton' => $this->isWorkspaceOutdated($workspaceName, $contentRepository),
             'enableRestoreButtons' => $this->authorizationService->getWorkspacePermissions(
                 $contentRepositoryId,
@@ -204,6 +205,49 @@ class RestoreController extends AbstractModuleController
                 $this->userService->getCurrentUser()?->getId(),
             )->write
         ]);
+    }
+    
+    protected function paginagtionRange(int $numberOfPages, int $currentPage): array
+    {
+        $maximumNumberOfLinks = TrashBinPagination::MAXIMUM_NUMBER_OF_LINKS;
+        if ($maximumNumberOfLinks > $numberOfPages) {
+            $maximumNumberOfLinks = $numberOfPages;
+        }
+        $delta = floor($maximumNumberOfLinks / 2);
+        $displayRangeStart = $currentPage - $delta;
+        $displayRangeEnd = $currentPage + $delta + ($maximumNumberOfLinks % 2 === 0 ? 1 : 0);
+        if ($displayRangeStart < 1) {
+            $displayRangeEnd -= $displayRangeStart - 1;
+        }
+        if ($displayRangeEnd > $numberOfPages) {
+            $displayRangeStart -= ($displayRangeEnd - $numberOfPages);
+        }
+        $displayRangeStart = (integer)max($displayRangeStart, 1);
+        $displayRangeEnd = (integer)min($displayRangeEnd, $numberOfPages);
+        
+        $pages = [];
+        for ($i = $displayRangeStart; $i <= $displayRangeEnd; $i++) {
+            $pages[] = ['number' => $i, 'isCurrent' => ($i === $currentPage)];
+        }
+        
+        $pagination = [
+            'pages' => $pages,
+            'current' => $currentPage,
+            'numberOfPages' => $numberOfPages,
+            'displayRangeStart' => $displayRangeStart,
+            'displayRangeEnd' => $displayRangeEnd,
+            'hasLessPages' => $displayRangeStart > 2,
+            'hasMorePages' => $displayRangeEnd + 1 < $numberOfPages
+        ];
+        
+        if ($currentPage < $numberOfPages) {
+            $pagination['nextPage'] = $currentPage + 1;
+        }
+        if ($currentPage > 1) {
+            $pagination['previousPage'] = $currentPage - 1;
+        }
+        return $pagination;
+        
     }
 
     public function restoreNodeConfirmationAction(WorkspaceName $workspaceName, NodeAggregateId $nodeAggregateId): void

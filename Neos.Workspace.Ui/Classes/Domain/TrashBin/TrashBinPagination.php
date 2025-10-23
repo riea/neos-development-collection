@@ -22,7 +22,7 @@ final readonly class TrashBinPagination implements \JsonSerializable, ProtectedC
 {
     public const DEFAULT_LIMIT = 20;
     
-    public const HASE_MORE_PAGES = 99;
+    public const MAXIMUM_NUMBER_OF_LINKS = 99;
     
     public function __construct(
         public int $offset,

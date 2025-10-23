@@ -25,7 +25,7 @@ prototype(Neos.Workspace.Ui:Component.PaginationItem) < prototype(Neos.Fusion:Co
   }
 
   renderer = afx`
-    <li class="current" @if.isCurrent={props.isCurrentPage}>
+    <li class={props.isCurrentPage ? 'current' : ''}>
       <a
         href="#"
         @if.isNotCurrent={!props.isCurrentPage}

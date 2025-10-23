@@ -91,7 +91,7 @@ final class ContentRepository
      */
     public function handle(CommandInterface $command): void
     {
-        $this->tracer->span('ContentRepository::handle', ['c' => get_class($command)], function() use ($command) {
+        $this->tracer->span('ContentRepository::handle', ['c' => get_class($command)], function () use ($command) {
             $command = $this->commandHook->onBeforeHandle($command);
             $this->tracer->mark('CommandHook::onBeforeHandle');
 
@@ -101,7 +101,7 @@ final class ContentRepository
                 throw AccessDenied::becauseCommandIsNotGranted($command, $privilege->getReason());
             }
             $toPublish = $this->commandBus->handle($command);
-            $this->tracer->mark('CommandBus::handle');;
+            $this->tracer->mark('CommandBus::handle');
 
             $correlationId = CorrelationId::fromString(sprintf('%s_%s', substr($command::class, strrpos($command::class, '\\') + 1, 20), bin2hex(random_bytes(9))));
 

@@ -44,8 +44,8 @@ final class SubscriptionEngine
         private readonly SubscriptionStoreInterface $subscriptionStore,
         private readonly Subscribers $subscribers,
         private readonly EventNormalizer $eventNormalizer,
-        private readonly LoggerInterface|null $logger = null,
         private readonly TracerInterface $tracer,
+        private readonly LoggerInterface|null $logger = null,
     ) {
     }
 
@@ -273,7 +273,7 @@ final class SubscriptionEngine
      */
     private function catchUpSubscriptions(SubscriptionEngineCriteria $criteria, SubscriptionStatusFilter $status, \Closure|null $progressCallback, int|null $batchSize): ProcessedResult
     {
-        return $this->tracer->span('SubscriptionEngine::catchUpSubscriptions', [], function() use ($criteria, $status, $progressCallback, $batchSize) {
+        return $this->tracer->span('SubscriptionEngine::catchUpSubscriptions', [], function () use ($criteria, $status, $progressCallback, $batchSize) {
             if ($batchSize !== null && $batchSize <= 0) {
                 throw new \InvalidArgumentException(sprintf('Invalid batchSize %d specified, must be either NULL or a positive integer.', $batchSize), 1733597950);
             }

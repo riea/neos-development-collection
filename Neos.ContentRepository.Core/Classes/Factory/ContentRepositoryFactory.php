@@ -114,7 +114,7 @@ final class ContentRepositoryFactory
         if ($tracer === null) {
             $tracer = new NullTracer();
         }
-        $this->subscriptionEngine = new SubscriptionEngine($this->eventStore, $subscriptionStore, Subscribers::fromArray($subscribers), $this->eventNormalizer, $logger, $tracer);
+        $this->subscriptionEngine = new SubscriptionEngine($this->eventStore, $subscriptionStore, Subscribers::fromArray($subscribers), $this->eventNormalizer, $tracer, $logger);
         $this->tracer = $tracer;
     }
 

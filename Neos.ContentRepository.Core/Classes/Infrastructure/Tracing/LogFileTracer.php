@@ -94,7 +94,10 @@ final class LogFileTracer implements TracerInterface
     private function ensureFileOpen(): void
     {
         if ($this->fileHandle === null) {
-            $this->fileHandle = fopen($this->logFilePath, 'a');
+            $fileHandle = fopen($this->logFilePath, 'a');
+            if (is_resource($fileHandle)) {
+                $this->fileHandle = $fileHandle;
+            }
             // NOTE: no error handling if there were problems opening the file; as we do not want the tracer to fail the normal processes
         }
 

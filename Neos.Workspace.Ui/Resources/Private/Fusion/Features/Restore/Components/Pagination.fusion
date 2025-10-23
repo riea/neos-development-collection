@@ -11,6 +11,9 @@ prototype(Neos.Workspace.Ui:Component.Pagination) < prototype(Neos.Fusion:Compon
   /// integer
   numberOfPages = 1
 
+  /// int
+  hasMorePages = 99
+
   @private {
     i18n = ${I18n.id('').source('Main').package('Neos.Workspace.Ui')}
     paginationBackUri = Neos.Fusion:ActionUri {
@@ -22,6 +25,7 @@ prototype(Neos.Workspace.Ui:Component.Pagination) < prototype(Neos.Fusion:Compon
         page = ${currentPage - 1}
       }
     }
+
     paginationNextUri = Neos.Fusion:ActionUri {
       action = 'show'
       controller = 'Restore'
@@ -31,12 +35,22 @@ prototype(Neos.Workspace.Ui:Component.Pagination) < prototype(Neos.Fusion:Compon
         page = ${currentPage + 1}
       }
     }
+
+    paginationLastUri = Neos.Fusion:ActionUri {
+      action = 'show'
+      controller = 'Restore'
+      format = 'html'
+      arguments {
+        workspaceName = ${props.workspaceName}
+        page = ${numberOfPages}
+      }
+    }
   }
 
   renderer = afx`
     <div @if.hasMoreThanOnePage={props.numberOfPages > 1} class="page-navigation">
       <ul>
-        <li class="previous" @if.test={props.currentPage > 1}>
+        <li class="previous" @if.showPrevious={props.currentPage > 1}>
           <a
                   href="#"
                   @if.isNotCurrent={!props.isCurrentPage}
@@ -47,14 +61,30 @@ prototype(Neos.Workspace.Ui:Component.Pagination) < prototype(Neos.Fusion:Compon
                   hx-swap="outerHTML"
           ></a>
         </li>
+
         <Neos.Fusion:Loop items={Array.range(1, props.numberOfPages)} itemName="paginationItem">
           <Neos.Workspace.Ui:Component.PaginationItem
-            workspaceName={props.workspaceName}
-            pageNumber={paginationItem}
+                  workspaceName={props.workspaceName}
+                  pageNumber={paginationItem}
             isCurrentPage={props.currentPage == paginationItem}
           />
         </Neos.Fusion:Loop>
-        <li class="next" @if.test={props.currentPage < props.numberOfPages}>
+
+        <li @if.hasMorePages={props.numberOfPages > props.hasMorePages}>...</li>
+
+        <li class="last" @if.hasMorePages={props.numberOfPages > props.hasMorePages}>
+          <a
+                  href="#"
+                  @if.isNotCurrent={!props.isCurrentPage}
+                  hx-get={private.paginationLastUri}
+                  hx-replace-url={private.paginationLastUri}
+                  hx-target="#workspace-module-content"
+                  hx-select="#workspace-module-content"
+                  hx-swap="outerHTML"
+          >{props.numberOfPages}</a>
+        </li>
+
+        <li class="next" @if.showNext={props.currentPage < props.numberOfPages}>
           <a
                   href="#"
                   @if.isNotCurrent={!props.isCurrentPage}

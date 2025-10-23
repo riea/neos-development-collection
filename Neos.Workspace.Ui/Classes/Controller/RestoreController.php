@@ -195,6 +195,7 @@ class RestoreController extends AbstractModuleController
             'currentPage' => $page,
             'numberOfPages' => ceil($numberOfItems / TrashBinPagination::DEFAULT_LIMIT),
             'searchTerm' => $searchTerm,
+            'hasMorePages' => TrashBinPagination::HASE_MORE_PAGES,
             'enableSyncButton' => $this->isWorkspaceOutdated($workspaceName, $contentRepository),
             'enableRestoreButtons' => $this->authorizationService->getWorkspacePermissions(
                 $contentRepositoryId,

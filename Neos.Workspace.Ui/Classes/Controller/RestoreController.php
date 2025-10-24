@@ -87,7 +87,7 @@ class RestoreController extends AbstractModuleController
 
     #[Flow\Inject]
     protected WorkspaceService $workspaceService;
-    
+
     public function indexAction(): void
     {
         $currentUser = $this->userService->getCurrentUser();
@@ -105,19 +105,19 @@ class RestoreController extends AbstractModuleController
      */
     public function showAction(WorkspaceName $workspaceName, TrashBinSorting|null $sorting = null, int $page = 1, string $searchTerm = ''): void
     {
-        $searchTermObject = SearchTerm::fulltext($searchTerm);
-        
+        $searchTermObject = $searchTerm ? SearchTerm::fulltext($searchTerm) : null;
+
         $contentRepositoryId = SiteDetectionResult::fromRequest($this->request->getHttpRequest())->contentRepositoryId;
         $contentRepository = $this->contentRepositoryRegistry->get($contentRepositoryId);
         $sorting ??= TrashBinSorting::default();
-        
+
         $numberOfItems =  $this->trashBin->countItemsByWorkspaceName($contentRepositoryId, $workspaceName, $searchTermObject);
         $offset =  ($page -1) * TrashBinPagination::DEFAULT_LIMIT;
         $pagination ??= TrashBinPagination::create($offset, TrashBinPagination::DEFAULT_LIMIT);
         $numberOfPages = (int)ceil($numberOfItems / TrashBinPagination::DEFAULT_LIMIT);
         $displayPagination = $this->paginagtionRange($numberOfPages, $page);
-      
-        
+
+
         $contentGraph = $contentRepository->getContentGraph($workspaceName);
         $liveContentGraph = $contentRepository->getContentGraph(WorkspaceName::forLive());
 
@@ -187,7 +187,7 @@ class RestoreController extends AbstractModuleController
                 )->isEmpty(),
             );
         }
-        
+
         //@todo: check permissions for sync button?
         //@todo: make pagination work
         $this->view->assignMultiple([
@@ -206,7 +206,7 @@ class RestoreController extends AbstractModuleController
             )->write
         ]);
     }
-    
+
     protected function paginagtionRange(int $numberOfPages, int $currentPage): array
     {
         $maximumNumberOfLinks = TrashBinPagination::MAXIMUM_NUMBER_OF_LINKS;
@@ -224,12 +224,12 @@ class RestoreController extends AbstractModuleController
         }
         $displayRangeStart = (integer)max($displayRangeStart, 1);
         $displayRangeEnd = (integer)min($displayRangeEnd, $numberOfPages);
-        
+
         $pages = [];
         for ($i = $displayRangeStart; $i <= $displayRangeEnd; $i++) {
             $pages[] = ['number' => $i, 'isCurrent' => ($i === $currentPage)];
         }
-        
+
         $pagination = [
             'pages' => $pages,
             'current' => $currentPage,
@@ -239,7 +239,7 @@ class RestoreController extends AbstractModuleController
             'hasLessPages' => $displayRangeStart > 2,
             'hasMorePages' => $displayRangeEnd + 1 < $numberOfPages
         ];
-        
+
         if ($currentPage < $numberOfPages) {
             $pagination['nextPage'] = $currentPage + 1;
         }
@@ -247,7 +247,7 @@ class RestoreController extends AbstractModuleController
             $pagination['previousPage'] = $currentPage - 1;
         }
         return $pagination;
-        
+
     }
 
     public function restoreNodeConfirmationAction(WorkspaceName $workspaceName, NodeAggregateId $nodeAggregateId): void

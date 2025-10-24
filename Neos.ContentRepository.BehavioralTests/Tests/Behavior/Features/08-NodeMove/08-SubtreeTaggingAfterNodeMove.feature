@@ -14,6 +14,23 @@ Feature: Tag and untag nodes after moving their children in or out
   the parent in
   - allSpecializations
   - allVariants
+  Idea for testing TAGGING ("... then tag the parent ..."):
+  - lady-eleonode-rootford
+  -- sir-david-nodenborough  <-- (2) Tag
+  --- nody-mc-nodeface       <-- (1) Move Source
+  ---- nodimus-mediocre
+  -- sir-nodeward-nodington-iii
+  --- nodimus-prime
+  --- .....................  <-- (1) Move Target
+
+  Idea for testing UNTAGGING ("... then untag the parent ..."):
+  - lady-eleonode-rootford
+  -- sir-david-nodenborough  <-- (1) Tag         (3) untag
+  --- nody-mc-nodeface       <-- (1) Move Source
+  ---- nodimus-mediocre
+  -- sir-nodeward-nodington-iii <-- (1) Tag
+  --- nodimus-prime
+  --- .....................  <-- (1) Move Target
 
   Background:
     Given using the following content dimensions:

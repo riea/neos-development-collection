@@ -11,6 +11,9 @@ prototype(Neos.Workspace.Ui:Component.PaginationItem) < prototype(Neos.Fusion:Co
   /// boolean
   isCurrentPage = false
 
+  /// string
+  searchTerm = ''
+
   @private {
     i18n = ${I18n.id('').source('Main').package('Neos.Workspace.Ui')}
     paginationItemUri = Neos.Fusion:ActionUri {
@@ -20,6 +23,7 @@ prototype(Neos.Workspace.Ui:Component.PaginationItem) < prototype(Neos.Fusion:Co
       arguments {
         workspaceName = ${props.workspaceName}
         page = ${props.pageNumber}
+        searchTerm = ${props.searchTerm}
       }
     }
   }

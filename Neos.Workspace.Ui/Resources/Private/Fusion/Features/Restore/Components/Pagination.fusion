@@ -5,6 +5,8 @@ prototype(Neos.Workspace.Ui:Component.Pagination) < prototype(Neos.Fusion:Compon
   /// string
   workspaceName = ''
 
+  /// string
+  searchTerm = ''
 
   @private {
     i18n = ${I18n.id('').source('Main').package('Neos.Workspace.Ui')}
@@ -16,6 +18,7 @@ prototype(Neos.Workspace.Ui:Component.Pagination) < prototype(Neos.Fusion:Compon
       arguments {
         workspaceName = ${props.workspaceName}
         page = ${props.pagination.current - 1}
+        searchTerm = ${props.searchTerm}
       }
     }
 
@@ -26,6 +29,7 @@ prototype(Neos.Workspace.Ui:Component.Pagination) < prototype(Neos.Fusion:Compon
       arguments {
         workspaceName = ${props.workspaceName}
         page = ${props.pagination.current + 1}
+        searchTerm = ${props.searchTerm}
       }
     }
 
@@ -36,6 +40,7 @@ prototype(Neos.Workspace.Ui:Component.Pagination) < prototype(Neos.Fusion:Compon
       arguments {
         workspaceName = ${props.workspaceName}
         page = 1
+        searchTerm = ${props.searchTerm}
       }
     }
 
@@ -46,6 +51,7 @@ prototype(Neos.Workspace.Ui:Component.Pagination) < prototype(Neos.Fusion:Compon
       arguments {
         workspaceName = ${props.workspaceName}
         page = ${props.pagination.numberOfPages}
+        searchTerm = ${props.searchTerm}
       }
     }
   }
@@ -82,6 +88,7 @@ prototype(Neos.Workspace.Ui:Component.Pagination) < prototype(Neos.Fusion:Compon
                   workspaceName={props.workspaceName}
                   pageNumber={paginationItem.number}
                   isCurrentPage={paginationItem.isCurrent}
+                  searchTerm={props.searchTerm}
           />
         </Neos.Fusion:Loop>
 

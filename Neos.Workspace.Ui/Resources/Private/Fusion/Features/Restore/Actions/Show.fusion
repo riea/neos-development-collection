@@ -95,6 +95,7 @@ Neos.Workspace.Ui.RestoreController.show = Neos.Fusion:Component {
           <Neos.Workspace.Ui:Component.Pagination
             workspaceName={props.workspaceName}
             pagination={props.pagination}
+            searchTerm={props.searchTerm}
           />
           <p @if.hasNoListItems={!props.restoreListItems}>
             {props.i18n.id('restore.noDeletedElements')}

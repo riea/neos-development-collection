@@ -15,6 +15,11 @@ final readonly class TrashBinSorting implements \JsonSerializable
     ) {
     }
 
+    public function getWithInvertedSorting(): self
+    {
+        return new self($this->propertyName, $this->direction->invert());
+    }
+
     /**
      * @param array<mixed> $array
      */
@@ -24,6 +29,11 @@ final readonly class TrashBinSorting implements \JsonSerializable
             propertyName: TrashBinSortingPropertyName::from($array['propertyName']),
             direction: TrashBinSortingDirection::from($array['direction']),
         );
+    }
+
+    public static function fromJsonString(string $jsonString): self
+    {
+        return self::fromArray(\json_decode($jsonString, true, 512, JSON_THROW_ON_ERROR));
     }
 
     public static function default(): self

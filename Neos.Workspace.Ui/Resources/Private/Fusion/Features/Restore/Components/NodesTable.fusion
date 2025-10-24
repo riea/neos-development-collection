@@ -7,16 +7,26 @@ prototype(Neos.Workspace.Ui:Component.NodesTable) < prototype(Neos.Fusion:Compon
   /// Neos\Workspace\Ui\Domain\Sorting
   sorting = null
 
+  /// string
   workspaceName = ''
+
+  /// int
+  currentPage = 1
+
+  // string
+  searchTerm = ''
 
   @private {
     i18n = ${I18n.id('').source('Main').package('Neos.Workspace.Ui')}
-    baseUri = Neos.Fusion:ActionUri {
-      action = 'index'
+    sortUri = Neos.Fusion:ActionUri {
+      action = 'show'
+      controller = 'Restore'
       format = 'html'
       arguments {
-        // Todo hack convert to array manually, flows routing chokes on value objects: Tried to convert an object of type "Neos\Restore\Ui\Domain\Sorting" to an identity array, but it is unknown to the Persistence Manager.
-        sorting = ${sorting.withInvertedSorting().jsonSerialize()}
+        sorting = ${Json.stringify(props.sorting.withInvertedSorting)}
+        workspaceName = ${props.workspaceName}
+        page = ${props.currentPage}
+        searchTerm = ${props.searchTerm}
       }
     }
   }
@@ -30,13 +40,13 @@ prototype(Neos.Workspace.Ui:Component.NodesTable) < prototype(Neos.Fusion:Compon
           <button
             type="button"
             class="icon-button"
-            hx-get={private.baseUri}
-            hx-select="#restore-module-content"
-            hx-target="#restore-module-content"
+            hx-get={private.sortUri}
+            hx-select="#workspace-module-content"
+            hx-target="#workspace-module-content"
             hx-swap="outerHTML"
           >
             {private.i18n.id('restore.table.label')}
-            <Neos.Workspace.Ui:Component.Icon icon={props.sorting.sortAscending ? 'sort-alpha-down' : 'sort-alpha-up'}/>
+            <Neos.Workspace.Ui:Component.Icon icon={props.sorting.direction.value == 'asc' ? 'sort-alpha-down' : 'sort-alpha-up'}/>
           </button>
         </th>
         <th>{private.i18n.id('restore.table.dimensions')}</th>
@@ -46,7 +56,6 @@ prototype(Neos.Workspace.Ui:Component.NodesTable) < prototype(Neos.Fusion:Compon
       </tr>
       </thead>
       <tbody>
-
         <Neos.Fusion:Loop items={props.restoreListItems} itemName="restoreListItem">
           <Neos.Workspace.Ui:Component.NodesTableRow
             restorelistItem={restoreListItem}

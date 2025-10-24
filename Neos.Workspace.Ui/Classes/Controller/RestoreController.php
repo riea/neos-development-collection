@@ -103,13 +103,13 @@ class RestoreController extends AbstractModuleController
     /**
      * Display a list of unpublished content
      */
-    public function showAction(WorkspaceName $workspaceName, TrashBinSorting|null $sorting = null, int $page = 1, string $searchTerm = ''): void
+    public function showAction(WorkspaceName $workspaceName, ?string $sorting = null, int $page = 1, string $searchTerm = ''): void
     {
         $searchTermObject = $searchTerm ? SearchTerm::fulltext($searchTerm) : null;
 
         $contentRepositoryId = SiteDetectionResult::fromRequest($this->request->getHttpRequest())->contentRepositoryId;
         $contentRepository = $this->contentRepositoryRegistry->get($contentRepositoryId);
-        $sorting ??= TrashBinSorting::default();
+        $sortingObject = $sorting ? TrashBinSorting::fromJsonString($sorting) : TrashBinSorting::default();
 
         $numberOfItems =  $this->trashBin->countItemsByWorkspaceName($contentRepositoryId, $workspaceName, $searchTermObject);
         $offset =  ($page -1) * TrashBinPagination::DEFAULT_LIMIT;
@@ -127,7 +127,7 @@ class RestoreController extends AbstractModuleController
         foreach ($this->trashBin->findItemsByWorkspaceNameWithParameters(
             contentRepositoryId: $contentRepositoryId,
             workspaceName: $workspaceName,
-            sorting: $sorting,
+            sorting: $sortingObject,
             pagination: $pagination,
             searchTerm: $searchTermObject,
         ) as $trashBinItem) {
@@ -194,9 +194,10 @@ class RestoreController extends AbstractModuleController
             'workspaceName' => $workspaceName->value,
             'restoreListItems' => $listItems ? RestoreListItems::fromArray($listItems) : array(),
             'flashMessages' => $this->controllerContext->getFlashMessageContainer()->getMessagesAndFlush(),
-            'sorting' => $sorting,
+            'sorting' => $sortingObject,
             'searchTerm' => $searchTerm,
             'pagination' => $displayPagination,
+            'currentPage' => $page,
             'enableSyncButton' => $this->isWorkspaceOutdated($workspaceName, $contentRepository),
             'enableRestoreButtons' => $this->authorizationService->getWorkspacePermissions(
                 $contentRepositoryId,

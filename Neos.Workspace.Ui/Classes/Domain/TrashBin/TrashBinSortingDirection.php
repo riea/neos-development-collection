@@ -10,6 +10,13 @@ enum TrashBinSortingDirection: string implements \JsonSerializable
 
     case SORTING_ASCENDING = 'asc';
 
+    public function invert(): self
+    {
+        return match ($this) {
+            self::SORTING_DESCENDING => self::SORTING_ASCENDING,
+            self::SORTING_ASCENDING => self::SORTING_DESCENDING,
+        };
+    }
 
     public function jsonSerialize(): string
     {

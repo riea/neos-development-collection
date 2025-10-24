@@ -19,6 +19,9 @@ Neos.Workspace.Ui.RestoreController.show = Neos.Fusion:Component {
 
   pagination = ${pagination}
 
+  /// int
+  currentPage = ${currentPage}
+
   syncWorkspace = Neos.Fusion:UriBuilder {
     action = 'syncWorkspace'
     controller = 'Restore'
@@ -35,6 +38,7 @@ Neos.Workspace.Ui.RestoreController.show = Neos.Fusion:Component {
         workspaceName = ${workspaceName}
         page = 1
         searchTerm = ${searchTerm}
+        sorting = ${Json.stringify(sorting)}
     }
   }
 
@@ -46,6 +50,7 @@ Neos.Workspace.Ui.RestoreController.show = Neos.Fusion:Component {
         workspaceName = ${workspaceName}
         page = 1
         searchTerm = ''
+        sorting = ${Json.stringify(sorting)}
     }
   }
 
@@ -91,11 +96,14 @@ Neos.Workspace.Ui.RestoreController.show = Neos.Fusion:Component {
             restoreListItems={props.restoreListItems}
             workspaceName={props.workspaceName}
             sorting={props.sorting}
+            currentPage={props.currentPage}
+            searchTerm={props.searchTerm}
           />
           <Neos.Workspace.Ui:Component.Pagination
             workspaceName={props.workspaceName}
             pagination={props.pagination}
             searchTerm={props.searchTerm}
+            sorting={props.sorting}
           />
           <p @if.hasNoListItems={!props.restoreListItems}>
             {props.i18n.id('restore.noDeletedElements')}

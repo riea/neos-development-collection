@@ -14,6 +14,8 @@ prototype(Neos.Workspace.Ui:Component.PaginationItem) < prototype(Neos.Fusion:Co
   /// string
   searchTerm = ''
 
+  sorting = null
+
   @private {
     i18n = ${I18n.id('').source('Main').package('Neos.Workspace.Ui')}
     paginationItemUri = Neos.Fusion:ActionUri {
@@ -24,6 +26,7 @@ prototype(Neos.Workspace.Ui:Component.PaginationItem) < prototype(Neos.Fusion:Co
         workspaceName = ${props.workspaceName}
         page = ${props.pageNumber}
         searchTerm = ${props.searchTerm}
+        sorting = ${Json.stringify(props.sorting)}
       }
     }
   }

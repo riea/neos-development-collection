@@ -8,6 +8,8 @@ prototype(Neos.Workspace.Ui:Component.Pagination) < prototype(Neos.Fusion:Compon
   /// string
   searchTerm = ''
 
+  sorting = null
+
   @private {
     i18n = ${I18n.id('').source('Main').package('Neos.Workspace.Ui')}
 
@@ -19,6 +21,7 @@ prototype(Neos.Workspace.Ui:Component.Pagination) < prototype(Neos.Fusion:Compon
         workspaceName = ${props.workspaceName}
         page = ${props.pagination.current - 1}
         searchTerm = ${props.searchTerm}
+        sorting=${Json.stringify(props.sorting)}
       }
     }
 
@@ -30,6 +33,7 @@ prototype(Neos.Workspace.Ui:Component.Pagination) < prototype(Neos.Fusion:Compon
         workspaceName = ${props.workspaceName}
         page = ${props.pagination.current + 1}
         searchTerm = ${props.searchTerm}
+        sorting=${Json.stringify(props.sorting)}
       }
     }
 
@@ -41,6 +45,7 @@ prototype(Neos.Workspace.Ui:Component.Pagination) < prototype(Neos.Fusion:Compon
         workspaceName = ${props.workspaceName}
         page = 1
         searchTerm = ${props.searchTerm}
+        sorting=${Json.stringify(props.sorting)}
       }
     }
 
@@ -52,6 +57,7 @@ prototype(Neos.Workspace.Ui:Component.Pagination) < prototype(Neos.Fusion:Compon
         workspaceName = ${props.workspaceName}
         page = ${props.pagination.numberOfPages}
         searchTerm = ${props.searchTerm}
+        sorting=${Json.stringify(props.sorting)}
       }
     }
   }
@@ -89,6 +95,7 @@ prototype(Neos.Workspace.Ui:Component.Pagination) < prototype(Neos.Fusion:Compon
                   pageNumber={paginationItem.number}
                   isCurrentPage={paginationItem.isCurrent}
                   searchTerm={props.searchTerm}
+                  sorting={props.sorting}
           />
         </Neos.Fusion:Loop>
 

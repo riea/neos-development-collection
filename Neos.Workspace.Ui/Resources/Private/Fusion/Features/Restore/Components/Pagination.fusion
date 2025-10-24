@@ -9,6 +9,7 @@ prototype(Neos.Workspace.Ui:Component.Pagination) < prototype(Neos.Fusion:Compon
   searchTerm = ''
 
   sorting = null
+  pagination = null
 
   @private {
     i18n = ${I18n.id('').source('Main').package('Neos.Workspace.Ui')}
@@ -19,7 +20,7 @@ prototype(Neos.Workspace.Ui:Component.Pagination) < prototype(Neos.Fusion:Compon
       format = 'html'
       arguments {
         workspaceName = ${props.workspaceName}
-        page = ${props.pagination.current - 1}
+        page = ${props.pagination.previousPage}
         searchTerm = ${props.searchTerm}
         sorting=${Json.stringify(props.sorting)}
       }
@@ -31,9 +32,9 @@ prototype(Neos.Workspace.Ui:Component.Pagination) < prototype(Neos.Fusion:Compon
       format = 'html'
       arguments {
         workspaceName = ${props.workspaceName}
-        page = ${props.pagination.current + 1}
         searchTerm = ${props.searchTerm}
         sorting=${Json.stringify(props.sorting)}
+        page = ${props.pagination.nextPage}
       }
     }
 

@@ -102,6 +102,15 @@ Feature: If content streams are not in use anymore by the workspace, they can be
     When I am in workspace "user-test" and dimension space point {}
     Then I expect node aggregate identifier "root-node" to lead to node user-cs-identifier-new;root-node;{}
 
+    Then I expect the content stream pruner status output:
+    """
+    Okay. No dangling streams found
+
+    Removed content streams that can be pruned from the event stream
+      id: user-cs-identifier previous state: no longer in use
+    To prune the removed streams from the event stream run ./flow contentStream:pruneRemovedFromEventstream
+    """
+
   Scenario: no longer in use content streams can be cleaned up completely (simple case)
 
     When the command CreateWorkspace is executed with payload:

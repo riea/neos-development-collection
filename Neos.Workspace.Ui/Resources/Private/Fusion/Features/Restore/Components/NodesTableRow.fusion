@@ -24,7 +24,6 @@ prototype(Neos.Workspace.Ui:Component.NodesTableRow) < prototype(Neos.Fusion:Com
       action = 'hardDeleteConfirmation'
       format = 'htmx'
       arguments {
-        workspaceName = ${props.workspaceName}
         nodeAggregateId = ${props.restorelistItem.nodeAggregateId}
       }
     }

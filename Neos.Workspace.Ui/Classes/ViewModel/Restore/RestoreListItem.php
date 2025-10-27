@@ -34,4 +34,8 @@ final readonly class RestoreListItem
         public bool $enableHardRemovalButton,
     ) {
     }
+    
+    public function getNodeAggregateId(): string {
+        return $this->nodeAggregateId->jsonSerialize();
+    }
 }

@@ -87,7 +87,7 @@ class RestoreController extends AbstractModuleController
 
     #[Flow\Inject]
     protected WorkspaceService $workspaceService;
-
+    
     public function indexAction(): void
     {
         $currentUser = $this->userService->getCurrentUser();
@@ -116,8 +116,8 @@ class RestoreController extends AbstractModuleController
         $pagination ??= TrashBinPagination::create($offset, TrashBinPagination::DEFAULT_LIMIT);
         $numberOfPages = (int)ceil($numberOfItems / TrashBinPagination::DEFAULT_LIMIT);
         $displayPagination = $this->paginagtionRange($numberOfPages, $page);
-
-
+      
+        
         $contentGraph = $contentRepository->getContentGraph($workspaceName);
         $liveContentGraph = $contentRepository->getContentGraph(WorkspaceName::forLive());
 
@@ -131,11 +131,13 @@ class RestoreController extends AbstractModuleController
             pagination: $pagination,
             searchTerm: $searchTermObject,
         ) as $trashBinItem) {
+           
             $nodeAggregate = $contentGraph->findNodeAggregateById($trashBinItem->nodeAggregateId);
+            
             $details = [];
             foreach (
                 $nodeAggregate->occupiedDimensionSpacePoints->getIntersection(
-                    OriginDimensionSpacePointSet::fromDimensionSpacePointSet($trashBinItem->affectedDimensionSpacePoints)
+                OriginDimensionSpacePointSet::fromDimensionSpacePointSet($trashBinItem->affectedDimensionSpacePoints)
                 ) as $originDimensionSpacePoint
             ) {
                 $subgraph = $contentGraph->getSubgraph(
@@ -187,7 +189,7 @@ class RestoreController extends AbstractModuleController
                 )->isEmpty(),
             );
         }
-
+        
         //@todo: check permissions for sync button?
         //@todo: make pagination work
         $this->view->assignMultiple([
@@ -207,7 +209,7 @@ class RestoreController extends AbstractModuleController
             )->write
         ]);
     }
-
+    
     protected function paginagtionRange(int $numberOfPages, int $currentPage): array
     {
         $maximumNumberOfLinks = TrashBinPagination::MAXIMUM_NUMBER_OF_LINKS;
@@ -225,12 +227,12 @@ class RestoreController extends AbstractModuleController
         }
         $displayRangeStart = (integer)max($displayRangeStart, 1);
         $displayRangeEnd = (integer)min($displayRangeEnd, $numberOfPages);
-
+        
         $pages = [];
         for ($i = $displayRangeStart; $i <= $displayRangeEnd; $i++) {
             $pages[] = ['number' => $i, 'isCurrent' => ($i === $currentPage)];
         }
-
+        
         $pagination = [
             'pages' => $pages,
             'current' => $currentPage,
@@ -240,7 +242,7 @@ class RestoreController extends AbstractModuleController
             'hasLessPages' => $displayRangeStart > 2,
             'hasMorePages' => $displayRangeEnd + 1 < $numberOfPages
         ];
-
+        
         if ($currentPage < $numberOfPages) {
             $pagination['nextPage'] = $currentPage + 1;
         }
@@ -248,7 +250,6 @@ class RestoreController extends AbstractModuleController
             $pagination['previousPage'] = $currentPage - 1;
         }
         return $pagination;
-
     }
 
     public function restoreNodeConfirmationAction(WorkspaceName $workspaceName, NodeAggregateId $nodeAggregateId): void
@@ -306,14 +307,12 @@ class RestoreController extends AbstractModuleController
         $this->addFlashMessage($this->getModuleLabel('restore.feedback.hasBeenHardDeleted'));
         $this->forward('index');
     }
-
-    public function hardDeleteConfirmationAction(string $nodeAddressJson): void {
-
-        $nodeAddress = NodeAddress::fromJsonString($nodeAddressJson);
-
+    
+    public function hardDeleteConfirmationAction(NodeAggregateId $nodeAggregateId): void
+    {
         $this->view->assignMultiple([
-            'nodeAddress' => $nodeAddressJson,
-            'nodeLabel' => 'TODO Node Label'
+            'nodeAddress' => $nodeAggregateId->value,
+            'nodeLabel' => 'TODO Node Label',
         ]);
     }
 

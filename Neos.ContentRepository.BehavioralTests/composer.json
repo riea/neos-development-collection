@@ -10,7 +10,11 @@
         "GPL-3.0-or-later"
     ],
     "require": {
-        "neos/contentrepository-core": "self.version"
+        "neos/contentrepository-core": "self.version",
+        "phpunit/phpunit": "^9.6"
+    },
+    "require-dev": {
+        "brianium/paratest": "^6.11"
     },
     "autoload": {
         "psr-4": {

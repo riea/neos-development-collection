@@ -40,14 +40,13 @@ final class SubscriptionEngine
     private bool $processing = false;
 
     public function __construct(
-        private readonly EventStoreInterface         $eventStore,
-        private readonly SubscriptionStoreInterface  $subscriptionStore,
-        private readonly Subscribers                 $subscribers,
-        private readonly EventNormalizer             $eventNormalizer,
+        private readonly EventStoreInterface $eventStore,
+        private readonly SubscriptionStoreInterface $subscriptionStore,
+        private readonly Subscribers $subscribers,
+        private readonly EventNormalizer $eventNormalizer,
         private readonly ?PerformanceTracerInterface $performanceTracer,
-        private readonly LoggerInterface|null        $logger = null,
-    )
-    {
+        private readonly LoggerInterface|null $logger = null,
+    ) {
     }
 
     public function setup(SubscriptionEngineCriteria|null $criteria = null): Result
@@ -453,7 +452,6 @@ final class SubscriptionEngine
         } finally {
             $this->performanceTracer?->closeSpan();
         }
-
     }
 
     private function logCatchupHookError(Error $error): void

@@ -32,7 +32,6 @@ interface PerformanceTracerInterface
      *          $this->performanceTracer?->closeSpan();
      *      }
      *
-     * @template T
      * @param string $name A descriptive name for this span (e.g., "contentRepository::handle")
      * @param array<string, mixed> $params attributes to attach to the span (e.g., ['c' => 'CreateNode'])
      */

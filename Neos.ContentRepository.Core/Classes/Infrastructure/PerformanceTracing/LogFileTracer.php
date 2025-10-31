@@ -25,6 +25,9 @@ final class LogFileTracer implements PerformanceTracerInterface
     private bool $headerWritten = false;
     /** @var resource|null */
     private $fileHandle = null;
+    /**
+     * @var array<array{s: float, n: string}>
+     */
     private array $openSpans = [];
     private float $lastMarkTime = 0.0;
 
@@ -49,12 +52,15 @@ final class LogFileTracer implements PerformanceTracerInterface
 
         $this->openSpans[] = ['s' => $startTime, 'n' => $name];
         $this->lastMarkTime = $startTime;
-
     }
 
     public function closeSpan(): void
     {
         $this->ensureFileOpen();
+
+        if (empty($this->openSpans)) {
+            return;
+        }
 
         $s = array_pop($this->openSpans);
         $startTime = $s['s'];
@@ -89,7 +95,7 @@ final class LogFileTracer implements PerformanceTracerInterface
                 str_repeat('  ', count($this->openSpans)),
                 $name,
                 $duration,
-                is_array($params) ? json_encode($params) : ''
+                count($params) > 0 ? json_encode($params) : ''
             ));
         }
 

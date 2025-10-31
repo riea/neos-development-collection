@@ -66,22 +66,21 @@ final class ContentRepository
      * @internal use the {@see ContentRepositoryFactory::getOrBuild()} to instantiate
      */
     public function __construct(
-        public readonly ContentRepositoryId              $id,
-        private readonly CommandBus                      $commandBus,
-        private readonly EventStoreInterface             $eventStore,
-        private readonly EventNormalizer                 $eventNormalizer,
-        private readonly SubscriptionEngine              $subscriptionEngine,
-        private readonly NodeTypeManager                 $nodeTypeManager,
-        private readonly InterDimensionalVariationGraph  $variationGraph,
+        public readonly ContentRepositoryId $id,
+        private readonly CommandBus $commandBus,
+        private readonly EventStoreInterface $eventStore,
+        private readonly EventNormalizer $eventNormalizer,
+        private readonly SubscriptionEngine $subscriptionEngine,
+        private readonly NodeTypeManager $nodeTypeManager,
+        private readonly InterDimensionalVariationGraph $variationGraph,
         private readonly ContentDimensionSourceInterface $contentDimensionSource,
-        private readonly AuthProviderInterface           $authProvider,
-        private readonly ClockInterface                  $clock,
-        private readonly ContentGraphReadModelInterface  $contentGraphReadModel,
-        private readonly CommandHookInterface            $commandHook,
-        private readonly ProjectionStates                $projectionStates,
-        private readonly ?PerformanceTracerInterface     $performanceTracer,
-    )
-    {
+        private readonly AuthProviderInterface $authProvider,
+        private readonly ClockInterface $clock,
+        private readonly ContentGraphReadModelInterface $contentGraphReadModel,
+        private readonly CommandHookInterface $commandHook,
+        private readonly ProjectionStates $projectionStates,
+        private readonly ?PerformanceTracerInterface $performanceTracer,
+    ) {
     }
 
     /**

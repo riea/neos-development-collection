@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Neos\ContentRepository\Core\Infrastructure\Tracing;
+namespace Neos\ContentRepository\Core\Infrastructure\PerformanceTracing;
 
 /**
  * Simple file-based tracer that writes human-readable trace logs incrementally.
@@ -20,19 +20,19 @@ namespace Neos\ContentRepository\Core\Infrastructure\Tracing;
  *
  * @internal
  */
-final class LogFileTracer implements TracerInterface
+final class LogFileTracer implements PerformanceTracerInterface
 {
     private bool $headerWritten = false;
     /** @var resource|null */
     private $fileHandle = null;
-    private int $nestingLevel = 0;
+    private array $openSpans = [];
     private float $lastMarkTime = 0.0;
 
     public function __construct(private readonly string $logFilePath, private readonly float $minimumMarkDurationMs)
     {
     }
 
-    public function span(string $name, array $params, \Closure $fn)
+    public function openSpan(string $name, array $params = []): void
     {
         $this->ensureFileOpen();
 
@@ -42,33 +42,38 @@ final class LogFileTracer implements TracerInterface
         $this->writeLine(sprintf(
             "[%.6f] %s> %s%s",
             $startTime,
-            str_repeat('  ', $this->nestingLevel),
+            str_repeat('  ', count($this->openSpans)),
             $name,
             $paramsStr
         ));
 
-        $this->nestingLevel++;
+        $this->openSpans[] = ['s' => $startTime, 'n' => $name];
         $this->lastMarkTime = $startTime;
 
-        try {
-            return $fn();
-        } finally {
-            $this->nestingLevel--;
-            $endTime = microtime(true);
-            $this->lastMarkTime = $endTime;
-            $duration = ($endTime - $startTime) * 1000; // ms
-
-            $this->writeLine(sprintf(
-                "[%.6f] %s< %s (%.3f ms)",
-                $endTime,
-                str_repeat('  ', $this->nestingLevel),
-                $name,
-                $duration
-            ));
-        }
     }
 
-    public function mark(string $name, ?array $params = null): void
+    public function closeSpan(): void
+    {
+        $this->ensureFileOpen();
+
+        $s = array_pop($this->openSpans);
+        $startTime = $s['s'];
+        $name = $s['n'];
+
+        $endTime = microtime(true);
+        $this->lastMarkTime = $endTime;
+        $duration = ($endTime - $startTime) * 1000; // ms
+
+        $this->writeLine(sprintf(
+            "[%.6f] %s< %s (%.3f ms)",
+            $endTime,
+            str_repeat('  ', count($this->openSpans)),
+            $name,
+            $duration
+        ));
+    }
+
+    public function mark(string $name, array $params = []): void
     {
         $this->ensureFileOpen();
 
@@ -81,7 +86,7 @@ final class LogFileTracer implements TracerInterface
             $this->writeLine(sprintf(
                 "[%.6f] %s• %s (+%.1f ms)   %s",
                 $currentTime,
-                str_repeat('  ', $this->nestingLevel),
+                str_repeat('  ', count($this->openSpans)),
                 $name,
                 $duration,
                 is_array($params) ? json_encode($params) : ''

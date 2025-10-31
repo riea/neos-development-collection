@@ -107,13 +107,12 @@ Neos:
 
         # PERFORMANCE TRACING (Local Debugging)
         # To enable Performance Tracing, comment-in the following lines:
-        #debug:
-        #  tracer:
-        #    factoryObjectName: Neos\ContentRepository\Core\Infrastructure\Tracing\LogFileTracerFactory
-        #    options:
-        #      fileName: '%FLOW_PATH_DATA%Logs/ContentRepositoryProfile.log'
-        #      # how long should a mark be at least, to be logged? if 0, everything is shown.
-        #      minimumMarkDurationMs: 1
+        # performanceTracer:
+        #   factoryObjectName: Neos\ContentRepository\Core\Infrastructure\PerformanceTracing\LogFileTracerFactory
+        #   options:
+        #     fileName: '%FLOW_PATH_DATA%Logs/ContentRepositoryProfile.log'
+        #     # how long should a mark be at least, to be logged? if 0, everything is shown.
+        #     minimumMarkDurationMs: 1
 
     nodeMigration:
       filterFactories:

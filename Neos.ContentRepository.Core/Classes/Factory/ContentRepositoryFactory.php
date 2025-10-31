@@ -26,7 +26,6 @@ use Neos\ContentRepository\Core\Feature\DimensionSpaceAdjustment\DimensionSpaceC
 use Neos\ContentRepository\Core\Feature\NodeAggregateCommandHandler;
 use Neos\ContentRepository\Core\Feature\WorkspaceCommandHandler;
 use Neos\ContentRepository\Core\Infrastructure\Property\PropertyConverter;
-use Neos\ContentRepository\Core\Infrastructure\PerformanceTracing\NullPerformanceTracer;
 use Neos\ContentRepository\Core\Infrastructure\PerformanceTracing\PerformanceTracerInterface;
 use Neos\ContentRepository\Core\NodeType\NodeTypeManager;
 use Neos\ContentRepository\Core\Projection\CatchUpHook\CatchUpHookFactoryDependencies;

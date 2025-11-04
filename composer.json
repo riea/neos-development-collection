@@ -9,7 +9,6 @@
         "neos/flow-development-collection": "9.0.x-dev",
         "doctrine/dbal": "^3.1.4",
         "doctrine/migrations": "*",
-        "phpunit/phpunit": "^9.6",
         "neos/eventstore": "^1",
         "php": "^8.2",
         "neos/error-messages": "*",
@@ -88,6 +87,7 @@
         "league/flysystem-ziparchive": "to export zip archives",
         "neos/media": "to import Assets",
         "neos/escr-asset-usage": "to export used assets",
+        "phpunit/phpunit": "to run assertions in the steps (>=9.6 <13)",
         "neos/contentrepository-structureadjustment": "for certain steps",
         "neos/contentrepository-nodemigration": "for certain steps",
         "phpbench/phpbench": "For running performance benchmarks of the Fusion runtime",
@@ -295,6 +295,7 @@
         }
     },
     "require-dev": {
+        "phpunit/phpunit": "^9.6",
         "brianium/paratest": "^6.11",
         "roave/security-advisories": "dev-latest",
         "phpstan/phpstan": "^1.11",

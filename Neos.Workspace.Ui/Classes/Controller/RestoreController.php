@@ -24,6 +24,7 @@ use Neos\ContentRepository\Core\Projection\ContentGraph\Filter\FindAncestorNodes
 use Neos\ContentRepository\Core\Projection\ContentGraph\Filter\SearchTerm\SearchTerm;
 use Neos\ContentRepository\Core\Projection\ContentGraph\Node;
 use Neos\ContentRepository\Core\Projection\ContentGraph\VisibilityConstraints;
+use Neos\ContentRepository\Core\SharedModel\ContentRepository\ContentRepositoryId;
 use Neos\ContentRepository\Core\SharedModel\Node\NodeAddress;
 use Neos\ContentRepository\Core\SharedModel\Node\NodeAggregateId;
 use Neos\ContentRepository\Core\SharedModel\Node\NodeVariantSelectionStrategy;
@@ -254,9 +255,11 @@ class RestoreController extends AbstractModuleController
         return $pagination;
     }
 
-    public function restoreNodeConfirmationAction(WorkspaceName $workspaceName, NodeAggregateId $nodeAggregateId): void
+    public function restoreNodeConfirmationAction(WorkspaceName $workspaceName, NodeAggregateId $nodeAggregateId, bool $restoreParent = false, ContentRepositoryId $contentRepositoryId = null): void
     {
-        $contentRepositoryId = SiteDetectionResult::fromRequest($this->request->getHttpRequest())->contentRepositoryId;
+        if ($contentRepositoryId === null) {
+            $contentRepositoryId = SiteDetectionResult::fromRequest($this->request->getHttpRequest())->contentRepositoryId;
+        }
         $contentRepository = $this->contentRepositoryRegistry->get($contentRepositoryId);
         $nodeAggregate = $contentRepository->getContentGraph($workspaceName)->findNodeAggregateById($nodeAggregateId);
 
@@ -269,8 +272,10 @@ class RestoreController extends AbstractModuleController
             'nodeAddress' => $nodeAggregateId->value,
             'nodeLabel' => $nodeAggregate->nodeName,
             'workspaceName' => $workspaceName->value,
+            'isParentRestore' => $restoreParent,
         ]);
     }
+
     public function restoreNodeAction(WorkspaceName $workspaceName, NodeAggregateId $nodeAggregateId): void
     {
         // @todo check before failing;
@@ -278,6 +283,7 @@ class RestoreController extends AbstractModuleController
         $contentRepository = $this->contentRepositoryRegistry->get($contentRepositoryId);
         $nodeAggregate = $contentRepository->getContentGraph($workspaceName)->findNodeAggregateById($nodeAggregateId);
         $coveredDimensionSpacePoints = iterator_to_array($nodeAggregate->coveredDimensionSpacePoints);
+
 
         $contentRepository->handle(UntagSubtree::create(
             workspaceName: $workspaceName,
@@ -288,8 +294,19 @@ class RestoreController extends AbstractModuleController
         ));
 
         //@todo: This does not reload the list after closing the popup
-        $this->addFlashMessage($this->getModuleLabel('restore.feedback.hasBeenRestored'));
-        $this->forward(actionName: 'show', arguments: ['workspaceName' => $workspaceName->value]);
+
+        //@todo: Check if parent restoration is needed
+        if ($contentRepository->getContentGraph($workspaceName)->findParentNodeAggregates($nodeAggregateId)){
+            $this->forward(actionName: 'restoreNodeConfirmation', arguments: [
+                'workspaceName' => $workspaceName->value,
+                'nodeAggregateId' => $nodeAggregateId->value,
+                'restoreParent' => true,
+                'contentRepositoryId' => $contentRepositoryId->value,
+            ]);
+        } else {
+            $this->addFlashMessage($this->getModuleLabel('restore.feedback.hasBeenRestored'));
+            $this->forward(actionName: 'show', arguments: ['workspaceName' => $workspaceName->value]);
+        }
     }
 
     public function hardDeleteAction(NodeAggregateId $nodeAggregateId): void
@@ -307,6 +324,7 @@ class RestoreController extends AbstractModuleController
             nodeVariantSelectionStrategy: NodeVariantSelectionStrategy::STRATEGY_ALL_VARIANTS,
         ));
         $this->addFlashMessage($this->getModuleLabel('restore.feedback.hasBeenHardDeleted'));
+
         //@todo: This does not reload the list after closing the popup, target error if target is set in popup
         $this->forward(actionName: 'show', arguments: ['workspaceName' => $nodeAggregate->workspaceName->value]);
     }

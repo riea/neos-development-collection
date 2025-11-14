@@ -392,11 +392,20 @@
       <trans-unit id="restore.dialog.restore.title" xml:space="preserve">
 				<source>Restore element to workspace</source>
 			</trans-unit>
+      <trans-unit id="restore.dialog.parentRestore.title" xml:space="preserve">
+				<source>This element has deleted parent elements</source>
+			</trans-unit>
+      <trans-unit id="restore.dialog.restore.parentNodes" xml:space="preserve">
+				<source>Restore element to workspace</source>
+			</trans-unit>
       <trans-unit id="restore.dialog.restore.text" xml:space="preserve">
 				<source>Restore "{0}" to workspace "{1}"?</source>
 			</trans-unit>
+      <trans-unit id="restore.dialog.parentRestore.title" xml:space="preserve">
+				<source>Do you also want to restore "{0}" to "{1}"?</source>
+			</trans-unit>
       <trans-unit id="restore.dialog.restore.warning" xml:space="preserve">
-				<source>This will also restore all deleted parent nodes.</source>
+				<source>This will also restore all deleted child nodes.</source>
 			</trans-unit>
       <trans-unit id="restore.dialog.restore.cancel" xml:space="preserve">
 				<source>Cancel</source>

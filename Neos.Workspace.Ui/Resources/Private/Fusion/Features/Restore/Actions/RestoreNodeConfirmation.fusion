@@ -5,12 +5,15 @@ Neos.Workspace.Ui.RestoreController.restoreNodeConfirmation = Neos.Fusion:Compon
   nodeLabel = ${nodeLabel}
   /// array
   workspaceName = ${workspaceName}
+  /// boolean
+  isParentRestore = ${isParentRestore ? isParentRestore : false}
 
   renderer = afx`
     <Neos.Workspace.Ui:Component.Modal.RestoreNodeConfirmation
       nodeAddress={props.nodeAddress}
       nodeLabel={props.nodeLabel}
       workspaceName={props.workspaceName}
+      isParentRestore={props.isParentRestore}
     />
   `
 }

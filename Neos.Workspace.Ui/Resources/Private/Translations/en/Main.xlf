@@ -405,7 +405,7 @@
 				<source>Do you also want to restore "{0}" to "{1}"?</source>
 			</trans-unit>
       <trans-unit id="restore.dialog.restore.warning" xml:space="preserve">
-				<source>This will also restore all deleted child nodes.</source>
+				<source>This will also restore the following deleted child nodes:</source>
 			</trans-unit>
       <trans-unit id="restore.dialog.restore.cancel" xml:space="preserve">
 				<source>Cancel</source>

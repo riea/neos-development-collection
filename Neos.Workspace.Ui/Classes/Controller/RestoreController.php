@@ -268,10 +268,19 @@ class RestoreController extends AbstractModuleController
         // inform about
         // * there might be more variants restored than selected in the UI (due to split trash items); which ones?
 
+        //@todo only show the child nodes that are not explicitly tagged as removed since they will not be restored automatically
+        //@todo also load children of children
+        $restoreChildNodes = $contentRepository->getContentGraph($workspaceName)->findChildNodeAggregates($nodeAggregateId);
+        $childNodes = [];
+        foreach ($restoreChildNodes as $restoreChildNode) {
+            // @todo get node label
+            $childNodes[$restoreChildNode->nodeAggregateId->value] = $restoreChildNode->nodeName->value;
+        }
         $this->view->assignMultiple([
             'nodeAddress' => $nodeAggregateId->value,
             'nodeLabel' => $nodeAggregate->nodeName,
             'workspaceName' => $workspaceName->value,
+            'additionalRestoredNodes' => $childNodes,
             'isParentRestore' => $restoreParent,
         ]);
     }
@@ -293,9 +302,8 @@ class RestoreController extends AbstractModuleController
             tag: NeosSubtreeTag::removed(),
         ));
 
-        //@todo: This does not reload the list after closing the popup
-
         //@todo: Check if parent restoration is needed
+        //@todo: the forwards do not work and do not show the expected values
         if ($contentRepository->getContentGraph($workspaceName)->findParentNodeAggregates($nodeAggregateId)){
             $this->forward(actionName: 'restoreNodeConfirmation', arguments: [
                 'workspaceName' => $workspaceName->value,

@@ -73,35 +73,35 @@ Neos.Workspace.Ui.RestoreController.show = Neos.Fusion:Component {
       <main class="neos-content neos-container-fluid">
         <div class="neos-row-fluid">
           <div class="neos-span6">
-              <form hx-get={props.searchTermUri}
-                    @if.hasListItems={props.restoreListItems}
-                    hx-target="#workspace-module-content"
-                    hx-select="#workspace-module-content"
-                    hx-swap="outerHTML"
-                    hx-push-url="true"
-              >
-                <div class="neos-search-bar">
-                    <button type="submit"  class="neos-button"><i class="fas fa-search"></i></button>
-                    <input type="search"
-                             name="moduleArguments[searchTerm]"
-                             placeholder={props.i18n.id('restore.searchTerm').translate()}
-                             value={props.searchTerm}
-                             autofocus
-                      />
-                    <a
-                            href="#"
-                            @if.isNotCurrent={!props.isCurrentPage}
-                            hx-get={props.clearSearchTermUri}
-                            hx-replace-url={props.clearSearchTermUri}
-                            hx-target="#workspace-module-content"
-                            hx-select="#workspace-module-content"
-                            hx-swap="outerHTML"
-                            class="neos-button"
-                    >
-                      <i class="fas fa-times"></i>
-                    </a>
-                </div>
-              </form>
+            <form hx-get={props.searchTermUri}
+              @if.hasListItems={props.restoreListItems}
+              hx-target="#workspace-module-content"
+              hx-select="#workspace-module-content"
+              hx-swap="outerHTML"
+              hx-push-url="true"
+            >
+              <div class="neos-search-bar">
+                <button type="submit"  class="neos-button"><i class="fas fa-search"></i></button>
+                <input type="search"
+                   name="moduleArguments[searchTerm]"
+                   placeholder={props.i18n.id('restore.searchTerm').translate()}
+                   value={props.searchTerm}
+                   autofocus
+                  />
+                <a
+                  href="#"
+                  @if.isNotCurrent={!props.isCurrentPage}
+                  hx-get={props.clearSearchTermUri}
+                  hx-replace-url={props.clearSearchTermUri}
+                  hx-target="#workspace-module-content"
+                  hx-select="#workspace-module-content"
+                  hx-swap="outerHTML"
+                  class="neos-button"
+                >
+                  <i class="fas fa-times"></i>
+                </a>
+              </div>
+            </form>
           </div>
           <div class="neos-span6 neos-text-right">
             <form class="neos-workspace-select neos-pull-right"

@@ -494,3 +494,12 @@ tr.neos-change + tr.neos-change td.neos-content-change {
     padding: 0.5em 0.5em;
   }
 }
+#restore-confirm-modal {
+  .restored-nodes-header {
+    max-height: 300px;
+    overflow: auto;
+  }
+  .restored-nodes-container {
+    margin-top: 20px;
+  }
+}

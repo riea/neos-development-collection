@@ -3,8 +3,8 @@ prototype(Neos.Workspace.Ui:Component.Modal.RestoreNodeConfirmation) < prototype
   nodeAddress = ''
   /// string
   nodeLabel = ''
-  /// array
-  targetWorkspaceOptions = null
+  /// string
+  workspaceName = ''
 
   @private {
     i18n = ${I18n.id('').source('Main').package('Neos.Workspace.Ui')}
@@ -29,21 +29,14 @@ prototype(Neos.Workspace.Ui:Component.Modal.RestoreNodeConfirmation) < prototype
         <Neos.Fusion.Form:Form
           form.target.action="restoreNode"
           form.target.format="htmx"
+          form.target.arguments.workspaceName={props.workspaceName}
+          form.target.arguments.nodeAggregateId={props.nodeAddress}
           attributes.hx-post={form.getTarget()}
           attributes.hx-disabled-elt="find button"
           attributes.hx-on--after-request={'document.getElementById("' + private.popoverId + '").hidePopover()'}
-          attributes.hx-select="#restore-module-content"
-          attributes.hx-target="#restore-module-content"
-          attributes.hx-swap="outerHTML"
         >
           <section>
-            <p>{private.i18n.id('restore.dialog.restore.text').arguments([props.nodeLabel])}</p>
-            <Neos.Fusion.Form:Select>
-              <Neos.Fusion:Loop items={props.targetWorkspaceOptions} itemName="workspaceTitle" itemKey="workspaceName">
-                <Neos.Fusion.Form:Select.Option
-                  option.value={workspaceName}>{workspaceTitle}</Neos.Fusion.Form:Select.Option>
-              </Neos.Fusion:Loop>
-            </Neos.Fusion.Form:Select>
+            <p>{private.i18n.id('restore.dialog.restore.text').arguments([props.nodeLabel, props.workspaceName])}</p>
 
             <p>{private.i18n.id('restore.dialog.restore.warning')}</p>
           </section>
@@ -57,9 +50,13 @@ prototype(Neos.Workspace.Ui:Component.Modal.RestoreNodeConfirmation) < prototype
               {private.i18n.id('restore.dialog.restore.cancel')}
             </button>
 
-            <Neos.Fusion.Form:Button attributes.class="neos-button neos-button-success">
+            <button
+              autofocus
+              type="submit"
+              class="neos-button neos-button-success"
+            >
               {private.i18n.id('restore.dialog.restore.confirm')}
-            </Neos.Fusion.Form:Button>
+            </button>
           </footer>
 
         </Neos.Fusion.Form:Form>

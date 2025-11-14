@@ -87,7 +87,7 @@ class RestoreController extends AbstractModuleController
 
     #[Flow\Inject]
     protected WorkspaceService $workspaceService;
-    
+
     public function indexAction(): void
     {
         $currentUser = $this->userService->getCurrentUser();
@@ -116,8 +116,8 @@ class RestoreController extends AbstractModuleController
         $pagination ??= TrashBinPagination::create($offset, TrashBinPagination::DEFAULT_LIMIT);
         $numberOfPages = (int)ceil($numberOfItems / TrashBinPagination::DEFAULT_LIMIT);
         $displayPagination = $this->paginagtionRange($numberOfPages, $page);
-      
-        
+
+
         $contentGraph = $contentRepository->getContentGraph($workspaceName);
         $liveContentGraph = $contentRepository->getContentGraph(WorkspaceName::forLive());
 
@@ -131,9 +131,9 @@ class RestoreController extends AbstractModuleController
             pagination: $pagination,
             searchTerm: $searchTermObject,
         ) as $trashBinItem) {
-           
+
             $nodeAggregate = $contentGraph->findNodeAggregateById($trashBinItem->nodeAggregateId);
-            
+
             $details = [];
             foreach (
                 $nodeAggregate->occupiedDimensionSpacePoints->getIntersection(
@@ -189,11 +189,13 @@ class RestoreController extends AbstractModuleController
                 )->isEmpty(),
             );
         }
-        
+
+        //@todo: get workspace list that user can access
         //@todo: check permissions for sync button?
-        //@todo: make pagination work
         $this->view->assignMultiple([
             'workspaceName' => $workspaceName->value,
+            'workspaceList' => array('testing' => 'testing', 'dinge' => 'dinge'),
+            'activeWorkspaceName' => $workspaceName->value,
             'restoreListItems' => $listItems ? RestoreListItems::fromArray($listItems) : array(),
             'flashMessages' => $this->controllerContext->getFlashMessageContainer()->getMessagesAndFlush(),
             'sorting' => $sortingObject,
@@ -209,7 +211,7 @@ class RestoreController extends AbstractModuleController
             )->write
         ]);
     }
-    
+
     protected function paginagtionRange(int $numberOfPages, int $currentPage): array
     {
         $maximumNumberOfLinks = TrashBinPagination::MAXIMUM_NUMBER_OF_LINKS;
@@ -227,12 +229,12 @@ class RestoreController extends AbstractModuleController
         }
         $displayRangeStart = (integer)max($displayRangeStart, 1);
         $displayRangeEnd = (integer)min($displayRangeEnd, $numberOfPages);
-        
+
         $pages = [];
         for ($i = $displayRangeStart; $i <= $displayRangeEnd; $i++) {
             $pages[] = ['number' => $i, 'isCurrent' => ($i === $currentPage)];
         }
-        
+
         $pagination = [
             'pages' => $pages,
             'current' => $currentPage,
@@ -242,7 +244,7 @@ class RestoreController extends AbstractModuleController
             'hasLessPages' => $displayRangeStart > 2,
             'hasMorePages' => $displayRangeEnd + 1 < $numberOfPages
         ];
-        
+
         if ($currentPage < $numberOfPages) {
             $pagination['nextPage'] = $currentPage + 1;
         }
@@ -266,7 +268,7 @@ class RestoreController extends AbstractModuleController
         $this->view->assignMultiple([
             'nodeAddress' => $nodeAggregateId->value,
             'nodeLabel' => $nodeAggregate->nodeName,
-            'targetWorkspaceOptions' => array ('user-workspace'=> 'User Workspace', 'workspace-name' => 'Workspace 1', 'workspace-name2' => 'Workspace 2'),
+            'workspaceName' => $workspaceName->value,
         ]);
     }
     public function restoreNodeAction(WorkspaceName $workspaceName, NodeAggregateId $nodeAggregateId): void
@@ -285,8 +287,9 @@ class RestoreController extends AbstractModuleController
             tag: NeosSubtreeTag::removed(),
         ));
 
+        //@todo: This does not reload the list after closing the popup
         $this->addFlashMessage($this->getModuleLabel('restore.feedback.hasBeenRestored'));
-        $this->forward('index');
+        $this->forward(actionName: 'show', arguments: ['workspaceName' => $workspaceName->value]);
     }
 
     public function hardDeleteAction(NodeAggregateId $nodeAggregateId): void
@@ -307,7 +310,7 @@ class RestoreController extends AbstractModuleController
         $this->addFlashMessage($this->getModuleLabel('restore.feedback.hasBeenHardDeleted'));
         $this->forward('index');
     }
-    
+
     public function hardDeleteConfirmationAction(NodeAggregateId $nodeAggregateId): void
     {
         $this->view->assignMultiple([
@@ -331,7 +334,7 @@ class RestoreController extends AbstractModuleController
             $quantity,
             null,
             'Main',
-            'Neos.Restore.Ui'
+            'Neos.Workspace.Ui'
         ) ?: $id;
     }
 

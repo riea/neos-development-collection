@@ -30,6 +30,8 @@ use Neos\ContentRepository\Core\Feature\SubtreeTagging\Event\SubtreeWasUntagged;
 use Neos\ContentRepository\Core\Feature\WorkspaceCreation\Event\WorkspaceWasCreated;
 use Neos\ContentRepository\Core\Feature\WorkspaceModification\Event\WorkspaceBaseWorkspaceWasChanged;
 use Neos\ContentRepository\Core\Feature\WorkspaceModification\Event\WorkspaceWasRemoved;
+use Neos\ContentRepository\Core\Feature\WorkspacePublication\Event\WorkspaceWasDiscarded;
+use Neos\ContentRepository\Core\Feature\WorkspacePublication\Event\WorkspaceWasPublished;
 use Neos\ContentRepository\Core\Feature\WorkspaceRebase\Event\WorkspaceWasRebased;
 use Neos\ContentRepository\Core\Projection\ProjectionInterface;
 use Neos\ContentRepository\Core\Projection\ProjectionStatus;
@@ -147,6 +149,8 @@ class TrashBinProjection implements ProjectionInterface
             WorkspaceBaseWorkspaceWasChanged::class => $this->whenWorkspaceBaseWorkspaceWasChanged($event),
             WorkspaceWasRebased::class => $this->whenWorkspaceWasRebased($event),
             WorkspaceWasRemoved::class => $this->whenWorkspaceWasRemoved($event),
+            WorkspaceWasPublished::class => $this->whenWorkspaceWasPublished($event),
+            WorkspaceWasDiscarded::class => $this->whenWorkspaceWasDiscarded($event),
             // we don't need to handle all events
             default => null,
         };
@@ -242,6 +246,28 @@ class TrashBinProjection implements ProjectionInterface
             ]
         );
     }
+
+    private function whenWorkspaceWasPublished(WorkspaceWasPublished $event): void
+    {
+        $this->replaceWorkspaceEntries($event->sourceWorkspaceName, $event->targetWorkspaceName);
+    }
+
+    private function whenWorkspaceWasDiscarded(WorkspaceWasDiscarded $event): void
+    {
+        $workspaceHierarchyRecord = $this->dbal->executeQuery(
+            'SELECT * FROM ' . $this->workspaceHierarchyTableName . ' WHERE child_workspace_name = :childWorkspaceName',
+            [
+                'childWorkspaceName' => $event->workspaceName,
+            ]
+        )->fetchAssociative();
+
+        if (!$workspaceHierarchyRecord) {
+            throw new \Exception('Could not resolve base workspace for workspace ' . $event->workspaceName->value, 1761035918);
+        }
+
+        $this->replaceWorkspaceEntries($event->workspaceName, WorkspaceName::fromString($workspaceHierarchyRecord['parent_workspace_name']));
+    }
+
 
     private function createRecord(
         WorkspaceName $workspaceName,

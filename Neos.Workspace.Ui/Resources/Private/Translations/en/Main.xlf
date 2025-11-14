@@ -393,7 +393,7 @@
 				<source>Restore element to workspace</source>
 			</trans-unit>
       <trans-unit id="restore.dialog.restore.text" xml:space="preserve">
-				<source>Which Workspace do you want to restore the Element "{0}" to?</source>
+				<source>Restore "{0}" to workspace "{1}"?</source>
 			</trans-unit>
       <trans-unit id="restore.dialog.restore.warning" xml:space="preserve">
 				<source>This will also restore all deleted parent nodes.</source>
@@ -431,9 +431,12 @@
       <trans-unit id="restore.syncWorkspace" xml:space="preserve">
 				<source>Sync workspace</source>
 			</trans-unit>
-        <trans-unit id="restore.searchTerm" xml:space="preserve">
-			<source>Search</source>
-		</trans-unit>
+      <trans-unit id="restore.searchTerm" xml:space="preserve">
+        <source>Search</source>
+      </trans-unit>
+      <trans-unit id="restore.feedback.hasBeenRestored" xml:space="preserve">
+        <source>Node has been restored</source>
+      </trans-unit>
     </body>
   </file>
 </xliff>

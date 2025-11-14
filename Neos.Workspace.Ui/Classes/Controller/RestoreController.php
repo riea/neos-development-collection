@@ -190,11 +190,10 @@ class RestoreController extends AbstractModuleController
             );
         }
 
-        //@todo: get workspace list that user can access
         //@todo: check permissions for sync button?
         $this->view->assignMultiple([
             'workspaceName' => $workspaceName->value,
-            'workspaceList' => array('testing' => 'testing', 'dinge' => 'dinge'),
+            'workspaceList' => $this->getWorkspaceListItems($contentRepository),
             'activeWorkspaceName' => $workspaceName->value,
             'restoreListItems' => $listItems ? RestoreListItems::fromArray($listItems) : array(),
             'flashMessages' => $this->controllerContext->getFlashMessageContainer()->getMessagesAndFlush(),
@@ -344,5 +343,36 @@ class RestoreController extends AbstractModuleController
             return true;
         }
         return false;
+    }
+
+    protected function getWorkspaceListItems(
+        ContentRepository $contentRepository,
+    ): array {
+        $workspaceListItems = [];
+        $allWorkspaces = $contentRepository->findWorkspaces();
+
+        // add other, accessible workspaces
+        foreach ($allWorkspaces as $workspace) {
+            $workspaceMetadata = $this->workspaceService->getWorkspaceMetadata($contentRepository->id, $workspace->workspaceName);
+            $workspacesPermissions = $this->authorizationService->getWorkspacePermissions(
+                $contentRepository->id,
+                $workspace->workspaceName,
+                $this->securityContext->getRoles(),
+                $this->userService->getCurrentUser()?->getId()
+            );
+
+            // ignore root workspaces, because they will not be shown in the UI
+            if ($workspace->isRootWorkspace()) {
+                continue;
+            }
+
+            if ($workspacesPermissions->write === false) {
+                continue;
+            }
+
+            $workspaceListItems[$workspace->workspaceName->value] = $workspaceMetadata->title->value;
+
+        }
+        return $workspaceListItems;
     }
 }

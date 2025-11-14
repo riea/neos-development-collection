@@ -9,6 +9,16 @@ prototype(Neos.Workspace.Ui:Component.Modal.RestoreNodeConfirmation) < prototype
   @private {
     i18n = ${I18n.id('').source('Main').package('Neos.Workspace.Ui')}
     popoverId = 'restore-confirm-modal'
+
+    restoreUri = Neos.Fusion:ActionUri {
+      action = 'restoreNode'
+      format = 'htmx'
+      arguments {
+        workspaceName = ${props.workspaceName}
+        nodeAggregateId = ${props.nodeAddress}
+      }
+    }
+
   }
 
   renderer = afx`
@@ -26,41 +36,29 @@ prototype(Neos.Workspace.Ui:Component.Modal.RestoreNodeConfirmation) < prototype
           <i class="fa-solid fa-circle-question"></i> {private.i18n.id('restore.dialog.restore.title')}
         </div>
       </header>
-        <Neos.Fusion.Form:Form
-          form.target.action="restoreNode"
-          form.target.format="htmx"
-          form.target.arguments.workspaceName={props.workspaceName}
-          form.target.arguments.nodeAggregateId={props.nodeAddress}
-          attributes.hx-post={form.getTarget()}
-          attributes.hx-disabled-elt="find button"
-          attributes.hx-on--after-request={'document.getElementById("' + private.popoverId + '").hidePopover()'}
+
+      <section>
+        <p>{private.i18n.id('restore.dialog.restore.text').arguments([props.nodeLabel, props.workspaceName])}</p>
+
+        <p>{private.i18n.id('restore.dialog.restore.warning')}</p>
+      </section>
+      <footer>
+        <button
+          type="button"
+          class="neos-button"
+          popovertarget={private.popoverId}
+          popovertargetaction="close"
         >
-          <section>
-            <p>{private.i18n.id('restore.dialog.restore.text').arguments([props.nodeLabel, props.workspaceName])}</p>
+          {private.i18n.id('restore.dialog.restore.cancel')}
+        </button>
 
-            <p>{private.i18n.id('restore.dialog.restore.warning')}</p>
-          </section>
-          <footer>
-            <button
-              type="button"
-              class="neos-button"
-              popovertarget={private.popoverId}
-              popovertargetaction="close"
-            >
-              {private.i18n.id('restore.dialog.restore.cancel')}
-            </button>
-
-            <button
-              autofocus
-              type="submit"
-              class="neos-button neos-button-success"
-            >
-              {private.i18n.id('restore.dialog.restore.confirm')}
-            </button>
-          </footer>
-
-        </Neos.Fusion.Form:Form>
-
+        <Neos.Workspace.Ui:Component.Button
+          isSuccess
+          label={private.i18n.id('restore.dialog.restore.confirm')}
+          attributes.hx-get={private.restoreUri}
+          attributes.hx-on--after-request={'document.getElementById("' + private.popoverId + '").hidePopover()'}
+        />
+      </footer>
 
     </div>
   `

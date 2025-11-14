@@ -124,6 +124,7 @@ class RestoreController extends AbstractModuleController
         $hasHardRemovalPrivileges = $this->privilegeManager->isPrivilegeTargetGranted('Neos.Restore.Ui:Backend.HardDeleteNodes');
 
         $listItems = [];
+        //@todo: After hardDeleting a node, the Element still shows up in the list
         foreach ($this->trashBin->findItemsByWorkspaceNameWithParameters(
             contentRepositoryId: $contentRepositoryId,
             workspaceName: $workspaceName,
@@ -299,7 +300,6 @@ class RestoreController extends AbstractModuleController
         // @todo: resolve command(s) to result in removal of all soft-removed nodes on live (see GarbageCollector)
         $nodeAggregate = $contentRepository->getContentGraph(WorkspaceName::forLive())->findNodeAggregateById($nodeAggregateId);
         $coveredDimensionSpacePoints = iterator_to_array($nodeAggregate->coveredDimensionSpacePoints);
-
         $contentRepository->handle(RemoveNodeAggregate::create(
             workspaceName: WorkspaceName::forLive(),
             nodeAggregateId: $nodeAggregateId,
@@ -307,7 +307,8 @@ class RestoreController extends AbstractModuleController
             nodeVariantSelectionStrategy: NodeVariantSelectionStrategy::STRATEGY_ALL_VARIANTS,
         ));
         $this->addFlashMessage($this->getModuleLabel('restore.feedback.hasBeenHardDeleted'));
-        $this->forward('index');
+        //@todo: This does not reload the list after closing the popup, target error if target is set in popup
+        $this->forward(actionName: 'show', arguments: ['workspaceName' => $nodeAggregate->workspaceName->value]);
     }
 
     public function hardDeleteConfirmationAction(NodeAggregateId $nodeAggregateId): void

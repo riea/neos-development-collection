@@ -12,7 +12,7 @@ prototype(Neos.Workspace.Ui:Component.Modal.HardDeleteConfirmation) < prototype(
       action = 'hardDelete'
       format = 'htmx'
       arguments {
-        nodeAddressJson = ${props.nodeAddress}
+        nodeAggregateId = ${props.nodeAddress}
       }
     }
   }
@@ -36,6 +36,7 @@ prototype(Neos.Workspace.Ui:Component.Modal.HardDeleteConfirmation) < prototype(
         <p>{private.i18n.id('restore.dialog.hardDelete.text').arguments([props.nodeLabel])}</p>
         <p>{private.i18n.id('restore.dialog.hardDelete.warning')}</p>
       </section>
+
       <footer>
         <button
           type="button"
@@ -43,14 +44,13 @@ prototype(Neos.Workspace.Ui:Component.Modal.HardDeleteConfirmation) < prototype(
           popovertarget={private.popoverId}
           popovertargetaction="close"
         >
-          {private.i18n.id('restore.dialog.hardDelete.cancel')}
+          {private.i18n.id('restore.dialog.restore.cancel')}
         </button>
+
         <Neos.Workspace.Ui:Component.Button
           isDanger
           label={private.i18n.id('restore.dialog.hardDelete.confirm')}
           attributes.hx-get={private.hardDeleteUri}
-          attributes.hx-target="#restore-module-content"
-          attributes.hx-swap="outerHTML"
           attributes.hx-on--after-request={'document.getElementById("' + private.popoverId + '").hidePopover()'}
         />
       </footer>

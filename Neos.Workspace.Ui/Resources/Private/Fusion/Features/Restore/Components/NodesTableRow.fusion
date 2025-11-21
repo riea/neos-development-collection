@@ -25,6 +25,7 @@ prototype(Neos.Workspace.Ui:Component.NodesTableRow) < prototype(Neos.Fusion:Com
       format = 'htmx'
       arguments {
         nodeAggregateId = ${props.restorelistItem.nodeAggregateId}
+        workspaceName = ${props.workspaceName}
       }
     }
     hardDeleteConfirmationPopoverId = 'hard-delete-confirm-modal'

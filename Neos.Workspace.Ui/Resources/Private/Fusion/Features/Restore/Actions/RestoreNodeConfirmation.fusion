@@ -1,6 +1,6 @@
 Neos.Workspace.Ui.RestoreController.restoreNodeConfirmation = Neos.Fusion:Component {
   /// string
-  nodeAddress = ${nodeAddress}
+  nodeAggregateId = ${nodeAggregateId}
   /// string
   nodeLabel = ${nodeLabel}
   /// array
@@ -13,7 +13,7 @@ Neos.Workspace.Ui.RestoreController.restoreNodeConfirmation = Neos.Fusion:Compon
 
   renderer = afx`
     <Neos.Workspace.Ui:Component.Modal.RestoreNodeConfirmation
-      nodeAddress={props.nodeAddress}
+      nodeAggregateId={props.nodeAggregateId}
       nodeLabel={props.nodeLabel}
       workspaceName={props.workspaceName}
       isParentRestore={props.isParentRestore}

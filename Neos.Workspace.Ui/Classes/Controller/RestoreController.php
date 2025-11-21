@@ -274,6 +274,12 @@ class RestoreController extends AbstractModuleController
             // @todo get node label
             $childNodes[$restoreChildNode->nodeAggregateId->value] = $restoreChildNode->nodeName->value;
         }
+        // TODO: Solve this with htmx properties in the template, we need to update the modal instead of replacing the updated table, see the rebase confirmation in the workspace controller
+        if ($restoreParent) {
+            $this->response->addHttpHeader('HX-Retarget', '#restore-confirm-modal');
+            $this->response->addHttpHeader('HX-Reselect', '#restore-confirm-modal > *');
+            $this->response->addHttpHeader('HX-ReSwap', 'innerHTML');
+        }
         $this->view->assignMultiple([
             'nodeAggregateId' => $nodeAggregateId->value,
             'nodeLabel' => $nodeAggregate->nodeName,

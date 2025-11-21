@@ -71,18 +71,9 @@ prototype(Neos.Workspace.Ui:Component.Modal.RestoreNodeConfirmation) < prototype
           isSuccess
           label={private.i18n.id('restore.dialog.restore.confirm')}
           attributes.hx-get={private.restoreUri}
-          attributes.hx-target='#popover-container'
-          attributes.hx-swap='innerHTML'
-          attributes.hx-on--after-request={
-            '
-            (event) => {
-              const response = event.detail.xhr.responseText;
-              if (!response.includes("restore-confirm-modal")) {
-                document.getElementById("' + private.popoverId + '").hidePopover();
-              }
-            }
-            '
-          }
+          attributes.hx-target="#workspace-module-content"
+          attributes.hx-swap="outerHTML"
+          attributes.hx-on--after-request={'document.getElementById("' + private.popoverId + '").hidePopover()'}
         />
       </footer>
 

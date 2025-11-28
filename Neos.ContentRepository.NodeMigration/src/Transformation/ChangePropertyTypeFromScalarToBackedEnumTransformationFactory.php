@@ -14,17 +14,17 @@ declare(strict_types=1);
 
 namespace Neos\ContentRepository\NodeMigration\Transformation;
 
+use Neos\ContentRepository\Core\CommandHandler\Commands;
 use Neos\ContentRepository\Core\ContentRepository;
-use Neos\ContentRepository\Core\DimensionSpace\DimensionSpacePointSet;
 use Neos\ContentRepository\Core\Feature\NodeModification\Command\SetNodeProperties;
 use Neos\ContentRepository\Core\Feature\NodeModification\Dto\PropertyValuesToWrite;
-use Neos\ContentRepository\Core\Projection\ContentGraph\Node;
+use Neos\ContentRepository\Core\Projection\ContentGraph\NodeAggregate;
 use Neos\ContentRepository\Core\SharedModel\Workspace\WorkspaceName;
 
 /**
- * Rename a node property
+ * Change a node property value from a scalar to a backed enum
  */
-class RenamePropertyTransformationFactory implements TransformationFactoryInterface
+class ChangePropertyTypeFromScalarToBackedEnumTransformationFactory implements TransformationFactoryInterface
 {
     /**
      * @param array<string,string> $settings
@@ -35,43 +35,46 @@ class RenamePropertyTransformationFactory implements TransformationFactoryInterf
     ): GlobalTransformationInterface|NodeAggregateBasedTransformationInterface|NodeBasedTransformationInterface
     {
         return new class (
-            $settings['from'],
-            $settings['to'],
-        ) implements NodeBasedTransformationInterface {
+            $settings['property'],
+            $settings['newType'],
+        ) implements NodeAggregateBasedTransformationInterface {
             public function __construct(
                 /**
-                 * Property name to change
+                 * Name of the property to be transformed
                  */
-                private readonly string $from,
+                private readonly string $property,
                 /**
-                 * New name of property
+                 * New type of the property
+                 *
+                 * @var class-string<\BackedEnum>
                  */
-                private readonly string $to,
+                private readonly string $newType,
             )
             {
             }
 
             public function execute(
-                Node $node,
-                DimensionSpacePointSet $coveredDimensionSpacePoints,
+                NodeAggregate $nodeAggregate,
                 WorkspaceName $workspaceNameForWriting
             ): TransformationStep
             {
-                $propertyValue = $node->properties[$this->from];
-                if ($propertyValue === null) {
-                    return TransformationStep::createEmpty();
-                }
-                return TransformationStep::fromCommand(
-                    SetNodeProperties::create(
+                $commands = [];
+                foreach ($nodeAggregate->getNodes() as $node) {
+                    $propertyValue = $node->properties[$this->property];
+                    if ($propertyValue === null) {
+                        continue;
+                    }
+                    $commands[] = SetNodeProperties::create(
                         $workspaceNameForWriting,
                         $node->aggregateId,
                         $node->originDimensionSpacePoint,
                         PropertyValuesToWrite::fromArray([
-                            $this->to => $propertyValue,
-                            $this->from => null,
+                            $this->property => $this->newType::from($propertyValue),
                         ]),
-                    )
-                );
+                    );
+                }
+
+                return TransformationStep::fromCommands(Commands::fromArray($commands));
             }
         };
     }

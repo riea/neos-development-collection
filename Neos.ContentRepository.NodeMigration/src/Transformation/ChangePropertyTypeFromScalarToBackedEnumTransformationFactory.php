@@ -27,7 +27,7 @@ use Neos\ContentRepository\Core\SharedModel\Workspace\WorkspaceName;
 class ChangePropertyTypeFromScalarToBackedEnumTransformationFactory implements TransformationFactoryInterface
 {
     /**
-     * @param array<string,string> $settings
+     * @param array{property: string, newType: class-string<\BackedEnum>} $settings
      */
     public function build(
         array $settings,

@@ -18,6 +18,7 @@ use Neos\ContentRepository\Core\CommandHandler\Commands;
 use Neos\ContentRepository\Core\ContentRepository;
 use Neos\ContentRepository\Core\Feature\NodeModification\Command\SetNodeProperties;
 use Neos\ContentRepository\Core\Feature\NodeModification\Dto\PropertyValuesToWrite;
+use Neos\ContentRepository\Core\NodeType\NodeTypeManager;
 use Neos\ContentRepository\Core\Projection\ContentGraph\NodeAggregate;
 use Neos\ContentRepository\Core\SharedModel\Workspace\WorkspaceName;
 
@@ -27,7 +28,7 @@ use Neos\ContentRepository\Core\SharedModel\Workspace\WorkspaceName;
 class ChangePropertyTypeFromScalarToBackedEnumTransformationFactory implements TransformationFactoryInterface
 {
     /**
-     * @param array{property: string, newType: class-string<\BackedEnum>} $settings
+     * @param array{property: string} $settings
      */
     public function build(
         array $settings,
@@ -36,19 +37,15 @@ class ChangePropertyTypeFromScalarToBackedEnumTransformationFactory implements T
     {
         return new class (
             $settings['property'],
-            $settings['newType'],
+            $contentRepository->getNodeTypeManager(),
         ) implements NodeAggregateBasedTransformationInterface {
             public function __construct(
                 /**
                  * Name of the property to be transformed
                  */
                 private readonly string $property,
-                /**
-                 * New type of the property
-                 *
-                 * @var class-string<\BackedEnum>
-                 */
-                private readonly string $newType,
+
+                private readonly NodeTypeManager $nodeTypeManager,
             )
             {
             }
@@ -56,8 +53,10 @@ class ChangePropertyTypeFromScalarToBackedEnumTransformationFactory implements T
             public function execute(
                 NodeAggregate $nodeAggregate,
                 WorkspaceName $workspaceNameForWriting
-            ): TransformationStep
-            {
+            ): TransformationStep {
+                /** @var class-string<\BackedEnum> $newType */
+                $newType = $this->nodeTypeManager->getNodeType($nodeAggregate->nodeTypeName)
+                    ?->getPropertyType($this->property);
                 $commands = [];
                 foreach ($nodeAggregate->getNodes() as $node) {
                     $propertyValue = $node->properties[$this->property];
@@ -69,7 +68,7 @@ class ChangePropertyTypeFromScalarToBackedEnumTransformationFactory implements T
                         $node->aggregateId,
                         $node->originDimensionSpacePoint,
                         PropertyValuesToWrite::fromArray([
-                            $this->property => $this->newType::from($propertyValue),
+                            $this->property => $newType::from($propertyValue),
                         ]),
                     );
                 }

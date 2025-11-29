@@ -78,12 +78,10 @@ Feature: Change property type from scalar to backed enum
             type: 'ChangePropertyTypeFromScalarToBackedEnum'
             settings:
               property: 'myString'
-              newType: '\Neos\ContentRepository\Core\Tests\Behavior\Fixtures\DayOfWeek'
           -
             type: 'ChangePropertyTypeFromScalarToBackedEnum'
             settings:
               property: 'myInt'
-              newType: '\Neos\ContentRepository\Core\Tests\Behavior\Fixtures\ArbitraryNumber'
     """
 
     # the original content stream has not been touched

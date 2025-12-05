@@ -22,9 +22,6 @@ Neos.Workspace.Ui.RestoreController.show = Neos.Fusion:Component {
   /// int
   currentPage = ${currentPage}
 
-  ///array
-  workspaceList = ${workspaceList}
-
   /// string
   activeWorkspaceName = ${activeWorkspaceName}
 
@@ -72,7 +69,7 @@ Neos.Workspace.Ui.RestoreController.show = Neos.Fusion:Component {
     >
       <main class="neos-content neos-container-fluid">
         <div class="neos-row-fluid">
-          <div class="neos-span6">
+          <div class="neos-span12">
             <form hx-get={props.searchTermUri}
               @if.hasListItems={props.restoreListItems}
               hx-target="#workspace-module-content"
@@ -101,32 +98,6 @@ Neos.Workspace.Ui.RestoreController.show = Neos.Fusion:Component {
                   <i class="fas fa-times"></i>
                 </a>
               </div>
-            </form>
-          </div>
-          <div class="neos-span6 neos-text-right">
-            <form class="neos-workspace-select neos-pull-right"
-                  hx-get={props.showUri}
-                  hx-target="#workspace-module-content"
-                  hx-select="#workspace-module-content"
-                  hx-swap="outerHTML"
-                  hx-push-url="true"
-                  hx-trigger="change"
-            >
-              <Neos.Fusion.Form:Neos.BackendModule.FieldContainer
-                field.name="moduleArguments[workspaceName]"
-                class="neos-control-group"
-              >
-              <Neos.Fusion.Form:Select name="">
-                <Neos.Fusion:Loop items={props.workspaceList} itemName="workspaceTitle" itemKey="workspaceName">
-                  <Neos.Fusion.Form:Select.Option
-                    option.value={workspaceName}
-                    attributes.selected={workspaceName == props.activeWorkspaceName}
-                  >
-                    {workspaceTitle}
-                  </Neos.Fusion.Form:Select.Option>
-                </Neos.Fusion:Loop>
-              </Neos.Fusion.Form:Select>
-              </Neos.Fusion.Form:Neos.BackendModule.FieldContainer>
             </form>
           </div>
           <legend>

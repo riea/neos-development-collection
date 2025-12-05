@@ -1,6 +1,6 @@
 prototype(Neos.Workspace.Ui:Component.Modal.HardDeleteConfirmation) < prototype(Neos.Fusion:Component) {
   /// string
-  nodeAddress = ''
+  nodeAggregateId = ''
   /// string
   nodeLabel = ''
 
@@ -12,7 +12,8 @@ prototype(Neos.Workspace.Ui:Component.Modal.HardDeleteConfirmation) < prototype(
       action = 'hardDelete'
       format = 'htmx'
       arguments {
-        nodeAggregateId = ${props.nodeAddress}
+        nodeAggregateId = ${props.nodeAggregateId}
+        workspaceName = ${props.workspaceName}
       }
     }
   }
@@ -51,6 +52,8 @@ prototype(Neos.Workspace.Ui:Component.Modal.HardDeleteConfirmation) < prototype(
           isDanger
           label={private.i18n.id('restore.dialog.hardDelete.confirm')}
           attributes.hx-get={private.hardDeleteUri}
+          attributes.hx-target="#workspace-module-content"
+          attributes.hx-swap="outerHTML"
           attributes.hx-on--after-request={'document.getElementById("' + private.popoverId + '").hidePopover()'}
         />
       </footer>

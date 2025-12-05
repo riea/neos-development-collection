@@ -25,7 +25,6 @@ use Neos\ContentRepository\Core\Projection\ContentGraph\Filter\SearchTerm\Search
 use Neos\ContentRepository\Core\Projection\ContentGraph\Node;
 use Neos\ContentRepository\Core\Projection\ContentGraph\VisibilityConstraints;
 use Neos\ContentRepository\Core\SharedModel\ContentRepository\ContentRepositoryId;
-use Neos\ContentRepository\Core\SharedModel\Node\NodeAddress;
 use Neos\ContentRepository\Core\SharedModel\Node\NodeAggregateId;
 use Neos\ContentRepository\Core\SharedModel\Node\NodeVariantSelectionStrategy;
 use Neos\ContentRepository\Core\SharedModel\Workspace\WorkspaceStatus;
@@ -38,7 +37,6 @@ use Neos\Flow\Security\Context;
 use Neos\Fusion\View\FusionView;
 use Neos\Neos\Controller\Module\AbstractModuleController;
 use Neos\Neos\Domain\NodeLabel\NodeLabelGeneratorInterface;
-use Neos\Neos\Domain\Repository\UserRepository;
 use Neos\Neos\Domain\Service\UserService;
 use Neos\Neos\Domain\Service\WorkspaceService;
 use Neos\Neos\Domain\SubtreeTagging\NeosSubtreeTag;
@@ -274,8 +272,14 @@ class RestoreController extends AbstractModuleController
             // @todo get node label
             $childNodes[$restoreChildNode->nodeAggregateId->value] = $restoreChildNode->nodeName->value;
         }
+        // TODO: Solve this with htmx properties in the template, we need to update the modal instead of replacing the updated table, see the rebase confirmation in the workspace controller
+        if ($restoreParent) {
+            $this->response->addHttpHeader('HX-Retarget', '#restore-confirm-modal');
+            $this->response->addHttpHeader('HX-Reselect', '#restore-confirm-modal > *');
+            $this->response->addHttpHeader('HX-ReSwap', 'innerHTML');
+        }
         $this->view->assignMultiple([
-            'nodeAddress' => $nodeAggregateId->value,
+            'nodeAggregateId' => $nodeAggregateId->value,
             'nodeLabel' => $nodeAggregate->nodeName,
             'workspaceName' => $workspaceName->value,
             'additionalRestoredNodes' => $childNodes,
@@ -315,13 +319,14 @@ class RestoreController extends AbstractModuleController
         }
     }
 
-    public function hardDeleteAction(NodeAggregateId $nodeAggregateId): void
+    public function hardDeleteAction(NodeAggregateId $nodeAggregateId, WorkspaceName $workspaceName): void
     {
         $contentRepositoryId = SiteDetectionResult::fromRequest($this->request->getHttpRequest())->contentRepositoryId;
         $contentRepository = $this->contentRepositoryRegistry->get($contentRepositoryId);
 
         // @todo: resolve command(s) to result in removal of all soft-removed nodes on live (see GarbageCollector)
         $nodeAggregate = $contentRepository->getContentGraph(WorkspaceName::forLive())->findNodeAggregateById($nodeAggregateId);
+        // @todo: Handle case that node does not exist in live workspace
         $coveredDimensionSpacePoints = iterator_to_array($nodeAggregate->coveredDimensionSpacePoints);
         $contentRepository->handle(RemoveNodeAggregate::create(
             workspaceName: WorkspaceName::forLive(),
@@ -332,13 +337,14 @@ class RestoreController extends AbstractModuleController
         $this->addFlashMessage($this->getModuleLabel('restore.feedback.hasBeenHardDeleted'));
 
         //@todo: This does not reload the list after closing the popup, target error if target is set in popup
-        $this->forward(actionName: 'show', arguments: ['workspaceName' => $nodeAggregate->workspaceName->value]);
+        $this->forward(actionName: 'show', arguments: ['workspaceName' => $workspaceName->value]);
     }
 
-    public function hardDeleteConfirmationAction(NodeAggregateId $nodeAggregateId): void
+    public function hardDeleteConfirmationAction(NodeAggregateId $nodeAggregateId, WorkspaceName $workspaceName): void
     {
         $this->view->assignMultiple([
-            'nodeAddress' => $nodeAggregateId->value,
+            'nodeAggregateId' => $nodeAggregateId->value,
+            'workspaceName' => $workspaceName->value,
             'nodeLabel' => 'TODO Node Label',
         ]);
     }

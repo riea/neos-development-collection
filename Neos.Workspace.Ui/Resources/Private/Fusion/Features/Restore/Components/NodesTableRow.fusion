@@ -61,6 +61,7 @@ prototype(Neos.Workspace.Ui:Component.NodesTableRow) < prototype(Neos.Fusion:Com
 
         />
         <Neos.Workspace.Ui:Component.Button
+          @if.isLiveWorkspace={props.workspaceName == 'live'}
           isDanger
           title={private.i18n.id('restore.actions.hardDelete')}
           icon="trash-alt icon-white"

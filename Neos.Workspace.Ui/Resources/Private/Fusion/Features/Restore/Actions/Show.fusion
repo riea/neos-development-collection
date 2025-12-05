@@ -25,9 +25,9 @@ Neos.Workspace.Ui.RestoreController.show = Neos.Fusion:Component {
   /// string
   activeWorkspaceName = ${activeWorkspaceName}
 
-  syncWorkspace = Neos.Fusion:UriBuilder {
-    action = 'syncWorkspace'
-    controller = 'Restore'
+  backToWorkspaceOverview = Neos.Fusion:UriBuilder {
+    action = 'index'
+    controller = 'Workspace'
     format = 'htmx'
   }
 
@@ -69,22 +69,27 @@ Neos.Workspace.Ui.RestoreController.show = Neos.Fusion:Component {
     >
       <main class="neos-content neos-container-fluid">
         <div class="neos-row-fluid">
-          <div class="neos-span12">
+          <div class="neos-span6">
+            <legend>
+              {props.i18n.id('restore.deletedElements').arguments([workspaceName]).translate()}
+            </legend>
+          </div>
+          <div class="neos-span6">
             <form hx-get={props.searchTermUri}
-              @if.hasListItems={props.restoreListItems}
-              hx-target="#workspace-module-content"
-              hx-select="#workspace-module-content"
-              hx-swap="outerHTML"
-              hx-push-url="true"
+                  @if.hasListItems={props.restoreListItems}
+                  hx-target="#workspace-module-content"
+                  hx-select="#workspace-module-content"
+                  hx-swap="outerHTML"
+                  hx-push-url="true"
             >
-              <div class="neos-search-bar">
+              <div class="neos-search-bar neos-pull-right">
                 <button type="submit"  class="neos-button"><i class="fas fa-search"></i></button>
                 <input type="search"
-                   name="moduleArguments[searchTerm]"
-                   placeholder={props.i18n.id('restore.searchTerm').translate()}
-                   value={props.searchTerm}
-                   autofocus
-                  />
+                       name="moduleArguments[searchTerm]"
+                       placeholder={props.i18n.id('restore.searchTerm').translate()}
+                       value={props.searchTerm}
+                       autofocus
+                />
                 <a
                   href="#"
                   @if.isNotCurrent={!props.isCurrentPage}
@@ -100,9 +105,6 @@ Neos.Workspace.Ui.RestoreController.show = Neos.Fusion:Component {
               </div>
             </form>
           </div>
-          <legend>
-            {props.i18n.id('restore.deletedElements').arguments([workspaceName]).translate()}
-          </legend>
           <Neos.Workspace.Ui:Component.NodesTable
             @if.hasListItems={props.restoreListItems}
             restoreListItems={props.restoreListItems}
@@ -125,9 +127,12 @@ Neos.Workspace.Ui.RestoreController.show = Neos.Fusion:Component {
       <Neos.Workspace.Ui:Component.Footer>
         <Neos.Workspace.Ui:Component.Button
           label={props.i18n.id('restore.backToWorkspaceList')}
+          title={props.i18n.id('restore.backToWorkspaceList')}
           icon="arrow-left icon-white"
-          attributes.hx-get={props.syncWorkspace}
-          attributes.hx-target="#restore-module-content"
+          attributes.hx-get={props.backToWorkspaceOverview}
+          attributes.hx-replace-url={props.backToWorkspaceOverview}
+          attributes.hx-target="#workspace-module-content"
+          attributes.hx-select="#workspace-module-content"
           attributes.hx-swap="outerHTML"
         />
       </Neos.Workspace.Ui:Component.Footer>

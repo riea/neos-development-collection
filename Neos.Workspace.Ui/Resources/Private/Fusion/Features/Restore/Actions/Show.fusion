@@ -124,9 +124,8 @@ Neos.Workspace.Ui.RestoreController.show = Neos.Fusion:Component {
       </main>
       <Neos.Workspace.Ui:Component.Footer>
         <Neos.Workspace.Ui:Component.Button
-          @if.workspaceButtonIsEnabled={props.enableSyncButton && props.restoreListItems}
-          label={props.i18n.id('restore.syncWorkspace')}
-          icon="sync icon-white"
+          label={props.i18n.id('restore.backToWorkspaceList')}
+          icon="arrow-left icon-white"
           attributes.hx-get={props.syncWorkspace}
           attributes.hx-target="#restore-module-content"
           attributes.hx-swap="outerHTML"

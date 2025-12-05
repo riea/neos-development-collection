@@ -362,6 +362,9 @@
       <trans-unit id="restore.table.label" xml:space="preserve">
 				<source>Title</source>
 			</trans-unit>
+      <trans-unit id="restore.backToWorkspaceList" xml:space="preserve">
+				<source>Back to workspace overview</source>
+			</trans-unit>
       <trans-unit id="restore.noDeletedElements" xml:space="preserve">
 				<source>No deleted Elements could be found for this workspace</source>
 			</trans-unit>

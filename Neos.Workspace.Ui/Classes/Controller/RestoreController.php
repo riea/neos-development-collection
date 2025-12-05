@@ -306,12 +306,4 @@ class RestoreController extends AbstractModuleController
         ) ?: $id;
     }
 
-    protected function isWorkspaceOutdated(WorkspaceName $workspaceName, ContentRepository $contentRepository): bool{
-        $workspace = $contentRepository->findWorkspaceByName($workspaceName);
-        if ($workspace->status->value == WorkspaceStatus::OUTDATED) {
-            return true;
-        }
-        return false;
-    }
-
 }

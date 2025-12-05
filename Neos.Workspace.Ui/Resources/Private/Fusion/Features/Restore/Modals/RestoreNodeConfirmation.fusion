@@ -8,7 +8,9 @@ prototype(Neos.Workspace.Ui:Component.Modal.RestoreNodeConfirmation) < prototype
   /// boolean
   isParentRestore = false
   /// array
-  additionalRestoredNodes = null
+  additionallyRestoredAncestors = null
+  /// array
+  addditionallyRestoredDescendants = null
 
   @private {
     i18n = ${I18n.id('').source('Main').package('Neos.Workspace.Ui')}
@@ -48,10 +50,18 @@ prototype(Neos.Workspace.Ui:Component.Modal.RestoreNodeConfirmation) < prototype
 
         <p @if.isNormalRestore={!props.isParentRestore}>{private.i18n.id('restore.dialog.restore.text').arguments([props.nodeLabel, props.workspaceName])}</p>
         <p @if.isParentRestore={props.isParentRestore}>{private.i18n.id('restore.dialog.parentRestore.text').arguments([props.nodeLabel, props.workspaceName])}</p>
-        <div @if.hasRestorableChildNodes={props.additionalRestoredNodes} class="restored-nodes-container">
+        <div @if.hasRestorableChildNodes={props.addditionallyRestoredDescendants} class="restored-nodes-container">
             <p>{private.i18n.id('restore.dialog.restore.warning')}</p>
           <div class='restored-nodes-list'>
-            <Neos.Fusion:Loop items={props.additionalRestoredNodes} itemName="elementTitle" itemKey="elementId">
+            <Neos.Fusion:Loop items={props.addditionallyRestoredDescendants} itemName="elementTitle" itemKey="elementId">
+              <p>{elementTitle}</p>
+            </Neos.Fusion:Loop>
+          </div>
+        </div>
+        <div @if.alsoRestoresAncestors={props.additionallyRestoredAncestors} class="restored-nodes-container">
+          <p>{private.i18n.id('restore.dialog.restore.warningAscendant')}</p>
+          <div class='restored-nodes-list'>
+            <Neos.Fusion:Loop items={props.additionallyRestoredAncestors} itemName="elementTitle" itemKey="elementId">
               <p>{elementTitle}</p>
             </Neos.Fusion:Loop>
           </div>
@@ -69,7 +79,7 @@ prototype(Neos.Workspace.Ui:Component.Modal.RestoreNodeConfirmation) < prototype
 
         <Neos.Workspace.Ui:Component.Button
           isSuccess
-          label={private.i18n.id('restore.dialog.restore.confirm')}
+          label={props.addditionallyRestoredDescendants || props.additionallyRestoredAncestors ? private.i18n.id('restore.dialog.restore.confirmAll') : private.i18n.id('restore.dialog.restore.confirm')}
           attributes.hx-get={private.restoreUri}
           attributes.hx-target="#workspace-module-content"
           attributes.hx-swap="outerHTML"

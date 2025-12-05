@@ -410,11 +410,17 @@
       <trans-unit id="restore.dialog.restore.warning" xml:space="preserve">
 				<source>This will also restore the following deleted child nodes:</source>
 			</trans-unit>
+      <trans-unit id="restore.dialog.restore.warningAscendant" xml:space="preserve">
+				<source>This will also restore the following deleted parent nodes and all of their descendants:</source>
+			</trans-unit>
       <trans-unit id="restore.dialog.restore.cancel" xml:space="preserve">
 				<source>Cancel</source>
 			</trans-unit>
       <trans-unit id="restore.dialog.restore.confirm" xml:space="preserve">
 				<source>Restore now</source>
+			</trans-unit>
+      <trans-unit id="restore.dialog.restore.confirmAll" xml:space="preserve">
+				<source>Restore element and all related elements </source>
 			</trans-unit>
       <trans-unit id="restore.dialog.hardDelete.title" xml:space="preserve">
 				<source>Delete element forever?</source>

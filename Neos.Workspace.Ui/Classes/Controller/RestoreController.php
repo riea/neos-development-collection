@@ -110,6 +110,7 @@ class RestoreController extends AbstractModuleController
         $sortingObject = $sorting ? TrashBinSorting::fromJsonString($sorting) : TrashBinSorting::default();
 
         $numberOfItems =  $this->trashBin->countItemsByWorkspaceName($contentRepositoryId, $workspaceName, $searchTermObject);
+        //Todo: check if node is available in live workspace
         $offset =  ($page -1) * TrashBinPagination::DEFAULT_LIMIT;
         $pagination ??= TrashBinPagination::create($offset, TrashBinPagination::DEFAULT_LIMIT);
         $numberOfPages = (int)ceil($numberOfItems / TrashBinPagination::DEFAULT_LIMIT);
@@ -122,7 +123,6 @@ class RestoreController extends AbstractModuleController
         $hasHardRemovalPrivileges = $this->privilegeManager->isPrivilegeTargetGranted('Neos.Restore.Ui:Backend.HardDeleteNodes');
 
         $listItems = [];
-        //@todo: After hardDeleting a node, the Element still shows up in the list
         foreach ($this->trashBin->findItemsByWorkspaceNameWithParameters(
             contentRepositoryId: $contentRepositoryId,
             workspaceName: $workspaceName,
@@ -249,7 +249,7 @@ class RestoreController extends AbstractModuleController
         return $pagination;
     }
 
-    public function restoreNodeConfirmationAction(WorkspaceName $workspaceName, NodeAggregateId $nodeAggregateId, bool $restoreParent = false, ContentRepositoryId $contentRepositoryId = null): void
+    public function restoreNodeConfirmationAction(WorkspaceName $workspaceName, NodeAggregateId $nodeAggregateId, ContentRepositoryId $contentRepositoryId = null): void
     {
         if ($contentRepositoryId === null) {
             $contentRepositoryId = SiteDetectionResult::fromRequest($this->request->getHttpRequest())->contentRepositoryId;
@@ -270,18 +270,13 @@ class RestoreController extends AbstractModuleController
             // @todo get node label
             $childNodes[$restoreChildNode->nodeAggregateId->value] = $restoreChildNode->nodeName->value;
         }
-        // TODO: Solve this with htmx properties in the template, we need to update the modal instead of replacing the updated table, see the rebase confirmation in the workspace controller
-        if ($restoreParent) {
-            $this->response->addHttpHeader('HX-Retarget', '#restore-confirm-modal');
-            $this->response->addHttpHeader('HX-Reselect', '#restore-confirm-modal > *');
-            $this->response->addHttpHeader('HX-ReSwap', 'innerHTML');
-        }
+        // TODO: additionallyRestoredAncestors
         $this->view->assignMultiple([
             'nodeAggregateId' => $nodeAggregateId->value,
             'nodeLabel' => $nodeAggregate->nodeName,
             'workspaceName' => $workspaceName->value,
-            'additionalRestoredNodes' => $childNodes,
-            'isParentRestore' => $restoreParent,
+            'additionallyRestoredDescendants' => $childNodes,
+            'additionallyRestoredAncestors' => $childNodes,
         ]);
     }
 
@@ -302,19 +297,8 @@ class RestoreController extends AbstractModuleController
             tag: NeosSubtreeTag::removed(),
         ));
 
-        //@todo: Check if parent restoration is needed
-        //@todo: the forwards do not work and do not show the expected values
-        if ($contentRepository->getContentGraph($workspaceName)->findParentNodeAggregates($nodeAggregateId)){
-            $this->forward(actionName: 'restoreNodeConfirmation', arguments: [
-                'workspaceName' => $workspaceName->value,
-                'nodeAggregateId' => $nodeAggregateId->value,
-                'restoreParent' => true,
-                'contentRepositoryId' => $contentRepositoryId->value,
-            ]);
-        } else {
-            $this->addFlashMessage($this->getModuleLabel('restore.feedback.hasBeenRestored'));
-            $this->forward(actionName: 'show', arguments: ['workspaceName' => $workspaceName->value]);
-        }
+        $this->addFlashMessage($this->getModuleLabel('restore.feedback.hasBeenRestored'));
+        $this->forward(actionName: 'show', arguments: ['workspaceName' => $workspaceName->value]);
     }
 
     public function hardDeleteAction(NodeAggregateId $nodeAggregateId, WorkspaceName $workspaceName): void

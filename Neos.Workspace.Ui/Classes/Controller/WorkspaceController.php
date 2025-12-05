@@ -1334,7 +1334,7 @@ class WorkspaceController extends AbstractModuleController
     }
 
     protected function hasRestorableNodes(Workspace $workspace) {
-        //@todo check if the workspace has restorable nodes
+        //@todo check if the workspace has restorable nodes and is not outdated
         return true;
     }
 }

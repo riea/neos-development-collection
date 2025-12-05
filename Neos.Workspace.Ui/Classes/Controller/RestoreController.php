@@ -120,7 +120,6 @@ class RestoreController extends AbstractModuleController
         $contentGraph = $contentRepository->getContentGraph($workspaceName);
         $liveContentGraph = $contentRepository->getContentGraph(WorkspaceName::forLive());
 
-        $hasHardRemovalPrivileges = $this->privilegeManager->isPrivilegeTargetGranted('Neos.Restore.Ui:Backend.HardDeleteNodes');
 
         $listItems = [];
         foreach ($this->trashBin->findItemsByWorkspaceNameWithParameters(
@@ -180,12 +179,6 @@ class RestoreController extends AbstractModuleController
                     ? $user->getName()->getFullName()
                     : '[deleted user]',
                 deleteTime: $trashBinItem->deleteTime,
-                enableHardRemovalButton: $hasHardRemovalPrivileges
-                && $trashBinItem->affectedDimensionSpacePoints->getDifference(
-                    $liveContentGraph->findNodeAggregateById($trashBinItem->nodeAggregateId)
-                        ?->getCoveredDimensionsTaggedBy(NeosSubtreeTag::removed(), true)
-                        ?: DimensionSpacePointSet::fromArray([])
-                )->isEmpty(),
             );
         }
 
@@ -299,36 +292,6 @@ class RestoreController extends AbstractModuleController
 
         $this->addFlashMessage($this->getModuleLabel('restore.feedback.hasBeenRestored'));
         $this->forward(actionName: 'show', arguments: ['workspaceName' => $workspaceName->value]);
-    }
-
-    public function hardDeleteAction(NodeAggregateId $nodeAggregateId, WorkspaceName $workspaceName): void
-    {
-        $contentRepositoryId = SiteDetectionResult::fromRequest($this->request->getHttpRequest())->contentRepositoryId;
-        $contentRepository = $this->contentRepositoryRegistry->get($contentRepositoryId);
-
-        // @todo: resolve command(s) to result in removal of all soft-removed nodes on live (see GarbageCollector)
-        $nodeAggregate = $contentRepository->getContentGraph(WorkspaceName::forLive())->findNodeAggregateById($nodeAggregateId);
-        // @todo: Handle case that node does not exist in live workspace
-        $coveredDimensionSpacePoints = iterator_to_array($nodeAggregate->coveredDimensionSpacePoints);
-        $contentRepository->handle(RemoveNodeAggregate::create(
-            workspaceName: WorkspaceName::forLive(),
-            nodeAggregateId: $nodeAggregateId,
-            coveredDimensionSpacePoint: reset($coveredDimensionSpacePoints),
-            nodeVariantSelectionStrategy: NodeVariantSelectionStrategy::STRATEGY_ALL_VARIANTS,
-        ));
-        $this->addFlashMessage($this->getModuleLabel('restore.feedback.hasBeenHardDeleted'));
-
-        //@todo: This does not reload the list after closing the popup, target error if target is set in popup
-        $this->forward(actionName: 'show', arguments: ['workspaceName' => $workspaceName->value]);
-    }
-
-    public function hardDeleteConfirmationAction(NodeAggregateId $nodeAggregateId, WorkspaceName $workspaceName): void
-    {
-        $this->view->assignMultiple([
-            'nodeAggregateId' => $nodeAggregateId->value,
-            'workspaceName' => $workspaceName->value,
-            'nodeLabel' => 'TODO Node Label',
-        ]);
     }
 
     public function getModuleLabel(string $id, array $arguments = [], mixed $quantity = null): string

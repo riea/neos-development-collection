@@ -20,15 +20,6 @@ prototype(Neos.Workspace.Ui:Component.NodesTableRow) < prototype(Neos.Fusion:Com
         nodeAggregateId = ${props.restorelistItem.nodeAggregateId}
       }
     }
-    hardDeleteConfirmationUri = Neos.Fusion:ActionUri {
-      action = 'hardDeleteConfirmation'
-      format = 'htmx'
-      arguments {
-        nodeAggregateId = ${props.restorelistItem.nodeAggregateId}
-        workspaceName = ${props.workspaceName}
-      }
-    }
-    hardDeleteConfirmationPopoverId = 'hard-delete-confirm-modal'
 
     restoreConfirmationPopoverId = 'restore-confirm-modal'
   }
@@ -59,17 +50,6 @@ prototype(Neos.Workspace.Ui:Component.NodesTableRow) < prototype(Neos.Fusion:Com
           attributes.hx-swap='innerHTML'
           attributes.hx-on--after-request={'document.getElementById("' + private.restoreConfirmationPopoverId + '").showPopover()'}
 
-        />
-        <Neos.Workspace.Ui:Component.Button
-          @if.isLiveWorkspace={props.workspaceName == 'live'}
-          isDanger
-          title={private.i18n.id('restore.actions.hardDelete')}
-          icon="trash-alt icon-white"
-          disabled={!Security.hasAccess('Neos.Workspace.Ui:Backend.HardDeleteNodes')}
-          attributes.hx-get={private.hardDeleteConfirmationUri}
-          attributes.hx-target='#popover-container'
-          attributes.hx-swap='innerHTML'
-          attributes.hx-on--after-request={'document.getElementById("' + private.hardDeleteConfirmationPopoverId + '").showPopover()'}
         />
       </td>
     </tr>

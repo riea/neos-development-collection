@@ -31,10 +31,9 @@ final readonly class RestoreListItem
         public RestoreListItemVariantDetailsCollection $details,
         public string $deletionUserName,
         public \DateTimeImmutable $deleteTime,
-        public bool $enableHardRemovalButton,
     ) {
     }
-    
+
     public function getNodeAggregateId(): string {
         return $this->nodeAggregateId->jsonSerialize();
     }

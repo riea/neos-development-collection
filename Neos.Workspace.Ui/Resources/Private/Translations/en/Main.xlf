@@ -434,9 +434,6 @@
       <trans-unit id="restore.feedback.hasBeenRestored" xml:space="preserve">
 				<source>The Element and all of its parent elements have been restored</source>
 			</trans-unit>
-      <trans-unit id="restore.feedback.workspaceHasBeenSynchronized" xml:space="preserve">
-				<source>Your Workspace has been synchronized and the list of deleted elements has been updated.</source>
-			</trans-unit>
       <trans-unit id="restore.feedback.hasBeenHardDeleted" xml:space="preserve">
 				<source>The element and all of its descendant elements have been deleted forever.</source>
 			</trans-unit>

@@ -189,7 +189,6 @@ class RestoreController extends AbstractModuleController
             );
         }
 
-        //@todo: check permissions for sync button?
         $this->view->assignMultiple([
             'workspaceName' => $workspaceName->value,
             'activeWorkspaceName' => $workspaceName->value,
@@ -199,7 +198,6 @@ class RestoreController extends AbstractModuleController
             'searchTerm' => $searchTerm,
             'pagination' => $displayPagination,
             'currentPage' => $page,
-            'enableSyncButton' => $this->isWorkspaceOutdated($workspaceName, $contentRepository),
             'enableRestoreButtons' => $this->authorizationService->getWorkspacePermissions(
                 $contentRepositoryId,
                 $workspaceName,
@@ -348,13 +346,6 @@ class RestoreController extends AbstractModuleController
             'nodeLabel' => 'TODO Node Label',
         ]);
     }
-
-    public function syncWorkspaceAction(): void {
-
-        $this->addFlashMessage($this->getModuleLabel('restore.feedback.workspaceHasBeenSynchronized'));
-        $this->forward('index');
-    }
-
 
     public function getModuleLabel(string $id, array $arguments = [], mixed $quantity = null): string
     {

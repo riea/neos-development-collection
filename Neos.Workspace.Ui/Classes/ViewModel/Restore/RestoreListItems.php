@@ -17,7 +17,7 @@ namespace Neos\Workspace\Ui\ViewModel\Restore;
 use Neos\Flow\Annotations as Flow;
 
 /**
- * @implements \IteratorAggregate<int,RestoreListItems>
+ * @implements \IteratorAggregate<int,RestoreListItem>
  * @internal for communication within the Workspace UI only
  */
 #[Flow\Proxy(false)]
@@ -33,7 +33,7 @@ final readonly class RestoreListItems implements \IteratorAggregate, \Countable
 
     public static function create(RestoreListItem ...$items): self
     {
-        return new self(...array_values($items));
+        return new self(array_values($items));
     }
 
     /**
@@ -49,9 +49,6 @@ final readonly class RestoreListItems implements \IteratorAggregate, \Countable
         return new self($items);
     }
 
-    /**
-     * @return \Traversable<int,RestoreListItem>
-     */
     public function getIterator(): \Traversable
     {
         yield from $this->items;

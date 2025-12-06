@@ -33,7 +33,7 @@ final readonly class RestoreListItemVariantDetailsCollection implements \Iterato
 
     public static function create(RestoreListItemVariantDetails ...$items): self
     {
-        return new self(...array_values($items));
+        return new self(array_values($items));
     }
 
     /**
@@ -49,9 +49,6 @@ final readonly class RestoreListItemVariantDetailsCollection implements \Iterato
         return new self($items);
     }
 
-    /**
-     * @return \Traversable<int,RestoreListItemVariantDetails>
-     */
     public function getIterator(): \Traversable
     {
         yield from $this->items;

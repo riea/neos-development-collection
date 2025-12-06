@@ -19,10 +19,7 @@ namespace Neos\ContentRepository\NodeMigration\Command;
  */
 class MigrationConfiguration
 {
-    /**
-     * @var string
-     */
-    protected $comments;
+    protected ?string $comments;
 
     /**
      * @var string
@@ -44,10 +41,7 @@ class MigrationConfiguration
         $this->migration = $configuration['migration'] ?? null;
     }
 
-    /**
-     * @return string
-     */
-    public function getComments()
+    public function getComments(): ?string
     {
         return $this->comments;
     }

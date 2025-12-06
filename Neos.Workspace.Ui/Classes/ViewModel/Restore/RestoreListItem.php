@@ -19,7 +19,7 @@ use Neos\Flow\Annotations as Flow;
 
 
 /**
- * @internal for communication within the Restore UI only
+ * @internal for communication within the Workspace UI only
  */
 #[Flow\Proxy(false)]
 final readonly class RestoreListItem

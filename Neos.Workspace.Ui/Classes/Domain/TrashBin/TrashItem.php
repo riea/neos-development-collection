@@ -32,5 +32,4 @@ final readonly class TrashItem
         public DimensionSpacePointSet $affectedDimensionSpacePoints,
     ) {
     }
-
 }

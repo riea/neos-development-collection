@@ -17,13 +17,16 @@ namespace Neos\Workspace\Ui\Domain\TrashBin;
 use Neos\Eel\ProtectedContextAwareInterface;
 use Neos\Flow\Annotations as Flow;
 
+/**
+ * @internal for communication within the Workspace UI only
+ */
 #[Flow\Proxy(false)]
 final readonly class TrashBinPagination implements \JsonSerializable, ProtectedContextAwareInterface
 {
     public const DEFAULT_LIMIT = 20;
-    
+
     public const MAXIMUM_NUMBER_OF_LINKS = 99;
-    
+
     public function __construct(
         public int $offset,
         public ?int $limit,

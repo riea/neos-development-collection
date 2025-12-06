@@ -6,6 +6,9 @@ namespace Neos\Workspace\Ui\Domain\TrashBin;
 
 use Neos\Flow\Annotations as Flow;
 
+/**
+ * @internal for communication within the Workspace UI only
+ */
 #[Flow\Proxy(false)]
 final readonly class TrashBinSorting implements \JsonSerializable
 {

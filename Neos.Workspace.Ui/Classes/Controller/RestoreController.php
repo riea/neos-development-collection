@@ -48,7 +48,7 @@ use Neos\Workspace\Ui\ViewModel\Restore\RestoreListItemVariantDetailsCollection;
 /**
  * The Neos Restore module controller
  *
- * @internal for communication within the Restore UI only
+ * @internal for communication within the Workspace UI only
  */
 #[Flow\Scope('singleton')]
 class RestoreController extends AbstractModuleController

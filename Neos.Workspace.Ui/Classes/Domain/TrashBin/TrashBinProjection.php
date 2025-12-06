@@ -45,7 +45,7 @@ use Neos\Neos\Domain\SubtreeTagging\NeosSubtreeTag;
 use Neos\Neos\PendingChangesProjection\ChangeFinder;
 
 /**
- * @internal Only for consumption inside Neos. Not public api because the implementation will be refactored sooner or later: https://github.com/neos/neos-development-collection/issues/5493
+ * @internal for communication within the Workspace UI only
  * @implements ProjectionInterface<ChangeFinder>
  */
 class TrashBinProjection implements ProjectionInterface

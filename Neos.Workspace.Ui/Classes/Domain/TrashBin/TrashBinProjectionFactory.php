@@ -19,6 +19,7 @@ use Neos\ContentRepository\Core\Factory\SubscriberFactoryDependencies;
 use Neos\ContentRepository\Core\Projection\ProjectionFactoryInterface;
 
 /**
+ * @internal for communication within the Workspace UI only
  * @implements ProjectionFactoryInterface<TrashBinProjection>
  */
 class TrashBinProjectionFactory implements ProjectionFactoryInterface

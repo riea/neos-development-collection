@@ -42,11 +42,10 @@ use Neos\ContentRepository\Dbal\DbalSchemaFactory;
 use Neos\EventStore\Model\Event\EventMetadata;
 use Neos\EventStore\Model\EventEnvelope;
 use Neos\Neos\Domain\SubtreeTagging\NeosSubtreeTag;
-use Neos\Neos\PendingChangesProjection\ChangeFinder;
 
 /**
  * @internal for communication within the Workspace UI only
- * @implements ProjectionInterface<ChangeFinder>
+ * @implements ProjectionInterface<TrashItemFinder>
  */
 class TrashBinProjection implements ProjectionInterface
 {

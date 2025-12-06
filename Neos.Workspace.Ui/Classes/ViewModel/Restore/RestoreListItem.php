@@ -17,7 +17,6 @@ namespace Neos\Workspace\Ui\ViewModel\Restore;
 use Neos\ContentRepository\Core\SharedModel\Node\NodeAggregateId;
 use Neos\Flow\Annotations as Flow;
 
-
 /**
  * @internal for communication within the Workspace UI only
  */
@@ -34,7 +33,8 @@ final readonly class RestoreListItem
     ) {
     }
 
-    public function getNodeAggregateId(): string {
+    public function getNodeAggregateId(): string
+    {
         return $this->nodeAggregateId->jsonSerialize();
     }
 }

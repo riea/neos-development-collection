@@ -152,7 +152,7 @@ class WorkspaceController extends AbstractModuleController
         $contentRepository = $this->contentRepositoryRegistry->get($contentRepositoryId);
 
         $workspaceListItems = $this->getWorkspaceListItems($contentRepository);
-        $workspaceListItems = match($sorting->sortBy) {
+        $workspaceListItems = match ($sorting->sortBy) {
             'title' => $workspaceListItems->sortByTitle($sorting->sortAscending),
         };
         $this->view->assignMultiple([
@@ -183,7 +183,7 @@ class WorkspaceController extends AbstractModuleController
         }
 
         $workspacePermissions = $this->authorizationService->getWorkspacePermissions($contentRepositoryId, $workspace, $this->securityContext->getRoles(), $currentUser->getId());
-        if(!$workspacePermissions->read){
+        if (!$workspacePermissions->read) {
             $this->addFlashMessage(
                 $this->getModuleLabel('workspaces.changes.noPermissionToReadWorkspace'),
                 '',
@@ -236,7 +236,7 @@ class WorkspaceController extends AbstractModuleController
         $contentRepositoryId = SiteDetectionResult::fromRequest($this->request->getHttpRequest())->contentRepositoryId;
         $workspaceName = $this->workspaceService->getUniqueWorkspaceName($contentRepositoryId, $title->value);
 
-        $assignments = match($visibility) {
+        $assignments = match ($visibility) {
             'shared' => WorkspaceRoleAssignments::createForSharedWorkspace($currentUser->getId()),
             'private' => WorkspaceRoleAssignments::createForPrivateWorkspace($currentUser->getId()),
             default => throw new \RuntimeException(sprintf('Invalid visibility %s given', $visibility), 1736343542)
@@ -383,7 +383,7 @@ class WorkspaceController extends AbstractModuleController
             WorkspaceRole::COLLABORATOR,
         );
 
-        match($visibility) {
+        match ($visibility) {
             'shared' => !$workspaceRoleAssignments->contains($sharedRoleAssignment) && $this->workspaceService->assignWorkspaceRole(
                 $contentRepositoryId,
                 $workspaceName,
@@ -721,7 +721,6 @@ class WorkspaceController extends AbstractModuleController
             );
             $this->addFlashMessage($this->getModuleLabel('workspaces.workspaceHasBeenRebased'));
             $this->forward('index');
-
         } catch (WorkspaceRebaseFailed $e) {
             if ($force) {
                 $this->addFlashMessage($this->getModuleLabel('workspaces.ForceRebaseWorkspaceFailed'));
@@ -733,7 +732,6 @@ class WorkspaceController extends AbstractModuleController
                 'event' => (new \ReflectionClass($conflictingEvent->getEvent()))->getShortName() . ' ' . $conflictingEvent->getSequenceNumber()->value,
                 'eventPayload' => htmlentities(json_encode($conflictingEvent->getEvent(), JSON_THROW_ON_ERROR | JSON_PRETTY_PRINT), ENT_NOQUOTES),
             ], iterator_to_array($e->conflictingEvents));
-
         }
         $contentRepository = $this->contentRepositoryRegistry->get($contentRepositoryId);
         $workspace = $contentRepository->findWorkspaceByName($workspaceName);
@@ -764,8 +762,6 @@ class WorkspaceController extends AbstractModuleController
             'baseWorkspaceTitle' => $baseWorkspaceMetadata->title->value,
             'conflictInformation' => $conflictInformation,
         ]);
-
-
     }
 
     /**
@@ -800,7 +796,7 @@ class WorkspaceController extends AbstractModuleController
     protected function computePendingChanges(Workspace $selectedWorkspace, ContentRepository $contentRepository): PendingChanges
     {
         $changesCount = ['new' => 0, 'changed' => 0, 'removed' => 0];
-        foreach($this->getChangesFromWorkspace($selectedWorkspace, $contentRepository) as $change) {
+        foreach ($this->getChangesFromWorkspace($selectedWorkspace, $contentRepository) as $change) {
             if ($change->deleted) {
                 $changesCount['removed']++;
             } elseif ($change->created) {
@@ -902,7 +898,7 @@ class WorkspaceController extends AbstractModuleController
                         )
                     );
 
-                    if(!isset($siteChanges[$siteNodeName]['documents'][$documentPath]['document'])) {
+                    if (!isset($siteChanges[$siteNodeName]['documents'][$documentPath]['document'])) {
                         $documentNodeAddress = NodeAddress::create(
                             $contentRepository->id,
                             $selectedWorkspace->workspaceName,
@@ -956,7 +952,6 @@ class WorkspaceController extends AbstractModuleController
                     );
                 }
             }
-
         }
 
         ksort($siteChanges);
@@ -1054,7 +1049,6 @@ class WorkspaceController extends AbstractModuleController
                 $this->postProcessDiffArray($diffArray);
 
                 if (count($diffArray) > 0) {
-
                     $contentChanges[$propertyName] = new ContentChangeItem(
                         properties: new ContentChangeProperties(
                             type: 'text',
@@ -1326,14 +1320,16 @@ class WorkspaceController extends AbstractModuleController
         return WorkspaceListItems::fromArray($workspaceListItems);
     }
 
-    protected function getChangesFromWorkspace(Workspace $selectedWorkspace,ContentRepository $contentRepository ): Changes{
+    protected function getChangesFromWorkspace(Workspace $selectedWorkspace, ContentRepository $contentRepository): Changes
+    {
         return $contentRepository->projectionState(ChangeFinder::class)
             ->findByContentStreamId(
                 $selectedWorkspace->currentContentStreamId
             );
     }
 
-    protected function hasRestorableNodes(Workspace $workspace) {
+    protected function hasRestorableNodes(Workspace $workspace)
+    {
         //@todo check if the workspace has restorable nodes and is not outdated
         return true;
     }

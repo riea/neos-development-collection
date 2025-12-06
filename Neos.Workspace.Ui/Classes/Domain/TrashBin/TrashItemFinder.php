@@ -81,8 +81,7 @@ class TrashItemFinder implements ProjectionStateInterface
     public function countItemsByWorkspaceName(
         WorkspaceName $workspaceName,
         ?NodeAggregateIds $filterToNodeAggregateIds
-    ): int
-    {
+    ): int {
         $query = 'SELECT count(*) count  FROM ' . $this->itemTableName .
                  ' WHERE workspace_name = :workspaceName ' . (
                     $filterToNodeAggregateIds ? ' AND node_aggregate_id IN (:nodeAggregateIds) ' : ''

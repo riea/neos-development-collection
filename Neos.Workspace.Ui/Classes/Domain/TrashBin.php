@@ -29,7 +29,6 @@ use Neos\Workspace\Ui\Domain\TrashBin\TrashBinSorting;
 use Neos\Workspace\Ui\Domain\TrashBin\TrashItemFinder;
 use Neos\Workspace\Ui\Domain\TrashBin\TrashItems;
 
-
 /**
  * @internal for communication within the Workspace UI only
  */
@@ -73,8 +72,7 @@ class TrashBin
         ContentRepository $contentRepository,
         WorkspaceName $workspaceName,
         ?SearchTerm $searchTerm,
-    ): ?NodeAggregateIds
-    {
+    ): ?NodeAggregateIds {
         $filterToNodeAggregateIds = null;
         if ($searchTerm) {
             $filterToNodeAggregateIds = [];

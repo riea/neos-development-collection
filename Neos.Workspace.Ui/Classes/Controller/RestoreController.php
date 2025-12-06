@@ -106,31 +106,30 @@ class RestoreController extends AbstractModuleController
 
         $numberOfItems =  $this->trashBin->countItemsByWorkspaceName($contentRepositoryId, $workspaceName, $searchTermObject);
         //Todo: check if node is available in live workspace
-        $offset =  ($page -1) * TrashBinPagination::DEFAULT_LIMIT;
+        $offset = ($page - 1) * TrashBinPagination::DEFAULT_LIMIT;
         $pagination ??= TrashBinPagination::create($offset, TrashBinPagination::DEFAULT_LIMIT);
         $numberOfPages = (int)ceil($numberOfItems / TrashBinPagination::DEFAULT_LIMIT);
         $displayPagination = $this->paginagtionRange($numberOfPages, $page);
 
-
         $contentGraph = $contentRepository->getContentGraph($workspaceName);
         $liveContentGraph = $contentRepository->getContentGraph(WorkspaceName::forLive());
 
-
         $listItems = [];
-        foreach ($this->trashBin->findItemsByWorkspaceNameWithParameters(
-            contentRepositoryId: $contentRepositoryId,
-            workspaceName: $workspaceName,
-            sorting: $sortingObject,
-            pagination: $pagination,
-            searchTerm: $searchTermObject,
-        ) as $trashBinItem) {
-
+        foreach (
+            $this->trashBin->findItemsByWorkspaceNameWithParameters(
+                contentRepositoryId: $contentRepositoryId,
+                workspaceName: $workspaceName,
+                sorting: $sortingObject,
+                pagination: $pagination,
+                searchTerm: $searchTermObject,
+            ) as $trashBinItem
+        ) {
             $nodeAggregate = $contentGraph->findNodeAggregateById($trashBinItem->nodeAggregateId);
 
             $details = [];
             foreach (
                 $nodeAggregate->occupiedDimensionSpacePoints->getIntersection(
-                OriginDimensionSpacePointSet::fromDimensionSpacePointSet($trashBinItem->affectedDimensionSpacePoints)
+                    OriginDimensionSpacePointSet::fromDimensionSpacePointSet($trashBinItem->affectedDimensionSpacePoints)
                 ) as $originDimensionSpacePoint
             ) {
                 $subgraph = $contentGraph->getSubgraph(
@@ -210,8 +209,8 @@ class RestoreController extends AbstractModuleController
         if ($displayRangeEnd > $numberOfPages) {
             $displayRangeStart -= ($displayRangeEnd - $numberOfPages);
         }
-        $displayRangeStart = (integer)max($displayRangeStart, 1);
-        $displayRangeEnd = (integer)min($displayRangeEnd, $numberOfPages);
+        $displayRangeStart = (int)max($displayRangeStart, 1);
+        $displayRangeEnd = (int)min($displayRangeEnd, $numberOfPages);
 
         $pages = [];
         for ($i = $displayRangeStart; $i <= $displayRangeEnd; $i++) {
@@ -298,5 +297,4 @@ class RestoreController extends AbstractModuleController
             'Neos.Workspace.Ui'
         ) ?: $id;
     }
-
 }

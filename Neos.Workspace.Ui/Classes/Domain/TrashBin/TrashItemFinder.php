@@ -16,8 +16,6 @@ namespace Neos\Workspace\Ui\Domain\TrashBin;
 
 use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
-use Doctrine\DBAL\Types\Type;
-use Doctrine\DBAL\Types\Types;
 use Neos\ContentRepository\Core\DimensionSpace\DimensionSpacePointSet;
 use Neos\ContentRepository\Core\Projection\ProjectionStateInterface;
 use Neos\ContentRepository\Core\SharedModel\Node\NodeAggregateId;
@@ -57,7 +55,7 @@ class TrashItemFinder implements ProjectionStateInterface
         if ($pagination->offset) {
             $query .= ' OFFSET ' . $pagination->offset;
         }
-        
+
         $records = $this->connection->executeQuery(
             $query,
             [
@@ -79,7 +77,7 @@ class TrashItemFinder implements ProjectionStateInterface
             $records,
         ));
     }
-    
+
     public function countItemsByWorkspaceName(
         WorkspaceName $workspaceName,
         ?NodeAggregateIds $filterToNodeAggregateIds
@@ -89,7 +87,7 @@ class TrashItemFinder implements ProjectionStateInterface
                  ' WHERE workspace_name = :workspaceName ' . (
                     $filterToNodeAggregateIds ? ' AND node_aggregate_id IN (:nodeAggregateIds) ' : ''
                 );
-        
+
         $records = $this->connection->executeQuery(
             $query,
             [
@@ -100,7 +98,7 @@ class TrashItemFinder implements ProjectionStateInterface
                 'nodeAggregateIds' => ArrayParameterType::STRING
             ]
         )->fetchAllAssociative();
-        
+
         return $records[0]['count'];
     }
 }

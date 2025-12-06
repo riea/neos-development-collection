@@ -50,12 +50,12 @@ class TrashBin
     ): TrashItems {
         $contentRepository = $this->contentRepositoryRegistry->get($contentRepositoryId);
         $filterToNodeAggregateIds = $this->filterToNodeAggregateIds($contentRepository, $workspaceName, $searchTerm);
-       
+
         return $contentRepository
             ->projectionState(TrashItemFinder::class)
             ->findItemsByWorkspaceNameWithParameters($workspaceName, $sorting, $pagination, $filterToNodeAggregateIds);
     }
-    
+
     public function countItemsByWorkspaceName(
         ContentRepositoryId $contentRepositoryId,
         WorkspaceName $workspaceName,
@@ -63,12 +63,12 @@ class TrashBin
     ): int {
         $contentRepository = $this->contentRepositoryRegistry->get($contentRepositoryId);
         $filterToNodeAggregateIds = $this->filterToNodeAggregateIds($contentRepository, $workspaceName, $searchTerm);
-        
+
         return $contentRepository
-                ->projectionState(TrashItemFinder::class)
-                ->countItemsByWorkspaceName($workspaceName, $filterToNodeAggregateIds);
+            ->projectionState(TrashItemFinder::class)
+            ->countItemsByWorkspaceName($workspaceName, $filterToNodeAggregateIds);
     }
-    
+
     private function filterToNodeAggregateIds(
         ContentRepository $contentRepository,
         WorkspaceName $workspaceName,
@@ -80,7 +80,7 @@ class TrashBin
             $filterToNodeAggregateIds = [];
             foreach (
                 $contentRepository->getContentGraph($workspaceName)
-                                  ->findNodeAggregatesTaggedBy(NeosSubtreeTag::removed()) as $taggedNodeAggregate
+                    ->findNodeAggregatesTaggedBy(NeosSubtreeTag::removed()) as $taggedNodeAggregate
             ) {
                 foreach ($taggedNodeAggregate->getCoveredDimensionsTaggedBy(NeosSubtreeTag::removed(), true) as $taggedDimensionSpacePoint) {
                     $taggedOrigin = OriginDimensionSpacePoint::fromDimensionSpacePoint($taggedDimensionSpacePoint);

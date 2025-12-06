@@ -14,22 +14,17 @@ declare(strict_types=1);
 
 namespace Neos\Workspace\Ui\Controller;
 
-use Neos\ContentRepository\Core\ContentRepository;
 use Neos\ContentRepository\Core\Dimension\ContentDimensionId;
-use Neos\ContentRepository\Core\DimensionSpace\DimensionSpacePointSet;
 use Neos\ContentRepository\Core\DimensionSpace\OriginDimensionSpacePointSet;
-use Neos\ContentRepository\Core\Feature\NodeRemoval\Command\RemoveNodeAggregate;
 use Neos\ContentRepository\Core\Feature\SubtreeTagging\Command\UntagSubtree;
 use Neos\ContentRepository\Core\Projection\ContentGraph\Filter\FindAncestorNodesFilter;
 use Neos\ContentRepository\Core\Projection\ContentGraph\Filter\SearchTerm\SearchTerm;
 use Neos\ContentRepository\Core\Projection\ContentGraph\Node;
 use Neos\ContentRepository\Core\Projection\ContentGraph\VisibilityConstraints;
-use Neos\ContentRepository\Core\SharedModel\ContentRepository\ContentRepositoryId;
 use Neos\ContentRepository\Core\SharedModel\Node\NodeAggregateId;
 use Neos\ContentRepository\Core\SharedModel\Node\NodeVariantSelectionStrategy;
-use Neos\ContentRepository\Core\SharedModel\Workspace\WorkspaceStatus;
-use Neos\ContentRepositoryRegistry\ContentRepositoryRegistry;
 use Neos\ContentRepository\Core\SharedModel\Workspace\WorkspaceName;
+use Neos\ContentRepositoryRegistry\ContentRepositoryRegistry;
 use Neos\Flow\Annotations as Flow;
 use Neos\Flow\I18n\Translator;
 use Neos\Flow\Security\Authorization\PrivilegeManager;
@@ -44,9 +39,9 @@ use Neos\Neos\FrontendRouting\SiteDetection\SiteDetectionResult;
 use Neos\Neos\Security\Authorization\ContentRepositoryAuthorizationService;
 use Neos\Workspace\Ui\Domain\TrashBin;
 use Neos\Workspace\Ui\Domain\TrashBin\TrashBinPagination;
+use Neos\Workspace\Ui\Domain\TrashBin\TrashBinSorting;
 use Neos\Workspace\Ui\ViewModel\Restore\RestoreListItem;
 use Neos\Workspace\Ui\ViewModel\Restore\RestoreListItems;
-use Neos\Workspace\Ui\Domain\TrashBin\TrashBinSorting;
 use Neos\Workspace\Ui\ViewModel\Restore\RestoreListItemVariantDetails;
 use Neos\Workspace\Ui\ViewModel\Restore\RestoreListItemVariantDetailsCollection;
 

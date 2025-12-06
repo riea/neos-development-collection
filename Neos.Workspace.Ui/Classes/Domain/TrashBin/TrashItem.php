@@ -15,9 +15,9 @@ declare(strict_types=1);
 namespace Neos\Workspace\Ui\Domain\TrashBin;
 
 use Neos\ContentRepository\Core\DimensionSpace\DimensionSpacePointSet;
-use Neos\Neos\Domain\Model\UserId;
 use Neos\ContentRepository\Core\SharedModel\Node\NodeAggregateId;
 use Neos\Flow\Annotations as Flow;
+use Neos\Neos\Domain\Model\UserId;
 
 /**
  * @internal for communication within the Workspace UI only

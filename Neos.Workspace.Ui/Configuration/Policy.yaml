@@ -5,9 +5,7 @@ privilegeTargets:
     'Neos.Workspace.Ui:Backend.CreateWorkspaces':
       label: Allowed to create a workspace
       matcher: 'method(Neos\Workspace\Ui\Controller\WorkspaceController->(create|new)Action())'
-    'Neos.Workspace.Ui:Backend.HardDeleteNodes':
-      label: Allowed to hard delete Nodes
-      matcher: 'method(Neos\Workspace\Ui\Controller\RestoreController->hardDeleteAction())'
+
     'Neos.Workspace.Ui:Backend.Access':
         matcher: 'method(Neos\Workspace\Ui\Controller\RestoreController->.*())'
 
@@ -29,9 +27,4 @@ roles:
 
       -
         privilegeTarget: 'Neos.Workspace.Ui:Backend.Module.Management.Workspace'
-        permission: GRANT
-
-  'Neos.Neos:Administrator':
-    privileges:
-      - privilegeTarget: 'Neos.Workspace.Ui:Backend.HardDeleteNodes'
         permission: GRANT

@@ -31,6 +31,7 @@ use Neos\Flow\Security\Authorization\PrivilegeManager;
 use Neos\Flow\Security\Context;
 use Neos\Fusion\View\FusionView;
 use Neos\Neos\Controller\Module\AbstractModuleController;
+use Neos\Neos\Domain\Model\UserId;
 use Neos\Neos\Domain\NodeLabel\NodeLabelGeneratorInterface;
 use Neos\Neos\Domain\Service\UserService;
 use Neos\Neos\Domain\Service\WorkspaceService;
@@ -161,7 +162,8 @@ class RestoreController extends AbstractModuleController
             }
             $nodeType = $contentRepository->getNodeTypeManager()->getNodeType($nodeAggregate->nodeTypeName);
 
-            $user = $this->userService->findUserById($trashBinItem->userId);
+            // we assume the cr user id is a neos-user id even though there could be other values. The cr's "system" user is excluded as it does not make sense to the neos user/account world.
+            $user = $trashBinItem->userId && !$trashBinItem->userId->isSystemUser() ? $this->userService->findUserById(UserId::fromString($trashBinItem->userId->value)) : null;
 
             $listItems[] = new RestoreListItem(
                 nodeAggregateId: $trashBinItem->nodeAggregateId,
@@ -171,7 +173,11 @@ class RestoreController extends AbstractModuleController
                 details: RestoreListItemVariantDetailsCollection::fromArray($details),
                 deletionUserName: $user
                     ? $user->getName()->getFullName()
-                    : '[deleted user]',
+                    : (
+                        $trashBinItem->userId
+                            ? sprintf('[non-existing user %s]', $trashBinItem->userId)
+                            : '[no user metadata]'
+                    ),
                 deleteTime: $trashBinItem->deleteTime,
             );
         }

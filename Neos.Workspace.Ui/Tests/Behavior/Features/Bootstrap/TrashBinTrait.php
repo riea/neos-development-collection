@@ -35,8 +35,8 @@ trait TrashBinTrait
 
         $actualItemsTable = array_map(static fn(TrashItem $trashItem): array => [
             'nodeAggregateId' => $trashItem->nodeAggregateId->value,
-            'userId' => $trashItem->userId->value,
-            'deleteTime' => $trashItem->deleteTime->format(\DateTimeInterface::ATOM),
+            'userId' => $trashItem->userId?->value,
+            'deleteTime' => $trashItem->deleteTime?->format(\DateTimeInterface::ATOM),
             'affectedDimensionSpacePoints' => $trashItem->affectedDimensionSpacePoints->toJson(),
         ], iterator_to_array($actualTrashItems));
 
@@ -62,8 +62,8 @@ trait TrashBinTrait
 
         $actualItemsTable = array_map(static fn(TrashItem $trashItem): array => [
             'nodeAggregateId' => $trashItem->nodeAggregateId->value,
-            'userId' => $trashItem->userId->value,
-            'deleteTime' => $trashItem->deleteTime->format(\DateTimeInterface::ATOM),
+            'userId' => $trashItem->userId?->value,
+            'deleteTime' => $trashItem->deleteTime?->format(\DateTimeInterface::ATOM),
             'affectedDimensionSpacePoints' => \json_decode($trashItem->affectedDimensionSpacePoints->toJson(), true, 512, JSON_THROW_ON_ERROR),
         ], iterator_to_array($actualTrashItems));
 

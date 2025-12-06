@@ -17,11 +17,11 @@ namespace Neos\Workspace\Ui\Domain\TrashBin;
 use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
 use Neos\ContentRepository\Core\DimensionSpace\DimensionSpacePointSet;
+use Neos\ContentRepository\Core\Feature\Security\Dto\UserId;
 use Neos\ContentRepository\Core\Projection\ProjectionStateInterface;
 use Neos\ContentRepository\Core\SharedModel\Node\NodeAggregateId;
 use Neos\ContentRepository\Core\SharedModel\Node\NodeAggregateIds;
 use Neos\ContentRepository\Core\SharedModel\Workspace\WorkspaceName;
-use Neos\Neos\Domain\Model\UserId;
 
 /**
  * @internal for communication within the Workspace UI only
@@ -71,7 +71,7 @@ class TrashItemFinder implements ProjectionStateInterface
             fn (array $record): TrashItem => new TrashItem(
                 nodeAggregateId: NodeAggregateId::fromString($record['node_aggregate_id']),
                 userId: UserId::fromString($record['user_id']),
-                deleteTime: \DateTimeImmutable::createFromFormat('Y-m-d H:i:s', $record['delete_time'], new \DateTimeZone('UTC')),
+                deleteTime: \DateTimeImmutable::createFromFormat('Y-m-d H:i:s', $record['delete_time'], new \DateTimeZone('UTC')) ?: null,
                 affectedDimensionSpacePoints: DimensionSpacePointSet::fromJsonString($record['affected_dimension_space_points']),
             ),
             $records,

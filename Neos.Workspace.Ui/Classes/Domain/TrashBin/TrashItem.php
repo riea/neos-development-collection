@@ -15,9 +15,9 @@ declare(strict_types=1);
 namespace Neos\Workspace\Ui\Domain\TrashBin;
 
 use Neos\ContentRepository\Core\DimensionSpace\DimensionSpacePointSet;
+use Neos\ContentRepository\Core\Feature\Security\Dto\UserId;
 use Neos\ContentRepository\Core\SharedModel\Node\NodeAggregateId;
 use Neos\Flow\Annotations as Flow;
-use Neos\Neos\Domain\Model\UserId;
 
 /**
  * @internal for communication within the Workspace UI only
@@ -27,8 +27,8 @@ final readonly class TrashItem
 {
     public function __construct(
         public NodeAggregateId $nodeAggregateId,
-        public UserId $userId,
-        public \DateTimeImmutable $deleteTime,
+        public ?UserId $userId,
+        public ?\DateTimeImmutable $deleteTime,
         public DimensionSpacePointSet $affectedDimensionSpacePoints,
     ) {
     }

@@ -108,8 +108,8 @@ class TrashBinProjection implements ProjectionInterface
             [
                 DbalSchemaFactory::columnForWorkspaceName('workspace_name', $platform)->setNotNull(true),
                 DbalSchemaFactory::columnForNodeAggregateId('node_aggregate_id', $platform)->setNotnull(true),
-                (new Column('user_id', Type::getType(Types::GUID)))->setNotnull(true),
-                (new Column('delete_time', Type::getType(Types::DATETIME_IMMUTABLE)))->setNotnull(true),
+                (new Column('user_id', Type::getType(Types::GUID)))->setNotnull(false),
+                (new Column('delete_time', Type::getType(Types::DATETIME_IMMUTABLE)))->setNotnull(false),
                 (new Column('affected_dimension_space_points', Type::getType(Types::JSON)))->setNotnull(true),
                 DbalSchemaFactory::columnForDimensionSpacePointHash('affected_dimension_space_points_hash', $platform)->setNotnull(false),
             ]
@@ -272,18 +272,23 @@ class TrashBinProjection implements ProjectionInterface
         WorkspaceName $workspaceName,
         NodeAggregateId $nodeAggregateId,
         DimensionSpacePointSet $affectedDimensionSpacePoints,
-        EventMetadata $eventMetadata,
+        ?EventMetadata $eventMetadata,
     ): void {
         $this->dbal->insert(
             $this->itemTableName,
             [
                 'workspace_name' => $workspaceName->value,
                 'node_aggregate_id' => $nodeAggregateId->value,
-                'user_id' => $eventMetadata->get(InitiatingEventMetadata::INITIATING_USER_ID),
-                'delete_time' => \DateTimeImmutable::createFromFormat(
-                    \DateTimeInterface::ATOM,
-                    $eventMetadata->get(InitiatingEventMetadata::INITIATING_TIMESTAMP)
-                )->setTimezone(new \DateTimeZone('UTC'))->format('Y-m-d H:i:s'),
+                'user_id' => $eventMetadata?->get(InitiatingEventMetadata::INITIATING_USER_ID),
+                'delete_time' => $eventMetadata?->get(InitiatingEventMetadata::INITIATING_TIMESTAMP)
+                    ? (
+                        (\DateTimeImmutable::createFromFormat(
+                            \DateTimeInterface::ATOM,
+                            $eventMetadata->get(InitiatingEventMetadata::INITIATING_TIMESTAMP)
+                        ) ?: null)
+                            ?->setTimezone(new \DateTimeZone('UTC'))
+                            ->format('Y-m-d H:i:s')
+                    ) : null,
                 'affected_dimension_space_points' => $affectedDimensionSpacePoints->toJson(),
                 'affected_dimension_space_points_hash' => $this->getDimensionSpacePointSetHash($affectedDimensionSpacePoints),
             ]

@@ -68,23 +68,27 @@ prototype(Neos.Workspace.Ui:Component.Pagination) < prototype(Neos.Fusion:Compon
       <ul>
         <li class="previous" @if.isPreviousPage={props.pagination.current > 1}>
           <a
-                  href="#"
-                  hx-get={private.previousPageUri}
-                  hx-replace-url={private.previousPageUri}
-                  hx-target="#workspace-module-content"
-                  hx-select="#workspace-module-content"
-                  hx-swap="outerHTML"
-          >{props.pagination.previousPage}</a>
+            href="#"
+            hx-get={private.previousPageUri}
+            hx-replace-url={private.previousPageUri}
+            hx-target="#workspace-module-content"
+            hx-select="#workspace-module-content"
+            hx-swap="outerHTML"
+          >
+            {props.pagination.previousPage}
+          </a>
         </li>
         <li class="first" @if.isFirstPage={props.pagination.displayRangeStart > 1}>
           <a
-                  href="#"
-                  hx-get={private.firstPageUri}
-                  hx-replace-url={private.firstPageUri}
-                  hx-target="#workspace-module-content"
-                  hx-select="#workspace-module-content"
-                  hx-swap="outerHTML"
-          >1</a>
+            href="#"
+            hx-get={private.firstPageUri}
+            hx-replace-url={private.firstPageUri}
+            hx-target="#workspace-module-content"
+            hx-select="#workspace-module-content"
+            hx-swap="outerHTML"
+          >
+            1
+          </a>
         </li>
         <li @if.hasLessPages={props.pagination.displayRangeStart > 2}>
           ...
@@ -92,11 +96,11 @@ prototype(Neos.Workspace.Ui:Component.Pagination) < prototype(Neos.Fusion:Compon
 
         <Neos.Fusion:Loop items={props.pagination.pages} itemName="paginationItem">
           <Neos.Workspace.Ui:Component.PaginationItem
-                  workspaceName={props.workspaceName}
-                  pageNumber={paginationItem.number}
-                  isCurrentPage={paginationItem.isCurrent}
-                  searchTerm={props.searchTerm}
-                  sorting={props.sorting}
+            workspaceName={props.workspaceName}
+            pageNumber={paginationItem.number}
+            isCurrentPage={paginationItem.isCurrent}
+            searchTerm={props.searchTerm}
+            sorting={props.sorting}
           />
         </Neos.Fusion:Loop>
 
@@ -106,24 +110,28 @@ prototype(Neos.Workspace.Ui:Component.Pagination) < prototype(Neos.Fusion:Compon
 
         <li class="last" @if.isLastPage={props.pagination.displayRangeEnd < props.pagination.numberOfPages}>
           <a
-                  href="#"
-                  hx-get={private.lastPageUri}
-                  hx-replace-url={private.lastPageUri}
-                  hx-target="#workspace-module-content"
-                  hx-select="#workspace-module-content"
-                  hx-swap="outerHTML"
-          >{props.pagination.numberOfPages}</a>
+            href="#"
+            hx-get={private.lastPageUri}
+            hx-replace-url={private.lastPageUri}
+            hx-target="#workspace-module-content"
+            hx-select="#workspace-module-content"
+            hx-swap="outerHTML"
+          >
+            {props.pagination.numberOfPages}
+          </a>
         </li>
 
         <li class="next" @if.isNextPage={props.pagination.current < props.pagination.numberOfPages}>
           <a
-                  href="#"
-                  hx-get={private.nextPageUri}
-                  hx-replace-url={private.nextPageUri}
-                  hx-target="#workspace-module-content"
-                  hx-select="#workspace-module-content"
-                  hx-swap="outerHTML"
-          >{props.pagination.nextPage}</a>
+            href="#"
+            hx-get={private.nextPageUri}
+            hx-replace-url={private.nextPageUri}
+            hx-target="#workspace-module-content"
+            hx-select="#workspace-module-content"
+            hx-swap="outerHTML"
+          >
+            {props.pagination.nextPage}
+          </a>
         </li>
       </ul>
     </div>

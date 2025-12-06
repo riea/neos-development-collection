@@ -24,7 +24,6 @@ prototype(Neos.Workspace.Ui:Component.Modal.RestoreNodeConfirmation) < prototype
         nodeAggregateId = ${props.nodeAggregateId}
       }
     }
-
   }
 
   renderer = afx`
@@ -46,8 +45,6 @@ prototype(Neos.Workspace.Ui:Component.Modal.RestoreNodeConfirmation) < prototype
       </header>
 
       <section>
-
-
         <p @if.isNormalRestore={!props.isParentRestore}>{private.i18n.id('restore.dialog.restore.text').arguments([props.nodeLabel, props.workspaceName])}</p>
         <p @if.isParentRestore={props.isParentRestore}>{private.i18n.id('restore.dialog.parentRestore.text').arguments([props.nodeLabel, props.workspaceName])}</p>
         <div @if.hasRestorableChildNodes={props.addditionallyRestoredDescendants} class="restored-nodes-container">
@@ -67,6 +64,7 @@ prototype(Neos.Workspace.Ui:Component.Modal.RestoreNodeConfirmation) < prototype
           </div>
         </div>
       </section>
+
       <footer>
         <button
           type="button"
@@ -86,7 +84,6 @@ prototype(Neos.Workspace.Ui:Component.Modal.RestoreNodeConfirmation) < prototype
           attributes.hx-on--after-request={'document.getElementById("' + private.popoverId + '").hidePopover()'}
         />
       </footer>
-
     </div>
   `
 }

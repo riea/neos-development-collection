@@ -10,7 +10,7 @@ prototype(Neos.Workspace.Ui:Component.Modal.RestoreNodeConfirmation) < prototype
   /// array
   additionallyRestoredAncestors = null
   /// array
-  addditionallyRestoredDescendants = null
+  additionallyRestoredDescendants = null
 
   @private {
     i18n = ${I18n.id('').source('Main').package('Neos.Workspace.Ui')}
@@ -47,10 +47,10 @@ prototype(Neos.Workspace.Ui:Component.Modal.RestoreNodeConfirmation) < prototype
       <section>
         <p @if.isNormalRestore={!props.isParentRestore}>{private.i18n.id('restore.dialog.restore.text').arguments([props.nodeLabel, props.workspaceName])}</p>
         <p @if.isParentRestore={props.isParentRestore}>{private.i18n.id('restore.dialog.parentRestore.text').arguments([props.nodeLabel, props.workspaceName])}</p>
-        <div @if.hasRestorableChildNodes={props.addditionallyRestoredDescendants} class="restored-nodes-container">
+        <div @if.hasRestorableChildNodes={props.additionallyRestoredDescendants} class="restored-nodes-container">
             <p>{private.i18n.id('restore.dialog.restore.warning')}</p>
           <div class='restored-nodes-list'>
-            <Neos.Fusion:Loop items={props.addditionallyRestoredDescendants} itemName="elementTitle" itemKey="elementId">
+            <Neos.Fusion:Loop items={props.additionallyRestoredDescendants} itemName="elementTitle" itemKey="elementId">
               <p>{elementTitle}</p>
             </Neos.Fusion:Loop>
           </div>
@@ -77,7 +77,7 @@ prototype(Neos.Workspace.Ui:Component.Modal.RestoreNodeConfirmation) < prototype
 
         <Neos.Workspace.Ui:Component.Button
           isSuccess
-          label={props.addditionallyRestoredDescendants || props.additionallyRestoredAncestors ? private.i18n.id('restore.dialog.restore.confirmAll') : private.i18n.id('restore.dialog.restore.confirm')}
+          label={props.additionallyRestoredDescendants || props.additionallyRestoredAncestors ? private.i18n.id('restore.dialog.restore.confirmAll') : private.i18n.id('restore.dialog.restore.confirm')}
           attributes.hx-get={private.restoreUri}
           attributes.hx-target="#workspace-module-content"
           attributes.hx-swap="outerHTML"

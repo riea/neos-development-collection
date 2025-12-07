@@ -14,20 +14,26 @@ declare(strict_types=1);
 
 namespace Neos\Workspace\Ui\Controller;
 
+use Neos\ContentRepository\Core\ContentRepository;
 use Neos\ContentRepository\Core\Dimension\ContentDimensionId;
+use Neos\ContentRepository\Core\DimensionSpace\DimensionSpacePoint;
+use Neos\ContentRepository\Core\DimensionSpace\DimensionSpacePointSet;
 use Neos\ContentRepository\Core\DimensionSpace\OriginDimensionSpacePointSet;
 use Neos\ContentRepository\Core\Feature\SubtreeTagging\Command\UntagSubtree;
+use Neos\ContentRepository\Core\Projection\ContentGraph\ContentGraphInterface;
 use Neos\ContentRepository\Core\Projection\ContentGraph\Filter\FindAncestorNodesFilter;
 use Neos\ContentRepository\Core\Projection\ContentGraph\Filter\SearchTerm\SearchTerm;
 use Neos\ContentRepository\Core\Projection\ContentGraph\Node;
+use Neos\ContentRepository\Core\Projection\ContentGraph\NodeAggregate;
 use Neos\ContentRepository\Core\Projection\ContentGraph\VisibilityConstraints;
 use Neos\ContentRepository\Core\SharedModel\Node\NodeAggregateId;
 use Neos\ContentRepository\Core\SharedModel\Node\NodeVariantSelectionStrategy;
 use Neos\ContentRepository\Core\SharedModel\Workspace\WorkspaceName;
+use Neos\ContentRepository\Core\SharedModel\Workspace\WorkspaceStatus;
 use Neos\ContentRepositoryRegistry\ContentRepositoryRegistry;
+use Neos\Error\Messages\Message;
 use Neos\Flow\Annotations as Flow;
 use Neos\Flow\I18n\Translator;
-use Neos\Flow\Security\Authorization\PrivilegeManager;
 use Neos\Flow\Security\Context;
 use Neos\Fusion\View\FusionView;
 use Neos\Neos\Controller\Module\AbstractModuleController;
@@ -75,9 +81,6 @@ class RestoreController extends AbstractModuleController
     protected TrashBin $trashBin;
 
     #[Flow\Inject]
-    protected PrivilegeManager $privilegeManager;
-
-    #[Flow\Inject]
     protected ContentRepositoryAuthorizationService $authorizationService;
 
     #[Flow\Inject]
@@ -106,14 +109,13 @@ class RestoreController extends AbstractModuleController
         $sortingObject = $sorting ? TrashBinSorting::fromJsonString($sorting) : TrashBinSorting::default();
 
         $numberOfItems =  $this->trashBin->countItemsByWorkspaceName($contentRepositoryId, $workspaceName, $searchTermObject);
-        //Todo: check if node is available in live workspace
         $offset = ($page - 1) * TrashBinPagination::DEFAULT_LIMIT;
         $pagination ??= TrashBinPagination::create($offset, TrashBinPagination::DEFAULT_LIMIT);
         $numberOfPages = (int)ceil($numberOfItems / TrashBinPagination::DEFAULT_LIMIT);
         $displayPagination = $this->paginationRange($numberOfPages, $page);
 
         $contentGraph = $contentRepository->getContentGraph($workspaceName);
-        $liveContentGraph = $contentRepository->getContentGraph(WorkspaceName::forLive());
+        $workspace = $contentRepository->findWorkspaceByName($workspaceName);
 
         $listItems = [];
         foreach (
@@ -179,8 +181,7 @@ class RestoreController extends AbstractModuleController
             $listItems[] = new RestoreListItem(
                 nodeAggregateId: $trashBinItem->nodeAggregateId,
                 icon: $nodeType?->getFullConfiguration()['ui']['icon'],
-                // @todo translate
-                nodeTypeLabel: $nodeAggregate->nodeTypeName->value,
+                nodeTypeLabel: $nodeTypeLabel,
                 details: RestoreListItemVariantDetailsCollection::fromArray($details),
                 deletionUserName: $user
                     ? $user->getName()->getFullName()
@@ -208,6 +209,7 @@ class RestoreController extends AbstractModuleController
                 $this->securityContext->getRoles(),
                 $this->userService->getCurrentUser()?->getId(),
             )->write
+            && $workspace->status === WorkspaceStatus::UP_TO_DATE
         ]);
     }
 
@@ -257,44 +259,74 @@ class RestoreController extends AbstractModuleController
     {
         $contentRepositoryId = SiteDetectionResult::fromRequest($this->request->getHttpRequest())->contentRepositoryId;
         $contentRepository = $this->contentRepositoryRegistry->get($contentRepositoryId);
-        $nodeAggregate = $contentRepository->getContentGraph($workspaceName)->findNodeAggregateById($nodeAggregateId);
+        $this->requireWorkspaceToBeInSync($workspaceName, $contentRepository);
+        $dimensionSpacePointsToRestoreIn = $this->requireDimensionSpacePointsTheNodeAggregateIsRemovedIn(
+            $nodeAggregateId,
+            $workspaceName,
+            $contentRepository
+        );
+        $contentGraph = $contentRepository->getContentGraph($workspaceName);
+        /**
+         * @var NodeAggregate $nodeAggregate
+         * (already enforced by requireDimensionSpacePointTheNodeAggregateIsRemovedIn)
+         */
+        $nodeAggregate = $contentGraph->findNodeAggregateById($nodeAggregateId);
 
-        // @todo validate that
-        // * the node is still removed
-        // inform about
-        // * there might be more variants restored than selected in the UI (due to split trash items); which ones?
-
-        //@todo only show the child nodes that are not explicitly tagged as removed since they will not be restored automatically
-        //@todo also load children of children
-        $restoreChildNodes = $contentRepository->getContentGraph($workspaceName)->findChildNodeAggregates($nodeAggregateId);
-        $childNodes = [];
-        foreach ($restoreChildNodes as $restoreChildNode) {
-            // @todo get node label
-            $childNodes[$restoreChildNode->nodeAggregateId->value] = $restoreChildNode->nodeName->value;
+        $nodeForLabel = null;
+        $currentInterfaceLanguage = $this->userService->getCurrentUser()?->getPreferences()->getInterfaceLanguage();
+        if ($currentInterfaceLanguage) {
+            foreach ($dimensionSpacePointsToRestoreIn as $dimensionSpacePoint) {
+                if (
+                    $dimensionSpacePoint->getCoordinate(new ContentDimensionId('language'))
+                    === $currentInterfaceLanguage
+                ) {
+                    $origin = $nodeAggregate->getOccupationByCovered($dimensionSpacePoint);
+                    $nodeForLabel = $nodeAggregate->getNodeByOccupiedDimensionSpacePoint($origin);
+                    break;
+                }
+            }
         }
-        // TODO: additionallyRestoredAncestors
+        if (!$nodeForLabel) {
+            $nodes = iterator_to_array($nodeAggregate->getNodes());
+            $nodeForLabel = reset($nodes) ?: null;
+        }
+
         $this->view->assignMultiple([
             'nodeAggregateId' => $nodeAggregateId->value,
-            'nodeLabel' => $nodeAggregate->nodeName,
+            'nodeLabel' => $nodeForLabel
+                ? $this->nodeLabelGenerator->getLabel($nodeForLabel)
+                : $nodeAggregate->nodeTypeName->value,
             'workspaceName' => $workspaceName->value,
-            'additionallyRestoredDescendants' => $childNodes,
-            'additionallyRestoredAncestors' => $childNodes,
+            'additionallyRestoredDescendants' => $this->gatherAdditionallyRestoredDescendants(
+                nodeAggregateId: $nodeAggregateId,
+                descendants: [],
+                contentGraph: $contentGraph,
+            ),
+            'additionallyRestoredAncestors' => $this->gatherAdditionallyRestoredAncestors(
+                nodeAggregateId: $nodeAggregateId,
+                ancestors: [],
+                contentGraph: $contentGraph,
+            ),
         ]);
     }
 
     public function restoreNodeAction(WorkspaceName $workspaceName, NodeAggregateId $nodeAggregateId): void
     {
-        // @todo check before failing;
         $contentRepositoryId = SiteDetectionResult::fromRequest($this->request->getHttpRequest())->contentRepositoryId;
         $contentRepository = $this->contentRepositoryRegistry->get($contentRepositoryId);
-        $nodeAggregate = $contentRepository->getContentGraph($workspaceName)->findNodeAggregateById($nodeAggregateId);
-        $coveredDimensionSpacePoints = iterator_to_array($nodeAggregate->coveredDimensionSpacePoints);
+        $this->requireWorkspaceToBeInSync($workspaceName, $contentRepository);
+        /** @var non-empty-array<DimensionSpacePoint> $restorableDimensionSpacePoints */
+        $restorableDimensionSpacePoints = $this->requireDimensionSpacePointsTheNodeAggregateIsRemovedIn(
+            nodeAggregateId: $nodeAggregateId,
+            workspaceName: $workspaceName,
+            contentRepository: $contentRepository,
+        )->points;
 
 
         $contentRepository->handle(UntagSubtree::create(
             workspaceName: $workspaceName,
             nodeAggregateId: $nodeAggregateId,
-            coveredDimensionSpacePoint: reset($coveredDimensionSpacePoints),
+            coveredDimensionSpacePoint: reset($restorableDimensionSpacePoints),
             nodeVariantSelectionStrategy: NodeVariantSelectionStrategy::STRATEGY_ALL_VARIANTS,
             tag: NeosSubtreeTag::removed(),
         ));
@@ -303,7 +335,112 @@ class RestoreController extends AbstractModuleController
         $this->forward(actionName: 'show', arguments: ['workspaceName' => $workspaceName->value]);
     }
 
-    public function getModuleLabel(string $id, array $arguments = [], mixed $quantity = null): string
+    protected function requireDimensionSpacePointsTheNodeAggregateIsRemovedIn(
+        NodeAggregateId $nodeAggregateId,
+        WorkspaceName $workspaceName,
+        ContentRepository $contentRepository,
+    ): DimensionSpacePointSet {
+        $nodeAggregate = $contentRepository->getContentGraph($workspaceName)->findNodeAggregateById($nodeAggregateId);
+        $removedCoverage = $nodeAggregate?->getCoveredDimensionsTaggedBy(
+            NeosSubtreeTag::removed(),
+            true
+        ) ?: DimensionSpacePointSet::fromArray([]);
+        if ($removedCoverage->isEmpty()) {
+            $this->addFlashMessage(
+                messageBody: $this->getModuleLabel('restore.feedback.isNotRemoved'),
+                severity: Message::SEVERITY_NOTICE,
+            );
+            $this->forward(actionName: 'show', arguments: ['workspaceName' => $workspaceName->value]);
+        }
+
+        return $removedCoverage;
+    }
+
+    protected function requireWorkspaceToBeInSync(WorkspaceName $workspaceName, ContentRepository $contentRepository): void
+    {
+        $workspace = $contentRepository->findWorkspaceByName($workspaceName);
+        if ($workspace->status !== WorkspaceStatus::UP_TO_DATE) {
+            $this->addFlashMessage(
+                messageBody: $this->getModuleLabel('restore.feedback.workspaceIsOutOfSync'),
+                severity: Message::SEVERITY_WARNING,
+            );
+            $this->forward(actionName: 'show', arguments: ['workspaceName' => $workspaceName->value]);
+        }
+    }
+
+    /**
+     * @param array<string,string> $descendants
+     * @return array<string,string>
+     */
+    protected function gatherAdditionallyRestoredDescendants(
+        NodeAggregateId $nodeAggregateId,
+        array $descendants,
+        ContentGraphInterface $contentGraph
+    ): array {
+        foreach ($contentGraph->findChildNodeAggregates($nodeAggregateId) as $childNodeAggregate) {
+            $dimensionSpacePointsTheChildNodeAggregateWillBeRestoredIn
+                = $childNodeAggregate->coveredDimensionSpacePoints->getDifference(
+                    $childNodeAggregate->getCoveredDimensionsTaggedBy(
+                        NeosSubtreeTag::removed(),
+                        true
+                    )
+            );
+            if (
+                $dimensionSpacePointsTheChildNodeAggregateWillBeRestoredIn->isEmpty()
+            ) {
+                continue;
+            }
+            foreach ($dimensionSpacePointsTheChildNodeAggregateWillBeRestoredIn as $dimensionSpacePoint) {
+                $origin = $childNodeAggregate->getOccupationByCovered($dimensionSpacePoint);
+                $originNode = $childNodeAggregate->getNodeByOccupiedDimensionSpacePoint($origin);
+                $descendants[$childNodeAggregate->nodeAggregateId->value . '@' . $origin->toJson()]
+                    = $this->nodeLabelGenerator->getLabel($originNode);
+            }
+
+            $descendants = $this->gatherAdditionallyRestoredDescendants(
+                nodeAggregateId: $childNodeAggregate->nodeAggregateId,
+                descendants: $descendants,
+                contentGraph: $contentGraph
+            );
+        }
+
+        return $descendants;
+    }
+
+    /**
+     * @param array<string,string> $ancestors
+     * @return array<string,string>
+     */
+    protected function gatherAdditionallyRestoredAncestors(
+        NodeAggregateId $nodeAggregateId,
+        array $ancestors,
+        ContentGraphInterface $contentGraph
+    ): array {
+        foreach ($contentGraph->findParentNodeAggregates($nodeAggregateId) as $parentNodeAggregate) {
+            $dimensionSpacePointsTheParentNodeAggregateWillBeRestoredIn
+                = $parentNodeAggregate->getCoveredDimensionsTaggedBy(
+                    subtreeTag: NeosSubtreeTag::removed(),
+                    withoutInherited: true,
+                );
+
+            foreach ($dimensionSpacePointsTheParentNodeAggregateWillBeRestoredIn as $dimensionSpacePoint) {
+                $origin = $parentNodeAggregate->getOccupationByCovered($dimensionSpacePoint);
+                $originNode = $parentNodeAggregate->getNodeByOccupiedDimensionSpacePoint($origin);
+                $ancestors[$parentNodeAggregate->nodeAggregateId->value . '@' . $origin->toJson()]
+                    = $this->nodeLabelGenerator->getLabel($originNode);
+            }
+
+            $ancestors = $this->gatherAdditionallyRestoredAncestors(
+                nodeAggregateId: $parentNodeAggregate->nodeAggregateId,
+                ancestors: $ancestors,
+                contentGraph: $contentGraph
+            );
+        }
+
+        return $ancestors;
+    }
+
+    protected function getModuleLabel(string $id, array $arguments = [], mixed $quantity = null): string
     {
         return $this->translator->translateById(
             $id,

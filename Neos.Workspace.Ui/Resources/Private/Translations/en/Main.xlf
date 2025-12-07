@@ -420,16 +420,19 @@
 				<source>Restore element and all related elements </source>
 			</trans-unit>
       <trans-unit id="restore.feedback.hasBeenRestored" xml:space="preserve">
-				<source>The Element and all of its parent elements have been restored</source>
+				<source>The element and all of its parent elements have been restored</source>
+			</trans-unit>
+      <trans-unit id="restore.feedback.isNotRemoved" xml:space="preserve">
+				<source>Restoring the element was not necessary because it is no longer removed</source>
+			</trans-unit>
+      <trans-unit id="restore.feedback.workspaceIsOutOfSync" xml:space="preserve">
+				<source>Restoring the element failed because the workspace is out of sync</source>
 			</trans-unit>
       <trans-unit id="restore.syncWorkspace" xml:space="preserve">
 				<source>Sync workspace</source>
 			</trans-unit>
       <trans-unit id="restore.searchTerm" xml:space="preserve">
         <source>Search</source>
-      </trans-unit>
-      <trans-unit id="restore.feedback.hasBeenRestored" xml:space="preserve">
-        <source>Node has been restored</source>
       </trans-unit>
     </body>
   </file>

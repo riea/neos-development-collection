@@ -98,6 +98,7 @@ final class ContentRepositoryFactory
             $contentDimensionSource,
             $this->interDimensionalVariationGraph,
             $this->propertyConverter,
+            $this->performanceTracer
         );
         $subscribers = [];
         $additionalProjectionStates = [];
@@ -123,6 +124,7 @@ final class ContentRepositoryFactory
                 $this->nodeTypeManager,
                 $this->contentDimensionSource,
                 $this->interDimensionalVariationGraph,
+                $this->performanceTracer
             )),
         );
     }

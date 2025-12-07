@@ -110,7 +110,7 @@ class RestoreController extends AbstractModuleController
         $offset = ($page - 1) * TrashBinPagination::DEFAULT_LIMIT;
         $pagination ??= TrashBinPagination::create($offset, TrashBinPagination::DEFAULT_LIMIT);
         $numberOfPages = (int)ceil($numberOfItems / TrashBinPagination::DEFAULT_LIMIT);
-        $displayPagination = $this->paginagtionRange($numberOfPages, $page);
+        $displayPagination = $this->paginationRange($numberOfPages, $page);
 
         $contentGraph = $contentRepository->getContentGraph($workspaceName);
         $liveContentGraph = $contentRepository->getContentGraph(WorkspaceName::forLive());
@@ -165,6 +165,17 @@ class RestoreController extends AbstractModuleController
             // we assume the cr user id is a neos-user id even though there could be other values. The cr's "system" user is excluded as it does not make sense to the neos user/account world.
             $user = $trashBinItem->userId && !$trashBinItem->userId->isSystemUser() ? $this->userService->findUserById(UserId::fromString($trashBinItem->userId->value)) : null;
 
+            $nodeTypeLabel = $nodeType?->getLabel() ?: '';
+            if (\substr_count($nodeTypeLabel, ':') === 2) {
+                [$packageKey, $sourceName, $labelId] = explode(':', $nodeTypeLabel);
+                $sourceName = \str_replace('.', '/', $sourceName);
+
+                $nodeTypeLabel = $this->translator->translateById(
+                    labelId: $labelId,
+                    sourceName: $sourceName,
+                    packageKey: $packageKey,
+                ) ?: $nodeTypeLabel;
+            }
             $listItems[] = new RestoreListItem(
                 nodeAggregateId: $trashBinItem->nodeAggregateId,
                 icon: $nodeType?->getFullConfiguration()['ui']['icon'],
@@ -200,7 +211,7 @@ class RestoreController extends AbstractModuleController
         ]);
     }
 
-    protected function paginagtionRange(int $numberOfPages, int $currentPage): array
+    protected function paginationRange(int $numberOfPages, int $currentPage): array
     {
         $maximumNumberOfLinks = TrashBinPagination::MAXIMUM_NUMBER_OF_LINKS;
         if ($maximumNumberOfLinks > $numberOfPages) {

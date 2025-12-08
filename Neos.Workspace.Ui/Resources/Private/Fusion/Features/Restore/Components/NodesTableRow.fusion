@@ -42,9 +42,8 @@ prototype(Neos.Workspace.Ui:Component.NodesTableRow) < prototype(Neos.Fusion:Com
       </td>
       <td class="restore-action-column">
         <Neos.Workspace.Ui:Component.Button
-          title={private.i18n.id('restore.actions.restoreChange')}
+          title={private.i18n.id('restore.table.actions.restoreElement')}
           icon="fa-solid fa-trash-can-arrow-up"
-          label={private.i18n.id('restore.actions.restoreChange')}
           attributes.hx-get={private.restoreUri}
           attributes.hx-target='#popover-container'
           attributes.hx-swap='innerHTML'

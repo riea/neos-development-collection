@@ -353,6 +353,9 @@
       <trans-unit id="workspaces.ForceRebaseWorkspaceFailed" xml:space="preserve">
 				<source>Forcing the sync has failed. Please try discarding your changes.</source>
 			</trans-unit>
+      <trans-unit id="workspace.RestoreButtonTitle" xml:space="preserve">
+				<source>Show and restore deleted elements in workspace "{0}"</source>
+			</trans-unit>
       <trans-unit id="restore.deletedElements" xml:space="preserve">
 				<source>Deleted elements in workspace "{0}"</source>
 			</trans-unit>
@@ -387,7 +390,7 @@
 				<source>Actions</source>
 			</trans-unit>
       <trans-unit id="restore.table.actions.restoreElement" xml:space="preserve">
-				<source>Restore this element to workspace</source>
+				<source>Restore this element to current workspace</source>
 			</trans-unit>
       <trans-unit id="restore.dialog.restore.title" xml:space="preserve">
 				<source>Restore element to workspace</source>

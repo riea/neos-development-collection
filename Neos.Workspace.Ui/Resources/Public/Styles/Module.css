@@ -493,6 +493,9 @@ tr.neos-change + tr.neos-change td.neos-content-change {
   td.node-information {
     padding: 0.5em 0.5em;
   }
+  td.node-type-column {
+    text-align: center;
+  }
 }
 #restore-confirm-modal {
   .restored-nodes-header {

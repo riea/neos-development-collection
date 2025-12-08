@@ -49,19 +49,19 @@ prototype(Neos.Workspace.Ui:Component.Modal.RestoreNodeConfirmation) < prototype
         <p @if.isParentRestore={props.isParentRestore}>{private.i18n.id('restore.dialog.parentRestore.text').arguments([props.nodeLabel, props.workspaceName])}</p>
         <div @if.hasRestorableChildNodes={props.additionallyRestoredDescendants} class="restored-nodes-container">
             <p>{private.i18n.id('restore.dialog.restore.warning')}</p>
-          <div class='restored-nodes-list'>
+          <ul class='restored-nodes-list'>
             <Neos.Fusion:Loop items={props.additionallyRestoredDescendants} itemName="elementTitle" itemKey="elementId">
-              <p>{elementTitle}</p>
+              <li>{elementTitle}</li>
             </Neos.Fusion:Loop>
-          </div>
+          </ul>
         </div>
         <div @if.alsoRestoresAncestors={props.additionallyRestoredAncestors} class="restored-nodes-container">
           <p>{private.i18n.id('restore.dialog.restore.warningAscendant')}</p>
-          <div class='restored-nodes-list'>
+          <ul class='restored-nodes-list'>
             <Neos.Fusion:Loop items={props.additionallyRestoredAncestors} itemName="elementTitle" itemKey="elementId">
-              <p>{elementTitle}</p>
+              <li>{elementTitle}</li>
             </Neos.Fusion:Loop>
-          </div>
+          </ul>
         </div>
       </section>
 

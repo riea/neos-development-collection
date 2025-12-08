@@ -505,4 +505,12 @@ tr.neos-change + tr.neos-change td.neos-content-change {
   .restored-nodes-container {
     margin-top: 20px;
   }
+  .restored-nodes-list {
+    margin-top: 4px;
+  }
+  .restored-nodes-list li {
+    list-style-type: disc;
+    margin-left: 20px;
+    margin-bottom: 4px
+  }
 }

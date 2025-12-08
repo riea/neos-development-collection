@@ -331,6 +331,7 @@ class RestoreController extends AbstractModuleController
             tag: NeosSubtreeTag::removed(),
         ));
 
+        //Todo: Also restore ancestors if they are removed
         $this->addFlashMessage($this->getModuleLabel('restore.feedback.hasBeenRestored'));
         $this->forward(actionName: 'show', arguments: ['workspaceName' => $workspaceName->value]);
     }

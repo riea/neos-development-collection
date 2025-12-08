@@ -14,6 +14,7 @@ use Neos\ContentRepository\Core\Factory\ContentRepositoryServiceFactoryInterface
 use Neos\ContentRepository\Core\Factory\ContentRepositoryServiceInterface;
 use Neos\ContentRepository\Core\Factory\ContentRepositorySubscriberFactories;
 use Neos\ContentRepository\Core\Factory\ProjectionSubscriberFactory;
+use Neos\ContentRepository\Core\Infrastructure\PerformanceTracing\PerformanceTracerInterface;
 use Neos\ContentRepository\Core\NodeType\NodeTypeManager;
 use Neos\ContentRepository\Core\Projection\CatchUpHook\CatchUpHookFactories;
 use Neos\ContentRepository\Core\Projection\CatchUpHook\CatchUpHookFactoryInterface;
@@ -34,6 +35,7 @@ use Neos\ContentRepositoryRegistry\Factory\ContentDimensionSource\ContentDimensi
 use Neos\ContentRepositoryRegistry\Factory\EventStore\EventStoreFactoryInterface;
 use Neos\ContentRepositoryRegistry\Factory\NodeTypeManager\NodeTypeManagerFactoryInterface;
 use Neos\ContentRepositoryRegistry\Factory\SubscriptionStore\SubscriptionStoreFactoryInterface;
+use Neos\ContentRepositoryRegistry\Factory\PerformanceTracer\PerformanceTracerFactoryInterface;
 use Neos\ContentRepositoryRegistry\SubgraphCachingInMemory\SubgraphCachePool;
 use Neos\EventStore\EventStoreInterface;
 use Neos\Flow\Annotations as Flow;
@@ -203,6 +205,7 @@ final class ContentRepositoryRegistry
                 $this->buildCommandHooksFactory($contentRepositoryId, $contentRepositorySettings),
                 $this->buildAdditionalSubscribersFactories($contentRepositoryId, $contentRepositorySettings),
                 $this->logger,
+                $this->buildPerformanceTracer($contentRepositoryId, $contentRepositorySettings),
             );
         } catch (\Exception $exception) {
             throw InvalidConfigurationException::fromException($contentRepositoryId, $exception);
@@ -389,6 +392,19 @@ final class ContentRepositoryRegistry
             throw InvalidConfigurationException::fromMessage('subscriptionStore.factoryObjectName for content repository "%s" is not an instance of %s but %s.', $contentRepositoryId->value, SubscriptionStoreFactoryInterface::class, get_debug_type($subscriptionStoreFactory));
         }
         return $subscriptionStoreFactory->build($contentRepositoryId, $clock, $contentRepositorySettings['subscriptionStore']['options'] ?? []);
+    }
+
+    /** @param array<string, mixed> $contentRepositorySettings */
+    private function buildPerformanceTracer(ContentRepositoryId $contentRepositoryId, array $contentRepositorySettings): PerformanceTracerInterface|null
+    {
+        if (!isset($contentRepositorySettings['performanceTracer']['factoryObjectName'])) {
+            return null;
+        }
+        $tracerFactory = $this->objectManager->get($contentRepositorySettings['performanceTracer']['factoryObjectName']);
+        if (!$tracerFactory instanceof PerformanceTracerFactoryInterface) {
+            throw InvalidConfigurationException::fromMessage('performanceTracer.factoryObjectName for content repository "%s" is not an instance of %s but %s.', $contentRepositoryId->value, PerformanceTracerFactoryInterface::class, get_debug_type($tracerFactory));
+        }
+        return $tracerFactory->build($contentRepositoryId, $contentRepositorySettings['performanceTracer']['options'] ?? []);
     }
 }
 

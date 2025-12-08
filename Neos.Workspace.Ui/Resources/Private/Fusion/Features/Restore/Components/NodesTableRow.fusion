@@ -52,26 +52,27 @@ prototype(Neos.Workspace.Ui:Component.NodesTableRow) < prototype(Neos.Fusion:Com
         />
       </td>
     </tr>
-    <tr>
-    <Neos.Fusion:Loop items={props.restorelistItem.details} itemName="detail">
-      <td></td>
-      <td class="node-information">
-        <span >
-          <Neos.Fusion:Loop items={detail.ancestorLabels} itemName="breadcrumbItem">
-            <Neos.Workspace.Ui:Component.Icon icon="fas fa-caret-right" @if.notFirst={!iterator.isFirst} />
-            {breadcrumbItem}
-          </Neos.Fusion:Loop>
-        </span> <br />
-        <span>{detail.label}</span><br />
 
-      </td>
-      <td>
-        <Neos.Fusion:Loop items={detail.dimensionValueLabels} itemKey="key" itemName="dimension">
-          <span class="neos-label" title={dimension}>{dimension}</span>
-        </Neos.Fusion:Loop>
-      </td>
-      <td colspan="3"></td>
+    <Neos.Fusion:Loop items={props.restorelistItem.details} itemName="detail">
+      <tr>
+        <td></td>
+        <td class="node-information">
+          <span >
+            <Neos.Fusion:Loop items={detail.ancestorLabels} itemName="breadcrumbItem">
+              <Neos.Workspace.Ui:Component.Icon icon="fas fa-caret-right" @if.notFirst={!iterator.isFirst} />
+              {breadcrumbItem}
+            </Neos.Fusion:Loop>
+          </span> <br />
+          <span>{detail.label}</span><br />
+
+        </td>
+        <td>
+          <Neos.Fusion:Loop items={detail.dimensionValueLabels} itemKey="key" itemName="dimension">
+            <span class="neos-label" title={dimension}>{dimension}</span>
+          </Neos.Fusion:Loop>
+        </td>
+        <td colspan="3"></td>
+      </tr>
     </Neos.Fusion:Loop>
-    </tr>
   `
 }

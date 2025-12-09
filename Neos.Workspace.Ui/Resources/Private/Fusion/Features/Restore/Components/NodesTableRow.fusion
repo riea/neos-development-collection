@@ -4,10 +4,18 @@
 prototype(Neos.Workspace.Ui:Component.NodesTableRow) < prototype(Neos.Fusion:Component) {
   /// Neos\Workspace\Ui\ViewModel\RestoreListItem
   restorelistItem = ${[]}
+
   /// integer
   level = 0
 
   workspaceName = ''
+
+  /// boolean
+  enableRestoreButtons = true
+
+  /// boolean
+  workspaceIsOutdated = false
+
 
   @private {
     i18n = ${I18n.id('').source('Main').package('Neos.Workspace.Ui')}
@@ -42,7 +50,8 @@ prototype(Neos.Workspace.Ui:Component.NodesTableRow) < prototype(Neos.Fusion:Com
       </td>
       <td class="restore-action-column">
         <Neos.Workspace.Ui:Component.Button
-          title={private.i18n.id('restore.table.actions.restoreElement')}
+          title={props.workspaceIsOutdated ? private.i18n.id('restore.table.actions.workspaceIsOutdated') : private.i18n.id('restore.table.actions.restoreElement')}
+          disabled={!props.enableRestoreButtons || props.workspaceIsOutdated}
           icon="fa-solid fa-trash-can-arrow-up"
           attributes.hx-get={private.restoreUri}
           attributes.hx-target='#popover-container'

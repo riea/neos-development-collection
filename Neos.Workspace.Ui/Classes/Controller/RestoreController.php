@@ -203,13 +203,13 @@ class RestoreController extends AbstractModuleController
             'searchTerm' => $searchTerm,
             'pagination' => $displayPagination,
             'currentPage' => $page,
+            'workspaceIsOutdated' => $workspace->status !== WorkspaceStatus::UP_TO_DATE,
             'enableRestoreButtons' => $this->authorizationService->getWorkspacePermissions(
                 $contentRepositoryId,
                 $workspaceName,
                 $this->securityContext->getRoles(),
                 $this->userService->getCurrentUser()?->getId(),
             )->write
-            && $workspace->status === WorkspaceStatus::UP_TO_DATE
         ]);
     }
 

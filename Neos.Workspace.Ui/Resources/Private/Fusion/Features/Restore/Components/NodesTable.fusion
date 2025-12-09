@@ -16,6 +16,12 @@ prototype(Neos.Workspace.Ui:Component.NodesTable) < prototype(Neos.Fusion:Compon
   // string
   searchTerm = ''
 
+  /// boolean
+  enableRestoreButtons = true
+
+  /// boolean
+  workspaceIsOutdated = false
+
   @private {
     i18n = ${I18n.id('').source('Main').package('Neos.Workspace.Ui')}
     sortUri = Neos.Fusion:ActionUri {
@@ -60,6 +66,8 @@ prototype(Neos.Workspace.Ui:Component.NodesTable) < prototype(Neos.Fusion:Compon
           <Neos.Workspace.Ui:Component.NodesTableRow
             restorelistItem={restoreListItem}
             workspaceName={props.workspaceName}
+            enableRestoreButtons={props.enableRestoreButtons}
+            workspaceIsOutdated={props.workspaceIsOutdated}
             @if={restoreListItem != null}
           />
         </Neos.Fusion:Loop>

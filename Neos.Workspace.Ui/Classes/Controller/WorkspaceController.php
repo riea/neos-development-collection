@@ -714,11 +714,11 @@ class WorkspaceController extends AbstractModuleController
         $contentRepositoryId = SiteDetectionResult::fromRequest($this->request->getHttpRequest())->contentRepositoryId;
 
         try {
-            $this->workspacePublishingService->rebaseWorkspace(
+            /*$this->workspacePublishingService->rebaseWorkspace(
                 $contentRepositoryId,
                 $workspaceName,
                 $force ? RebaseErrorHandlingStrategy::STRATEGY_FORCE : RebaseErrorHandlingStrategy::STRATEGY_FAIL
-            );
+            ); */
             $this->addFlashMessage($this->getModuleLabel('workspaces.workspaceHasBeenRebased'));
             $this->forward('index');
         } catch (WorkspaceRebaseFailed $e) {

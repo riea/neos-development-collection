@@ -392,6 +392,9 @@
       <trans-unit id="restore.table.actions.restoreElement" xml:space="preserve">
 				<source>Restore this element to current workspace</source>
 			</trans-unit>
+      <trans-unit id="restore.table.actions.workspaceIsOutdated" xml:space="preserve">
+				<source>You cannot restore elements in outdated workspaces</source>
+			</trans-unit>
       <trans-unit id="restore.dialog.restore.title" xml:space="preserve">
 				<source>Restore element to workspace</source>
 			</trans-unit>

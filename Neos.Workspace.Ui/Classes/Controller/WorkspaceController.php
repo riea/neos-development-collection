@@ -1328,5 +1328,4 @@ class WorkspaceController extends AbstractModuleController
                 $selectedWorkspace->currentContentStreamId
             );
     }
-
 }

@@ -385,7 +385,7 @@ class RestoreController extends AbstractModuleController
                         NeosSubtreeTag::removed(),
                         true
                     )
-            );
+                );
             if (
                 $dimensionSpacePointsTheChildNodeAggregateWillBeRestoredIn->isEmpty()
             ) {

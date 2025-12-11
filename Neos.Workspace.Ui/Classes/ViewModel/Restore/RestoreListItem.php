@@ -29,7 +29,7 @@ final readonly class RestoreListItem
         public string $nodeTypeLabel,
         public RestoreListItemVariantDetailsCollection $details,
         public string $deletionUserName,
-        public \DateTimeImmutable $deleteTime,
+        public ?\DateTimeImmutable $deleteTime,
     ) {
     }
 

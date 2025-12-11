@@ -110,7 +110,7 @@ class RestoreController extends AbstractModuleController
 
         $numberOfItems =  $this->trashBin->countItemsByWorkspaceName($contentRepositoryId, $workspaceName, $searchTermObject);
         $offset = ($page - 1) * TrashBinPagination::DEFAULT_LIMIT;
-        $pagination ??= TrashBinPagination::create($offset, TrashBinPagination::DEFAULT_LIMIT);
+        $pagination = TrashBinPagination::create($offset, TrashBinPagination::DEFAULT_LIMIT);
         $numberOfPages = (int)ceil($numberOfItems / TrashBinPagination::DEFAULT_LIMIT);
         $displayPagination = $this->paginationRange($numberOfPages, $page);
 
@@ -128,7 +128,9 @@ class RestoreController extends AbstractModuleController
             ) as $trashBinItem
         ) {
             $nodeAggregate = $contentGraph->findNodeAggregateById($trashBinItem->nodeAggregateId);
-
+            if (!$nodeAggregate) {
+                continue;
+            }
             $details = [];
             foreach (
                 $nodeAggregate->occupiedDimensionSpacePoints->getIntersection(
@@ -204,7 +206,7 @@ class RestoreController extends AbstractModuleController
             'searchTerm' => $searchTerm,
             'pagination' => $displayPagination,
             'currentPage' => $page,
-            'workspaceIsOutdated' => $workspace->status !== WorkspaceStatus::UP_TO_DATE,
+            'workspaceIsOutdated' => $workspace?->status !== WorkspaceStatus::UP_TO_DATE,
             'enableRestoreButtons' => $this->authorizationService->getWorkspacePermissions(
                 $contentRepositoryId,
                 $workspaceName,
@@ -214,6 +216,9 @@ class RestoreController extends AbstractModuleController
         ]);
     }
 
+    /**
+     * @return array<string,mixed>
+     */
     protected function paginationRange(int $numberOfPages, int $currentPage): array
     {
         $maximumNumberOfLinks = TrashBinPagination::MAXIMUM_NUMBER_OF_LINKS;
@@ -362,7 +367,7 @@ class RestoreController extends AbstractModuleController
     protected function requireWorkspaceToBeInSync(WorkspaceName $workspaceName, ContentRepository $contentRepository): void
     {
         $workspace = $contentRepository->findWorkspaceByName($workspaceName);
-        if ($workspace->status !== WorkspaceStatus::UP_TO_DATE) {
+        if ($workspace?->status !== WorkspaceStatus::UP_TO_DATE) {
             $this->addFlashMessage(
                 messageBody: $this->getModuleLabel('restore.feedback.workspaceIsOutOfSync'),
                 severity: Message::SEVERITY_WARNING,
@@ -443,6 +448,9 @@ class RestoreController extends AbstractModuleController
         return $ancestors;
     }
 
+    /**
+     * @param array<mixed> $arguments
+     */
     protected function getModuleLabel(string $id, array $arguments = [], mixed $quantity = null): string
     {
         return $this->translator->translateById(

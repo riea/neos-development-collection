@@ -24,7 +24,7 @@ final readonly class RestoreListItemVariantDetails
 {
     /**
      * @param array<int,string> $ancestorLabels
-     * @param array<string,string> $dimensionValueLabels
+     * @param array<int,string> $dimensionValueLabels
      */
     public function __construct(
         public string $label,

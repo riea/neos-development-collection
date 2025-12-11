@@ -52,6 +52,12 @@ Neos.Workspace.Ui.RestoreController.show = Neos.Fusion:Component {
     action = 'show'
     controller = 'Restore'
     format = 'html'
+    arguments {
+        workspaceName = ${workspaceName}
+        page = ${currentPage}
+        searchTerm = ${searchTerm}
+        sorting = ${Json.stringify(sorting)}
+    }
   }
 
   clearSearchTermUri = Neos.Fusion:ActionUri {
@@ -65,6 +71,17 @@ Neos.Workspace.Ui.RestoreController.show = Neos.Fusion:Component {
         sorting = ${Json.stringify(sorting)}
     }
   }
+  rebaseWorkspaceUri = Neos.Fusion:ActionUri {
+    action = 'rebase'
+    format = 'htmx'
+    controller = 'Workspace'
+    arguments {
+      workspaceName = ${workspaceName}
+      force = false
+    }
+  }
+
+  rebaseWorkspacePopoverId = 'workspace-rebase-modal'
 
   renderer = afx`
     <Neos.Workspace.Ui:Component.ModuleWrapper
@@ -144,6 +161,27 @@ Neos.Workspace.Ui.RestoreController.show = Neos.Fusion:Component {
           attributes.hx-select="#workspace-module-content"
           attributes.hx-swap="outerHTML"
         />
+        <div class="neos-pull-right">
+          <Neos.Workspace.Ui:Component.Button
+            @if.workspaceIsOutdated={props.workspaceIsOutdated}
+            isDanger
+            label={props.i18n.id('restore.syncButtonLabel').translate()}
+            title={props.i18n.id('restore.syncButtonTitle').translate()}
+            icon="sync icon-white"
+            attributes.hx-get={props.rebaseWorkspaceUri}
+            attributes.hx-target="#popover-container"
+            attributes.hx-select="#workspace-rebase-modal"
+            attributes.hx-swap="outerHTML"
+            attributes.hx-on--after-request={'document.getElementById("' + props.rebaseWorkspacePopoverId + '")?.showPopover()'}
+            attributes.id="sync-workspace-button"
+          />
+          <div hx-get={props.showUri}
+               hx-trigger="htmx:afterOnLoad from:#sync-workspace-button"
+               hx-target="#workspace-module-content"
+               hx-select="#workspace-module-content"
+               hx-swap="outerHTML">
+          </div>
+        </div>
       </Neos.Workspace.Ui:Component.Footer>
     </Neos.Workspace.Ui:Component.ModuleWrapper>
   `

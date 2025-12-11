@@ -29,6 +29,7 @@ use Neos\ContentRepository\Core\SharedModel\Node\NodeName;
 use Neos\ContentRepository\Core\SharedModel\Workspace\ContentStreamId;
 use Neos\ContentRepository\Core\SharedModel\Workspace\Workspace;
 use Neos\ContentRepository\Core\SharedModel\Workspace\WorkspaceName;
+use Neos\ContentRepository\Core\SharedModel\Workspace\WorkspaceStatus;
 use Neos\ContentRepositoryRegistry\ContentRepositoryRegistry;
 use Neos\Diff\Diff;
 use Neos\Diff\Renderer\Html\HtmlArrayRenderer;
@@ -714,11 +715,11 @@ class WorkspaceController extends AbstractModuleController
         $contentRepositoryId = SiteDetectionResult::fromRequest($this->request->getHttpRequest())->contentRepositoryId;
 
         try {
-            /*$this->workspacePublishingService->rebaseWorkspace(
+            $this->workspacePublishingService->rebaseWorkspace(
                 $contentRepositoryId,
                 $workspaceName,
                 $force ? RebaseErrorHandlingStrategy::STRATEGY_FORCE : RebaseErrorHandlingStrategy::STRATEGY_FAIL
-            ); */
+            );
             $this->addFlashMessage($this->getModuleLabel('workspaces.workspaceHasBeenRebased'));
             $this->forward('index');
         } catch (WorkspaceRebaseFailed $e) {
@@ -1311,7 +1312,7 @@ class WorkspaceController extends AbstractModuleController
                 $workspace->baseWorkspaceName->value,
                 $this->computePendingChanges($workspace, $contentRepository),
                 !$allWorkspaces->getDependantWorkspaces($workspace->workspaceName)->isEmpty(),
-                $this->hasRestorableNodes($workspace),
+                $workspace->status === WorkspaceStatus::UP_TO_DATE,
                 $workspaceOwner?->getLabel(),
                 $workspacesPermissions,
                 $workspaceRoleAssignments,
@@ -1328,9 +1329,4 @@ class WorkspaceController extends AbstractModuleController
             );
     }
 
-    protected function hasRestorableNodes(Workspace $workspace): bool
-    {
-        //@todo check if the workspace has restorable nodes and is not outdated
-        return true;
-    }
 }

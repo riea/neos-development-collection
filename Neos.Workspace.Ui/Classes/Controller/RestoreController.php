@@ -322,13 +322,46 @@ class RestoreController extends AbstractModuleController
         $contentRepositoryId = SiteDetectionResult::fromRequest($this->request->getHttpRequest())->contentRepositoryId;
         $contentRepository = $this->contentRepositoryRegistry->get($contentRepositoryId);
         $this->requireWorkspaceToBeInSync($workspaceName, $contentRepository);
+
+        $this->restoreNodeAggregate(
+            nodeAggregateId: $nodeAggregateId,
+            workspaceName: $workspaceName,
+            contentRepository: $contentRepository,
+        );
+
+        foreach (
+            array_keys($this->gatherAdditionallyRestoredAncestors(
+                nodeAggregateId: $nodeAggregateId,
+                ancestors: [],
+                contentGraph: $contentRepository->getContentGraph($workspaceName)
+            )) as $ancestorKey
+        ) {
+            $this->restoreNodeAggregate(
+                nodeAggregateId: NodeAggregateId::fromString(\mb_substr(
+                    $ancestorKey,
+                    0,
+                    \mb_strpos($ancestorKey, '@') ?: \mb_strlen($ancestorKey) - 1,
+                )),
+                workspaceName: $workspaceName,
+                contentRepository: $contentRepository,
+            );
+        }
+
+        $this->addFlashMessage($this->getModuleLabel('restore.feedback.hasBeenRestored'));
+        $this->forward(actionName: 'show', arguments: ['workspaceName' => $workspaceName->value]);
+    }
+
+    protected function restoreNodeAggregate(
+        NodeAggregateId $nodeAggregateId,
+        WorkspaceName $workspaceName,
+        ContentRepository $contentRepository,
+    ): void {
         /** @var non-empty-array<DimensionSpacePoint> $restorableDimensionSpacePoints */
         $restorableDimensionSpacePoints = $this->requireDimensionSpacePointsTheNodeAggregateIsRemovedIn(
             nodeAggregateId: $nodeAggregateId,
             workspaceName: $workspaceName,
             contentRepository: $contentRepository,
         )->points;
-
 
         $contentRepository->handle(UntagSubtree::create(
             workspaceName: $workspaceName,
@@ -337,10 +370,6 @@ class RestoreController extends AbstractModuleController
             nodeVariantSelectionStrategy: NodeVariantSelectionStrategy::STRATEGY_ALL_VARIANTS,
             tag: NeosSubtreeTag::removed(),
         ));
-
-        //Todo: Also restore ancestors if they are removed
-        $this->addFlashMessage($this->getModuleLabel('restore.feedback.hasBeenRestored'));
-        $this->forward(actionName: 'show', arguments: ['workspaceName' => $workspaceName->value]);
     }
 
     protected function requireDimensionSpacePointsTheNodeAggregateIsRemovedIn(

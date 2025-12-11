@@ -193,10 +193,11 @@ class RestoreController extends AbstractModuleController
                 deleteTime: $trashBinItem->deleteTime,
             );
         }
+        $workspaceMetadata = $this->workspaceService->getWorkspaceMetadata($contentRepositoryId, $workspaceName);
 
         $this->view->assignMultiple([
             'workspaceName' => $workspaceName->value,
-            'activeWorkspaceName' => $workspaceName->value,
+            'workspaceLabel' => $workspaceMetadata->title->value,
             'restoreListItems' => $listItems ? RestoreListItems::fromArray($listItems) : array(),
             'flashMessages' => $this->controllerContext->getFlashMessageContainer()->getMessagesAndFlush(),
             'sorting' => $sortingObject,
@@ -290,8 +291,9 @@ class RestoreController extends AbstractModuleController
             $nodes = iterator_to_array($nodeAggregate->getNodes());
             $nodeForLabel = reset($nodes) ?: null;
         }
-
+        $workspaceMetadata = $this->workspaceService->getWorkspaceMetadata($contentRepositoryId, $workspaceName);
         $this->view->assignMultiple([
+            'workspaceLabel' => $workspaceMetadata->title->value,
             'nodeAggregateId' => $nodeAggregateId->value,
             'nodeLabel' => $nodeForLabel
                 ? $this->nodeLabelGenerator->getLabel($nodeForLabel)

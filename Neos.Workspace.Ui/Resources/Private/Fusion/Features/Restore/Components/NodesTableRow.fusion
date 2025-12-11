@@ -67,8 +67,8 @@ prototype(Neos.Workspace.Ui:Component.NodesTableRow) < prototype(Neos.Fusion:Com
         <td class="node-information">
           <span >
             <Neos.Fusion:Loop items={detail.ancestorLabels} itemName="breadcrumbItem">
-              <Neos.Workspace.Ui:Component.Icon icon="fas fa-caret-right" @if.notFirst={!iterator.isFirst} />
-              {breadcrumbItem}
+              <Neos.Workspace.Ui:Component.Icon icon="fas fa-caret-right" @if.notFirstorSecond={!(iterator.index == 0 || iterator.index == 1)} />
+              {breadcrumbItem == 'Neos.Neos:Sites' ? '' : breadcrumbItem}
             </Neos.Fusion:Loop>
           </span> <br />
           <span>{detail.label}</span><br />

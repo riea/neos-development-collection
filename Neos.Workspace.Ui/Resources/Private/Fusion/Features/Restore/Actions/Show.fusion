@@ -97,7 +97,7 @@ Neos.Workspace.Ui.RestoreController.show = Neos.Fusion:Component {
           <div class="neos-span6">
             <form
               hx-get={props.searchTermUri}
-              @if.hasListItems={props.restoreListItems}
+              @if.hasListItems={props.restoreListItems || props.searchTerm}
               hx-target="#workspace-module-content"
               hx-select="#workspace-module-content"
               hx-swap="outerHTML"
@@ -146,7 +146,7 @@ Neos.Workspace.Ui.RestoreController.show = Neos.Fusion:Component {
         </div>
         <div @if.hasNoListItems={!props.restoreListItems}>
           <p>
-            {props.i18n.id('restore.noDeletedElements')}
+            {props.searchTerm ? props.i18n.id('restore.noDeletedElementsForThisSearch') : props.i18n.id('restore.noDeletedElements')}
           </p>
         </div>
       </main>

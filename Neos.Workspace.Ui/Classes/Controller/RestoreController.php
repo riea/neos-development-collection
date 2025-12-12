@@ -47,6 +47,8 @@ use Neos\Neos\Security\Authorization\ContentRepositoryAuthorizationService;
 use Neos\Workspace\Ui\Domain\TrashBin;
 use Neos\Workspace\Ui\Domain\TrashBin\TrashBinPagination;
 use Neos\Workspace\Ui\Domain\TrashBin\TrashBinSorting;
+use Neos\Workspace\Ui\ViewModel\Restore\RestorableNode;
+use Neos\Workspace\Ui\ViewModel\Restore\RestorableNodes;
 use Neos\Workspace\Ui\ViewModel\Restore\RestoreListItem;
 use Neos\Workspace\Ui\ViewModel\Restore\RestoreListItems;
 use Neos\Workspace\Ui\ViewModel\Restore\RestoreListItemVariantDetails;
@@ -309,11 +311,11 @@ class RestoreController extends AbstractModuleController
                 descendants: [],
                 contentGraph: $contentGraph,
             ),
-            'additionallyRestoredAncestors' => $this->gatherAdditionallyRestoredAncestors(
+            'additionallyRestoredAncestors' => $this->gatherAdditionalAncestorsThatWillBeRestored(
                 nodeAggregateId: $nodeAggregateId,
-                ancestors: [],
+                ancestors: RestorableNodes::createEmpty(),
                 contentGraph: $contentGraph,
-            ),
+            )->getLabels(),
         ]);
     }
 
@@ -330,18 +332,14 @@ class RestoreController extends AbstractModuleController
         );
 
         foreach (
-            array_keys($this->gatherAdditionallyRestoredAncestors(
+            $this->gatherAdditionalAncestorsThatWillBeRestored(
                 nodeAggregateId: $nodeAggregateId,
-                ancestors: [],
-                contentGraph: $contentRepository->getContentGraph($workspaceName)
-            )) as $ancestorKey
+                ancestors: RestorableNodes::createEmpty(),
+                contentGraph: $contentRepository->getContentGraph($workspaceName),
+            ) as $restorableAncestor
         ) {
             $this->restoreNodeAggregate(
-                nodeAggregateId: NodeAggregateId::fromString(\mb_substr(
-                    $ancestorKey,
-                    0,
-                    \mb_strpos($ancestorKey, '@') ?: \mb_strlen($ancestorKey) - 1,
-                )),
+                nodeAggregateId: $restorableAncestor->nodeAggregateId,
                 workspaceName: $workspaceName,
                 contentRepository: $contentRepository,
             );
@@ -444,15 +442,11 @@ class RestoreController extends AbstractModuleController
         return $descendants;
     }
 
-    /**
-     * @param array<string,string> $ancestors
-     * @return array<string,string>
-     */
-    protected function gatherAdditionallyRestoredAncestors(
+    protected function gatherAdditionalAncestorsThatWillBeRestored(
         NodeAggregateId $nodeAggregateId,
-        array $ancestors,
+        RestorableNodes $ancestors,
         ContentGraphInterface $contentGraph
-    ): array {
+    ): RestorableNodes {
         foreach ($contentGraph->findParentNodeAggregates($nodeAggregateId) as $parentNodeAggregate) {
             $dimensionSpacePointsTheParentNodeAggregateWillBeRestoredIn
                 = $parentNodeAggregate->getCoveredDimensionsTaggedBy(
@@ -460,14 +454,21 @@ class RestoreController extends AbstractModuleController
                     withoutInherited: true,
                 );
 
+            $additionalAncestors = [];
             foreach ($dimensionSpacePointsTheParentNodeAggregateWillBeRestoredIn as $dimensionSpacePoint) {
                 $origin = $parentNodeAggregate->getOccupationByCovered($dimensionSpacePoint);
                 $originNode = $parentNodeAggregate->getNodeByOccupiedDimensionSpacePoint($origin);
-                $ancestors[$parentNodeAggregate->nodeAggregateId->value . '@' . $origin->toJson()]
-                    = $this->nodeLabelGenerator->getLabel($originNode);
+                $additionalAncestors[$parentNodeAggregate->nodeAggregateId->value . '@' . $origin->toJson()] = new RestorableNode(
+                    nodeAggregateId: $parentNodeAggregate->nodeAggregateId,
+                    originDimensionSpacePoint: $origin,
+                    label: $this->nodeLabelGenerator->getLabel($originNode)
+                );
+            }
+            if ($additionalAncestors !== []) {
+                $ancestors = $ancestors->union(RestorableNodes::list(...$additionalAncestors));
             }
 
-            $ancestors = $this->gatherAdditionallyRestoredAncestors(
+            $ancestors = $this->gatherAdditionalAncestorsThatWillBeRestored(
                 nodeAggregateId: $parentNodeAggregate->nodeAggregateId,
                 ancestors: $ancestors,
                 contentGraph: $contentGraph

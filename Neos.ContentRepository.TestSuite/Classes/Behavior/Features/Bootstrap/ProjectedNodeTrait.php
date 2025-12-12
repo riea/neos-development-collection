@@ -32,6 +32,7 @@ use Neos\ContentRepository\Core\SharedModel\Node\NodeAggregateId;
 use Neos\ContentRepository\Core\SharedModel\Node\NodeName;
 use Neos\ContentRepository\Core\SharedModel\Node\PropertyName;
 use Neos\ContentRepository\Core\SharedModel\Workspace\Workspace;
+use Neos\ContentRepository\Core\Tests\Behavior\Fixtures\ArbitraryNumber;
 use Neos\ContentRepository\Core\Tests\Behavior\Fixtures\DayOfWeek;
 use Neos\ContentRepository\Core\Tests\Behavior\Fixtures\PostalAddress;
 use Neos\ContentRepository\Core\Tests\Behavior\Fixtures\PriceSpecification;
@@ -379,7 +380,7 @@ trait ProjectedNodeTrait
         });
     }
 
-    private function resolvePropertyValue(string $serializedPropertyValue)
+    private function resolvePropertyValue(string $serializedPropertyValue): mixed
     {
         switch ($serializedPropertyValue) {
             case 'PostalAddress:dummy':
@@ -399,6 +400,8 @@ trait ProjectedNodeTrait
                     return new Uri(\mb_substr($serializedPropertyValue, 4));
                 } elseif (\str_starts_with($serializedPropertyValue, 'DayOfWeek:')) {
                     return DayOfWeek::from(\mb_substr($serializedPropertyValue, 10));
+                } elseif (\str_starts_with($serializedPropertyValue, 'ArbitraryNumber:')) {
+                    return ArbitraryNumber::from((int)\mb_substr($serializedPropertyValue, 16));
                 }
         }
 

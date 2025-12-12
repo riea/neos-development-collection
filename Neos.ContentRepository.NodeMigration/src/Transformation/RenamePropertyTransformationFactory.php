@@ -22,7 +22,7 @@ use Neos\ContentRepository\Core\Projection\ContentGraph\Node;
 use Neos\ContentRepository\Core\SharedModel\Workspace\WorkspaceName;
 
 /**
- * Remove the property
+ * Rename a node property
  */
 class RenamePropertyTransformationFactory implements TransformationFactoryInterface
 {

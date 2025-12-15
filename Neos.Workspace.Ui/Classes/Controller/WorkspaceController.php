@@ -29,6 +29,7 @@ use Neos\ContentRepository\Core\SharedModel\Node\NodeName;
 use Neos\ContentRepository\Core\SharedModel\Workspace\ContentStreamId;
 use Neos\ContentRepository\Core\SharedModel\Workspace\Workspace;
 use Neos\ContentRepository\Core\SharedModel\Workspace\WorkspaceName;
+use Neos\ContentRepository\Core\SharedModel\Workspace\WorkspaceStatus;
 use Neos\ContentRepositoryRegistry\ContentRepositoryRegistry;
 use Neos\Diff\Diff;
 use Neos\Diff\Renderer\Html\HtmlArrayRenderer;
@@ -65,22 +66,22 @@ use Neos\Neos\PendingChangesProjection\ChangeFinder;
 use Neos\Neos\PendingChangesProjection\Changes;
 use Neos\Neos\Security\Authorization\ContentRepositoryAuthorizationService;
 use Neos\Neos\Utility\NodeTypeWithFallbackProvider;
-use Neos\Workspace\Ui\ViewModel\ChangeItem;
-use Neos\Workspace\Ui\ViewModel\ContentChangeItem;
-use Neos\Workspace\Ui\ViewModel\ContentChangeItems;
-use Neos\Workspace\Ui\ViewModel\ContentChangeProperties;
-use Neos\Workspace\Ui\ViewModel\ContentChanges\AssetContentChange;
-use Neos\Workspace\Ui\ViewModel\ContentChanges\DateTimeContentChange;
-use Neos\Workspace\Ui\ViewModel\ContentChanges\ImageContentChange;
-use Neos\Workspace\Ui\ViewModel\ContentChanges\TagContentChange;
-use Neos\Workspace\Ui\ViewModel\ContentChanges\TextContentChange;
-use Neos\Workspace\Ui\ViewModel\DocumentChangeItem;
-use Neos\Workspace\Ui\ViewModel\DocumentItem;
-use Neos\Workspace\Ui\ViewModel\EditWorkspaceFormData;
-use Neos\Workspace\Ui\ViewModel\PendingChanges;
-use Neos\Workspace\Ui\ViewModel\Sorting;
-use Neos\Workspace\Ui\ViewModel\WorkspaceListItem;
-use Neos\Workspace\Ui\ViewModel\WorkspaceListItems;
+use Neos\Workspace\Ui\ViewModel\Review\ChangeItem;
+use Neos\Workspace\Ui\ViewModel\Review\ContentChangeItem;
+use Neos\Workspace\Ui\ViewModel\Review\ContentChangeItems;
+use Neos\Workspace\Ui\ViewModel\Review\ContentChangeProperties;
+use Neos\Workspace\Ui\ViewModel\Review\ContentChanges\AssetContentChange;
+use Neos\Workspace\Ui\ViewModel\Review\ContentChanges\DateTimeContentChange;
+use Neos\Workspace\Ui\ViewModel\Review\ContentChanges\ImageContentChange;
+use Neos\Workspace\Ui\ViewModel\Review\ContentChanges\TagContentChange;
+use Neos\Workspace\Ui\ViewModel\Review\ContentChanges\TextContentChange;
+use Neos\Workspace\Ui\ViewModel\Review\DocumentChangeItem;
+use Neos\Workspace\Ui\ViewModel\Review\DocumentItem;
+use Neos\Workspace\Ui\ViewModel\Workspace\EditWorkspaceFormData;
+use Neos\Workspace\Ui\ViewModel\Workspace\PendingChanges;
+use Neos\Workspace\Ui\ViewModel\Workspace\Sorting;
+use Neos\Workspace\Ui\ViewModel\Workspace\WorkspaceListItem;
+use Neos\Workspace\Ui\ViewModel\Workspace\WorkspaceListItems;
 
 /**
  * The Neos Workspace module controller
@@ -152,10 +153,9 @@ class WorkspaceController extends AbstractModuleController
         $contentRepository = $this->contentRepositoryRegistry->get($contentRepositoryId);
 
         $workspaceListItems = $this->getWorkspaceListItems($contentRepository);
-        $workspaceListItems = match($sorting->sortBy) {
+        $workspaceListItems = match ($sorting->sortBy) {
             'title' => $workspaceListItems->sortByTitle($sorting->sortAscending),
         };
-
         $this->view->assignMultiple([
             'workspaceListItems' => $workspaceListItems,
             'flashMessages' => $this->controllerContext->getFlashMessageContainer()->getMessagesAndFlush(),
@@ -184,7 +184,7 @@ class WorkspaceController extends AbstractModuleController
         }
 
         $workspacePermissions = $this->authorizationService->getWorkspacePermissions($contentRepositoryId, $workspace, $this->securityContext->getRoles(), $currentUser->getId());
-        if(!$workspacePermissions->read){
+        if (!$workspacePermissions->read) {
             $this->addFlashMessage(
                 $this->getModuleLabel('workspaces.changes.noPermissionToReadWorkspace'),
                 '',
@@ -237,7 +237,7 @@ class WorkspaceController extends AbstractModuleController
         $contentRepositoryId = SiteDetectionResult::fromRequest($this->request->getHttpRequest())->contentRepositoryId;
         $workspaceName = $this->workspaceService->getUniqueWorkspaceName($contentRepositoryId, $title->value);
 
-        $assignments = match($visibility) {
+        $assignments = match ($visibility) {
             'shared' => WorkspaceRoleAssignments::createForSharedWorkspace($currentUser->getId()),
             'private' => WorkspaceRoleAssignments::createForPrivateWorkspace($currentUser->getId()),
             default => throw new \RuntimeException(sprintf('Invalid visibility %s given', $visibility), 1736343542)
@@ -384,7 +384,7 @@ class WorkspaceController extends AbstractModuleController
             WorkspaceRole::COLLABORATOR,
         );
 
-        match($visibility) {
+        match ($visibility) {
             'shared' => !$workspaceRoleAssignments->contains($sharedRoleAssignment) && $this->workspaceService->assignWorkspaceRole(
                 $contentRepositoryId,
                 $workspaceName,
@@ -722,7 +722,6 @@ class WorkspaceController extends AbstractModuleController
             );
             $this->addFlashMessage($this->getModuleLabel('workspaces.workspaceHasBeenRebased'));
             $this->forward('index');
-
         } catch (WorkspaceRebaseFailed $e) {
             if ($force) {
                 $this->addFlashMessage($this->getModuleLabel('workspaces.ForceRebaseWorkspaceFailed'));
@@ -734,7 +733,6 @@ class WorkspaceController extends AbstractModuleController
                 'event' => (new \ReflectionClass($conflictingEvent->getEvent()))->getShortName() . ' ' . $conflictingEvent->getSequenceNumber()->value,
                 'eventPayload' => htmlentities(json_encode($conflictingEvent->getEvent(), JSON_THROW_ON_ERROR | JSON_PRETTY_PRINT), ENT_NOQUOTES),
             ], iterator_to_array($e->conflictingEvents));
-
         }
         $contentRepository = $this->contentRepositoryRegistry->get($contentRepositoryId);
         $workspace = $contentRepository->findWorkspaceByName($workspaceName);
@@ -765,8 +763,6 @@ class WorkspaceController extends AbstractModuleController
             'baseWorkspaceTitle' => $baseWorkspaceMetadata->title->value,
             'conflictInformation' => $conflictInformation,
         ]);
-
-
     }
 
     /**
@@ -801,7 +797,7 @@ class WorkspaceController extends AbstractModuleController
     protected function computePendingChanges(Workspace $selectedWorkspace, ContentRepository $contentRepository): PendingChanges
     {
         $changesCount = ['new' => 0, 'changed' => 0, 'removed' => 0];
-        foreach($this->getChangesFromWorkspace($selectedWorkspace, $contentRepository) as $change) {
+        foreach ($this->getChangesFromWorkspace($selectedWorkspace, $contentRepository) as $change) {
             if ($change->deleted) {
                 $changesCount['removed']++;
             } elseif ($change->created) {
@@ -903,7 +899,7 @@ class WorkspaceController extends AbstractModuleController
                         )
                     );
 
-                    if(!isset($siteChanges[$siteNodeName]['documents'][$documentPath]['document'])) {
+                    if (!isset($siteChanges[$siteNodeName]['documents'][$documentPath]['document'])) {
                         $documentNodeAddress = NodeAddress::create(
                             $contentRepository->id,
                             $selectedWorkspace->workspaceName,
@@ -957,7 +953,6 @@ class WorkspaceController extends AbstractModuleController
                     );
                 }
             }
-
         }
 
         ksort($siteChanges);
@@ -1055,7 +1050,6 @@ class WorkspaceController extends AbstractModuleController
                 $this->postProcessDiffArray($diffArray);
 
                 if (count($diffArray) > 0) {
-
                     $contentChanges[$propertyName] = new ContentChangeItem(
                         properties: new ContentChangeProperties(
                             type: 'text',
@@ -1318,6 +1312,7 @@ class WorkspaceController extends AbstractModuleController
                 $workspace->baseWorkspaceName->value,
                 $this->computePendingChanges($workspace, $contentRepository),
                 !$allWorkspaces->getDependantWorkspaces($workspace->workspaceName)->isEmpty(),
+                $workspace->status === WorkspaceStatus::UP_TO_DATE,
                 $workspaceOwner?->getLabel(),
                 $workspacesPermissions,
                 $workspaceRoleAssignments,
@@ -1326,7 +1321,8 @@ class WorkspaceController extends AbstractModuleController
         return WorkspaceListItems::fromArray($workspaceListItems);
     }
 
-    protected function getChangesFromWorkspace(Workspace $selectedWorkspace,ContentRepository $contentRepository ): Changes{
+    protected function getChangesFromWorkspace(Workspace $selectedWorkspace, ContentRepository $contentRepository): Changes
+    {
         return $contentRepository->projectionState(ChangeFinder::class)
             ->findByContentStreamId(
                 $selectedWorkspace->currentContentStreamId

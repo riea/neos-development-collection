@@ -9,6 +9,7 @@
     <file>./Neos.ContentRepository.Core/Classes</file>
     <file>./Neos.ContentRepository.Dbal/Classes</file>
     <file>./Neos.Neos/Classes</file>
+    <file>./Neos.Workspace.Ui/Classes</file>
 
     <rule ref="PSR12">
         <exclude name="Generic.Files.LineLength.TooLong" />

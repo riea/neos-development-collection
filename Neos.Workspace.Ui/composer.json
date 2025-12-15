@@ -20,6 +20,11 @@
             "Neos\\Workspace\\Ui\\": "Classes"
         }
     },
+    "autoload-dev": {
+        "psr-4": {
+            "Neos\\Workspace\\Ui\\Tests\\": "Tests"
+        }
+    },
     "extra": {
         "applied-flow-migrations": [
             "TYPO3.TYPO3CR-20150510103823",

@@ -386,7 +386,6 @@ class RestoreController extends AbstractModuleController
                 severity: Message::SEVERITY_NOTICE,
             );
             $this->throwStatus(409);
-            $this->forward(actionName: 'show', arguments: ['workspaceName' => $workspaceName->value]);
         }
 
         return $removedCoverage;
@@ -401,7 +400,6 @@ class RestoreController extends AbstractModuleController
                 severity: Message::SEVERITY_WARNING,
             );
             $this->throwStatus(409);
-            $this->forward(actionName: 'show', arguments: ['workspaceName' => $workspaceName->value]);
         }
     }
 

@@ -51,6 +51,10 @@ class NodeTypeEnrichmentServiceTest extends UnitTestCase
                   type: text
                   ui:
                     label: i18n
+          childNodes:
+            someChildNode:
+              type: Neos.Neos:ContentCollection
+              label: i18n
         YAML);
 
         $expectedResult = YAML::parse(<<<'YAML'
@@ -70,6 +74,10 @@ class NodeTypeEnrichmentServiceTest extends UnitTestCase
                   type: text
                   ui:
                     label: Neos.Enrichment:NodeTypes.Translation:docReference.properties.referenceProperty
+          childNodes:
+            someChildNode:
+              type: Neos.Neos:ContentCollection
+              label: Neos.Enrichment:NodeTypes.Translation:childNodes.someChildNode
         YAML);
 
         $actualResult = $this->nodeTypeEnrichmentService->enrichNodeTypeLabelsConfiguration($nodeConfiguration);

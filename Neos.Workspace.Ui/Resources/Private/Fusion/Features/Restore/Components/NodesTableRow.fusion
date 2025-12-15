@@ -56,7 +56,7 @@ prototype(Neos.Workspace.Ui:Component.NodesTableRow) < prototype(Neos.Fusion:Com
           attributes.hx-get={private.restoreUri}
           attributes.hx-target='#popover-container'
           attributes.hx-swap='innerHTML'
-          attributes.hx-on--after-request={'document.getElementById("' + private.restoreConfirmationPopoverId + '").showPopover()'}
+          attributes.hx-on--after-request={'document.getElementById("' + private.restoreConfirmationPopoverId + '")?.showPopover()'}
         />
       </td>
     </tr>

@@ -385,6 +385,7 @@ class RestoreController extends AbstractModuleController
                 messageBody: $this->getModuleLabel('restore.feedback.isNotRemoved'),
                 severity: Message::SEVERITY_NOTICE,
             );
+            $this->throwStatus(409);
             $this->forward(actionName: 'show', arguments: ['workspaceName' => $workspaceName->value]);
         }
 
@@ -399,6 +400,7 @@ class RestoreController extends AbstractModuleController
                 messageBody: $this->getModuleLabel('restore.feedback.workspaceIsOutOfSync'),
                 severity: Message::SEVERITY_WARNING,
             );
+            $this->throwStatus(409);
             $this->forward(actionName: 'show', arguments: ['workspaceName' => $workspaceName->value]);
         }
     }

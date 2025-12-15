@@ -90,7 +90,6 @@ class NodeTypeEnrichmentService
     }
 
     /**
-     * @param string $nodeTypeLabelIdPrefix
      * @param array<string,mixed> $configuration
      * @param SuperTypeConfigResolver $superTypeConfigResolver
      * @return void

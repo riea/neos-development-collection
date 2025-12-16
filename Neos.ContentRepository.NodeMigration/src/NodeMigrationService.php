@@ -50,8 +50,8 @@ use Neos\ContentRepository\NodeMigration\Transformation\TransformationSteps;
 readonly class NodeMigrationService implements ContentRepositoryServiceInterface
 {
     public function __construct(
-        private ContentRepository $contentRepository,
-        private FiltersFactory $filterFactory,
+        private ContentRepository      $contentRepository,
+        private FiltersFactory         $filterFactory,
         private TransformationsFactory $transformationFactory
     ) {
     }
@@ -72,12 +72,14 @@ readonly class NodeMigrationService implements ContentRepositoryServiceInterface
         }
 
         $transformationSteps = TransformationSteps::createEmpty();
-        foreach ($command->migrationConfiguration->getMigration() as $migrationDescription) {
-            $transformationSteps = $transformationSteps->merge($this->executeSubMigration(
-                $migrationDescription,
-                $command->sourceWorkspaceName,
-                $command->targetWorkspaceName
-            ));
+        if ($command->migrationConfiguration->getMigration() !== null) {
+            foreach ($command->migrationConfiguration->getMigration() as $migrationDescription) {
+                $transformationSteps = $transformationSteps->merge($this->executeSubMigration(
+                    $migrationDescription,
+                    $command->sourceWorkspaceName,
+                    $command->targetWorkspaceName
+                ));
+            }
         }
 
         if ($command->requireConfirmation) {
@@ -129,7 +131,7 @@ readonly class NodeMigrationService implements ContentRepositoryServiceInterface
      * @throws MigrationException
      */
     protected function executeSubMigration(
-        array $migrationDescription,
+        array         $migrationDescription,
         WorkspaceName $workspaceNameForReading,
         WorkspaceName $workspaceNameForWriting
     ): TransformationSteps {

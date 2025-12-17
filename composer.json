@@ -121,8 +121,7 @@
             "@test:behat-cli -c Neos.ContentRepository.Export/Tests/Behavior/behat.yml.dist",
             "@test:behat-cli -c Neos.TimeableNodeVisibility/Tests/Behavior/behat.yml.dist",
             "../../flow doctrine:migrate --quiet; ../../flow cr:setup",
-            "@test:behat-cli -c Neos.Neos/Tests/Behavior/behat.yml.dist",
-            "@test:behat-cli -c Neos.Workspace.Ui/Tests/Behavior/behat.yml.dist"
+            "@test:behat-cli -c Neos.Neos/Tests/Behavior/behat.yml.dist"
         ],
         "test:behavioral:stop-on-failure": [
             "@test:behat-cli -vvv --stop-on-failure -c Neos.ContentRepository.BehavioralTests/Tests/Behavior/behat.yml.dist",
@@ -131,8 +130,7 @@
             "@test:behat-cli -vvv --stop-on-failure -c Neos.ContentRepository.Export/Tests/Behavior/behat.yml.dist",
             "@test:behat-cli -vvv --stop-on-failure -c Neos.TimeableNodeVisibility/Tests/Behavior/behat.yml.dist",
             "../../flow doctrine:migrate --quiet; ../../flow cr:setup",
-            "@test:behat-cli -vvv --stop-on-failure -c Neos.Neos/Tests/Behavior/behat.yml.dist",
-            "@test:behat-cli -vvv --stop-on-failure -c Neos.Workspace.Ui/Tests/Behavior/behat.yml.dist"
+            "@test:behat-cli -vvv --stop-on-failure -c Neos.Neos/Tests/Behavior/behat.yml.dist"
         ],
         "test": [
             "@test:unit",
@@ -232,9 +230,6 @@
             ],
             "Neos\\Workspace\\Ui\\": [
                 "Neos.Workspace.Ui/Classes"
-            ],
-            "Neos\\Restore\\Ui\\": [
-                "Neos.Restore.Ui/Classes"
             ]
         }
     },
@@ -296,6 +291,9 @@
             ],
             "Neos\\TimeableNodeVisibility\\Tests\\": [
                 "Neos.TimeableNodeVisibility/Tests"
+            ],
+            "Neos\\Workspace\\Ui\\Tests\\": [
+                "Neos.Workspace.Ui/Tests"
             ]
         }
     },

@@ -126,6 +126,7 @@ Neos:
         AddNewProperty: Neos\ContentRepository\NodeMigration\Transformation\AddNewPropertyConverterAwareTransformationFactory
         ChangeNodeType: Neos\ContentRepository\NodeMigration\Transformation\ChangeNodeTypeTransformationFactory
         ChangePropertyValue: Neos\ContentRepository\NodeMigration\Transformation\ChangePropertyValueConverterAwareTransformationFactory
+        ChangePropertyTypeFromScalarToBackedEnum: Neos\ContentRepository\NodeMigration\Transformation\ChangePropertyTypeFromScalarToBackedEnumTransformationFactory
         MoveDimensionSpacePoint: Neos\ContentRepository\NodeMigration\Transformation\MoveDimensionSpacePointTransformationFactory
         RemoveNode: Neos\ContentRepository\NodeMigration\Transformation\RemoveNodeTransformationFactory
         RemoveProperty: Neos\ContentRepository\NodeMigration\Transformation\RemovePropertyTransformationFactory

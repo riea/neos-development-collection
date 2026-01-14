@@ -93,6 +93,10 @@ Feature: Change node aggregate type - behavior of HAPPYPATH strategy
       childNodes:
         child-of-type-b:
           type: 'Neos.ContentRepository.Testing:ChildOfNodeTypeB'
+      constraints:
+        nodeTypes:
+          '*': false
+          'Neos.ContentRepository.Testing:ChildOfNodeTypeA': true
       properties:
         defaultTextB:
           type: string
@@ -100,6 +104,20 @@ Feature: Change node aggregate type - behavior of HAPPYPATH strategy
         commonDefaultText:
           type: string
           defaultValue: 'commonDefaultTextB'
+    'Neos.ContentRepository.Testing:NodeTypeB2':
+      childNodes:
+        child-of-type-b:
+          type: 'Neos.ContentRepository.Testing:ChildOfNodeTypeB'
+      constraints:
+        nodeTypes:
+          '*': false
+      properties:
+        defaultTextB2:
+          type: string
+          defaultValue: 'defaultTextB2'
+        commonDefaultText:
+          type: string
+          defaultValue: 'commonDefaultTextB2'
     """
     And using identifier "default", I define a content repository
     And I am in content repository "default"
@@ -192,7 +210,6 @@ Feature: Change node aggregate type - behavior of HAPPYPATH strategy
       | newNodeTypeName | "Neos.ContentRepository.Testing:GrandParentNodeTypeC" |
       | strategy        | "happypath"                                           |
     Then the last command should have thrown an exception of type "NodeConstraintException"
-
 
   Scenario: Change node type with tethered children
     When the following CreateNodeAggregateWithNode commands are executed:
@@ -430,3 +447,83 @@ Feature: Change node aggregate type - behavior of HAPPYPATH strategy
 
     And I expect node aggregate identifier "nodimer-tetherton" to lead to node cs-identifier;nodimer-tetherton;{"language":"gsw"}
     And I expect this node to be of type "Neos.ContentRepository.Testing:NodeTypeCCollection"
+
+  Scenario: Change node type to another type with the same tethered children
+    When the following CreateNodeAggregateWithNode commands are executed:
+      | nodeAggregateId  | originDimensionSpacePoint | parentNodeAggregateId  | nodeTypeName                             | initialPropertyValues | tetheredDescendantNodeAggregateIds        |
+      | nody-mc-nodeface | {"language":"de"}         | lady-eleonode-rootford | Neos.ContentRepository.Testing:NodeTypeB | {}                    | { "child-of-type-b": "nodewyn-tetherton"} |
+
+    When the command CreateNodeVariant is executed with payload:
+      | Key             | Value              |
+      | nodeAggregateId | "nody-mc-nodeface" |
+      | sourceOrigin    | {"language":"de"}  |
+      | targetOrigin    | {"language":"gsw"} |
+
+    When the command ChangeNodeAggregateType is executed with payload:
+      | Key             | Value                                       |
+      | nodeAggregateId | "nody-mc-nodeface"                          |
+      | newNodeTypeName | "Neos.ContentRepository.Testing:NodeTypeB2" |
+      | strategy        | "happypath"                                 |
+
+    Then I expect exactly 11 events to be published on stream "ContentStream:cs-identifier"
+    And event at index 8 is of type "NodeAggregateTypeWasChanged" with payload:
+      | Key             | Expected                                    |
+      | workspaceName   | "live"                                      |
+      | contentStreamId | "cs-identifier"                             |
+      | nodeAggregateId | "nody-mc-nodeface"                          |
+      | newNodeTypeName | "Neos.ContentRepository.Testing:NodeTypeB2" |
+    And event at index 9 is of type "NodePropertiesWereSet" with payload:
+      | Key                          | Expected                                                    |
+      | workspaceName                | "live"                                                      |
+      | contentStreamId              | "cs-identifier"                                             |
+      | nodeAggregateId              | "nody-mc-nodeface"                                          |
+      | originDimensionSpacePoint    | {"language":"gsw"}                                          |
+      | affectedDimensionSpacePoints | [{"language":"gsw"}]                                        |
+      | propertyValues               | {"defaultTextB2":{"value":"defaultTextB2","type":"string"}} |
+      | propertiesToUnset            | ["defaultTextB"]                                            |
+    And event at index 10 is of type "NodePropertiesWereSet" with payload:
+      | Key                          | Expected                                                    |
+      | workspaceName                | "live"                                                      |
+      | contentStreamId              | "cs-identifier"                                             |
+      | nodeAggregateId              | "nody-mc-nodeface"                                          |
+      | originDimensionSpacePoint    | {"language":"de"}                                           |
+      | affectedDimensionSpacePoints | [{"language":"de"}]                                         |
+      | propertyValues               | {"defaultTextB2":{"value":"defaultTextB2","type":"string"}} |
+      | propertiesToUnset            | ["defaultTextB"]                                            |
+
+    # the type has changed
+    When I am in workspace "live" and dimension space point {"language":"de"}
+    Then I expect node aggregate identifier "nody-mc-nodeface" to lead to node cs-identifier;nody-mc-nodeface;{"language":"de"}
+    And I expect this node to be of type "Neos.ContentRepository.Testing:NodeTypeB2"
+    And I expect this node to have the following properties:
+      | Key               | Value                |
+      # Not modified because it was already present
+      | commonDefaultText | "commonDefaultTextB" |
+      | defaultTextB2     | "defaultTextB2"      |
+      # defaultTextB missing because it does not exist in NodeTypeB2
+
+    And I expect this node to have the following child nodes:
+      | Name            | NodeDiscriminator                                 |
+      # the tethered child of the old node type has not been changed because it its type is identical
+      | child-of-type-b | cs-identifier;nodewyn-tetherton;{"language":"de"} |
+
+    And I expect node aggregate identifier "nodewyn-tetherton" to lead to node cs-identifier;nodewyn-tetherton;{"language":"de"}
+    And I expect this node to have the following properties:
+      | Key               | Value                |
+      | commonDefaultText | "commonDefaultTextB" |
+      | defaultTextB      | "defaultTextB"       |
+
+    When I am in workspace "live" and dimension space point {"language":"gsw"}
+    Then I expect node aggregate identifier "nody-mc-nodeface" to lead to node cs-identifier;nody-mc-nodeface;{"language":"gsw"}
+    And I expect this node to be of type "Neos.ContentRepository.Testing:NodeTypeB2"
+
+    And I expect this node to have the following child nodes:
+      | Name            | NodeDiscriminator                                  |
+      # the tethered child of the old node type has not been changed because it its type is identical
+      | child-of-type-b | cs-identifier;nodewyn-tetherton;{"language":"gsw"} |
+
+    And I expect node aggregate identifier "nodewyn-tetherton" to lead to node cs-identifier;nodewyn-tetherton;{"language":"gsw"}
+    And I expect this node to have the following properties:
+      | Key               | Value                |
+      | commonDefaultText | "commonDefaultTextB" |
+      | defaultTextB      | "defaultTextB"       |

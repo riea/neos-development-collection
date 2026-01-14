@@ -313,10 +313,20 @@ trait NodeTypeChange
             } else {
                 $childNodeTypeForConstraintChecks = $this->requireNodeType($childNodeAggregate->nodeTypeName);
             }
-            $this->requireNodeTypeConstraintsImposedByParentToBeMet(
-                $newNodeType,
-                $childNodeTypeForConstraintChecks
-            );
+            if (
+                $childNodeAggregate->classification->isTethered()
+                && $childNodeAggregate->nodeName
+                && $newNodeType->tetheredNodeTypeDefinitions->get($childNodeAggregate->nodeName)?->nodeTypeName
+                    === $childNodeAggregate->nodeTypeName
+            ) {
+                // this tethered child node aggregate matches the tethered node declaration of the new node type
+                // and thus can stay the same and will simply be ignored
+            } else {
+                $this->requireNodeTypeConstraintsImposedByParentToBeMet(
+                    $newNodeType,
+                    $childNodeTypeForConstraintChecks
+                );
+            }
 
             // we do not need to test for grandparents here, as we did not modify the grandparents.
             // Thus, if it was allowed before, it is allowed now.

@@ -349,11 +349,21 @@ trait NodeTypeChange
                 } else {
                     $grandChildNodeTypeForConstraintChecks = $this->requireNodeType($grandchildNodeAggregate->nodeTypeName);
                 }
-                $this->requireNodeTypeConstraintsImposedByGrandparentToBeMet(
-                    $newNodeType, // the grandparent node type changes
-                    $childNodeAggregate->nodeName,
-                    $grandChildNodeTypeForConstraintChecks
-                );
+                if (
+                    $grandchildNodeAggregate->classification->isTethered()
+                    && $grandchildNodeAggregate->nodeName
+                    && $childNodeTypeForConstraintChecks->tetheredNodeTypeDefinitions->get($grandchildNodeAggregate->nodeName)?->nodeTypeName
+                        === $grandChildNodeTypeForConstraintChecks->name
+                ) {
+                    // this tethered grandchild node aggregate matches the tethered node declaration of the child's potentially new node type
+                    // and thus can stay the same and will simply be ignored
+                } else {
+                    $this->requireNodeTypeConstraintsImposedByGrandparentToBeMet(
+                        $newNodeType, // the grandparent node type changes
+                        $childNodeAggregate->nodeName,
+                        $grandChildNodeTypeForConstraintChecks
+                    );
+                }
             }
 
             foreach ($newNodeType->tetheredNodeTypeDefinitions as $tetheredNodeTypeDefinition) {

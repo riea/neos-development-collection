@@ -50,8 +50,8 @@ use Neos\ContentRepository\NodeMigration\Transformation\TransformationSteps;
 readonly class NodeMigrationService implements ContentRepositoryServiceInterface
 {
     public function __construct(
-        private ContentRepository      $contentRepository,
-        private FiltersFactory         $filterFactory,
+        private ContentRepository $contentRepository,
+        private FiltersFactory $filterFactory,
         private TransformationsFactory $transformationFactory
     ) {
     }
@@ -131,7 +131,7 @@ readonly class NodeMigrationService implements ContentRepositoryServiceInterface
      * @throws MigrationException
      */
     protected function executeSubMigration(
-        array         $migrationDescription,
+        array $migrationDescription,
         WorkspaceName $workspaceNameForReading,
         WorkspaceName $workspaceNameForWriting
     ): TransformationSteps {

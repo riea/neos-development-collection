@@ -255,23 +255,39 @@
       </trans-unit>
       <trans-unit id="applyChanges" xml:space="preserve">
         <source>Apply changes</source>
-        <target state="needs-translation">Applica i cambiamenti</target>
+        <target state="needs-translation" state-qualifier="leveraged-mt">Applica i cambiamenti</target>
       </trans-unit>
       <trans-unit id="workspaces.reviewWorkspace.label" xml:space="preserve">
         <source>Review</source>
-        <target state="needs-translation">Revisiona</target>
+        <target state="needs-translation" state-qualifier="leveraged-mt">Revisiona</target>
       </trans-unit>
       <trans-unit id="workspaces.workspace.lastModified" xml:space="preserve">
         <source>Last modified</source>
-        <target state="needs-translation">Ultimo modificato</target>
+        <target state="needs-translation" state-qualifier="leveraged-mt">Ultimo modificato</target>
       </trans-unit>
       <trans-unit id="workspaces.workspace.status" xml:space="preserve">
         <source>Status</source>
-        <target state="needs-translation">Stato</target>
+        <target state="needs-translation" state-qualifier="leveraged-mt">Stato</target>
       </trans-unit>
       <trans-unit id="workspaces.dialog.rebase.node" xml:space="preserve">
         <source>Node</source>
-        <target state="needs-translation">Nodo</target>
+        <target state="needs-translation" state-qualifier="leveraged-mt">Nodo</target>
+      </trans-unit>
+      <trans-unit id="restore.table.label" xml:space="preserve">
+        <source>Element</source>
+        <target state="needs-translation" state-qualifier="leveraged-mt">Titolo</target>
+      </trans-unit>
+      <trans-unit id="restore.table.dimensions" xml:space="preserve">
+        <source>Dimensions</source>
+        <target state="needs-translation" state-qualifier="leveraged-mt">Dimensioni</target>
+      </trans-unit>
+      <trans-unit id="restore.dialog.restore.cancel" xml:space="preserve">
+        <source>Cancel</source>
+        <target state="needs-translation" state-qualifier="leveraged-mt">Annulla</target>
+      </trans-unit>
+      <trans-unit id="restore.searchTerm" xml:space="preserve">
+        <source>Search</source>
+        <target state="needs-translation" state-qualifier="leveraged-mt">Ricerca</target>
       </trans-unit>
     </body>
   </file>

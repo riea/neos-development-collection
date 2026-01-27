@@ -255,19 +255,35 @@
       </trans-unit>
       <trans-unit id="applyChanges" xml:space="preserve">
         <source>Apply changes</source>
-        <target state="needs-translation">Bruk endringer</target>
+        <target state="needs-translation" state-qualifier="leveraged-mt">Bruk endringer</target>
       </trans-unit>
       <trans-unit id="workspaces.reviewWorkspace.label" xml:space="preserve">
         <source>Review</source>
-        <target state="needs-translation">Korrektur</target>
+        <target state="needs-translation" state-qualifier="leveraged-mt">Korrektur</target>
       </trans-unit>
       <trans-unit id="workspaces.workspace.lastModified" xml:space="preserve">
         <source>Last modified</source>
-        <target state="needs-translation">Sist endret</target>
+        <target state="needs-translation" state-qualifier="leveraged-mt">Sist endret</target>
       </trans-unit>
       <trans-unit id="workspaces.dialog.rebase.node" xml:space="preserve">
         <source>Node</source>
-        <target state="needs-translation">Node</target>
+        <target state="needs-translation" state-qualifier="leveraged-mt">Node</target>
+      </trans-unit>
+      <trans-unit id="restore.table.label" xml:space="preserve">
+        <source>Element</source>
+        <target state="needs-translation" state-qualifier="leveraged-mt">Tittel</target>
+      </trans-unit>
+      <trans-unit id="restore.table.dimensions" xml:space="preserve">
+        <source>Dimensions</source>
+        <target state="needs-translation" state-qualifier="leveraged-mt">Dimensjoner</target>
+      </trans-unit>
+      <trans-unit id="restore.dialog.restore.cancel" xml:space="preserve">
+        <source>Cancel</source>
+        <target state="needs-translation" state-qualifier="leveraged-mt">Avbryt</target>
+      </trans-unit>
+      <trans-unit id="restore.searchTerm" xml:space="preserve">
+        <source>Search</source>
+        <target state="needs-translation" state-qualifier="leveraged-mt">Søk</target>
       </trans-unit>
     </body>
   </file>

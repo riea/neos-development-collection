@@ -251,23 +251,39 @@
       </trans-unit>
       <trans-unit id="workspaces.workspace.lastModified" xml:space="preserve">
         <source>Last modified</source>
-        <target state="needs-translation">上次修改</target>
+        <target state="needs-translation" state-qualifier="leveraged-mt">上次修改</target>
       </trans-unit>
       <trans-unit id="workspaces.workspace.status" xml:space="preserve">
         <source>Status</source>
-        <target state="needs-translation">状态</target>
+        <target state="needs-translation" state-qualifier="leveraged-mt">状态</target>
       </trans-unit>
       <trans-unit id="applyChanges" xml:space="preserve">
         <source>Apply changes</source>
-        <target state="needs-translation">应用更改</target>
+        <target state="needs-translation" state-qualifier="leveraged-mt">应用更改</target>
       </trans-unit>
       <trans-unit id="workspaces.reviewWorkspace.label" xml:space="preserve">
         <source>Review</source>
-        <target state="needs-translation">审查</target>
+        <target state="needs-translation" state-qualifier="leveraged-mt">审查</target>
       </trans-unit>
       <trans-unit id="workspaces.dialog.rebase.node" xml:space="preserve">
         <source>Node</source>
-        <target state="needs-translation">节点</target>
+        <target state="needs-translation" state-qualifier="leveraged-mt">节点</target>
+      </trans-unit>
+      <trans-unit id="restore.table.label" xml:space="preserve">
+        <source>Element</source>
+        <target state="needs-translation" state-qualifier="leveraged-mt">标题</target>
+      </trans-unit>
+      <trans-unit id="restore.table.dimensions" xml:space="preserve">
+        <source>Dimensions</source>
+        <target state="needs-translation" state-qualifier="leveraged-mt">大小</target>
+      </trans-unit>
+      <trans-unit id="restore.dialog.restore.cancel" xml:space="preserve">
+        <source>Cancel</source>
+        <target state="needs-translation" state-qualifier="leveraged-mt">取消</target>
+      </trans-unit>
+      <trans-unit id="restore.searchTerm" xml:space="preserve">
+        <source>Search</source>
+        <target state="needs-translation" state-qualifier="leveraged-mt">搜索</target>
       </trans-unit>
     </body>
   </file>

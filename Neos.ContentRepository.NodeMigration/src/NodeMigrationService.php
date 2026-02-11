@@ -72,12 +72,14 @@ readonly class NodeMigrationService implements ContentRepositoryServiceInterface
         }
 
         $transformationSteps = TransformationSteps::createEmpty();
-        foreach ($command->migrationConfiguration->getMigration() as $migrationDescription) {
-            $transformationSteps = $transformationSteps->merge($this->executeSubMigration(
-                $migrationDescription,
-                $command->sourceWorkspaceName,
-                $command->targetWorkspaceName
-            ));
+        if ($command->migrationConfiguration->getMigration() !== null) {
+            foreach ($command->migrationConfiguration->getMigration() as $migrationDescription) {
+                $transformationSteps = $transformationSteps->merge($this->executeSubMigration(
+                    $migrationDescription,
+                    $command->sourceWorkspaceName,
+                    $command->targetWorkspaceName
+                ));
+            }
         }
 
         if ($command->requireConfirmation) {

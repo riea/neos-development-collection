@@ -168,7 +168,9 @@ class NodeMigrationCommandController extends CommandController
 
         $tableRows = [];
         foreach ($availableMigrations as $version => $migration) {
-            $migrationUpConfigurationComments = $this->migrationFactory->getMigrationForVersion($version)->getComments();
+            $migrationUpConfiguration = $this->migrationFactory->getMigrationForVersion($version);
+            /** @var string $migrationUpConfigurationComments */
+            $migrationUpConfigurationComments = $migrationUpConfiguration->hasComments() ? $migrationUpConfiguration->getComments() : '';
 
             $tableRows[] = [
                 $version,
@@ -195,13 +197,13 @@ class NodeMigrationCommandController extends CommandController
         if ($migrationConfiguration->hasComments()) {
             $this->outputLine();
             $this->outputLine('<b>Comments</b>');
-            $this->outputFormatted($migrationConfiguration->getComments(), [], 2);
+            $this->outputFormatted($migrationConfiguration->getComments() ?? '', [], 2);
         }
 
         if ($migrationConfiguration->hasWarnings()) {
             $this->outputLine();
             $this->outputLine('<b><u>Warnings</u></b>');
-            $this->outputFormatted($migrationConfiguration->getWarnings(), [], 2);
+            $this->outputFormatted($migrationConfiguration->getWarnings() ?? '', [], 2);
         }
     }
 }

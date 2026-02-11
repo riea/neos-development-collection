@@ -1,5 +1,26 @@
 # Contributing
 
+<!--toc:start-->
+
+- [Contributing](#contributing)
+  - [How to participate](#how-to-participate)
+    - [You are a design or UX expert?](#you-are-a-design-or-ux-expert)
+    - [You are a Content Strategist?](#you-are-a-content-strategist)
+    - [You are a coder? Backend, frontend or both?](#you-are-a-coder-backend-frontend-or-both)
+      - [Our stack](#our-stack)
+      - [Related resources](#related-resources)
+    - [You have skills in marketing, branding or product strategy?](#you-have-skills-in-marketing-branding-or-product-strategy)
+    - [You have other skills that you think can be useful for the community?](#you-have-other-skills-that-you-think-can-be-useful-for-the-community)
+    - [Test](#test)
+      - [Related resources](#related-resources-1)
+      - [Our stack](#our-stack-1)
+    - [Translate and document](#translate-and-document)
+    - [You have some knowledge, try to help others](#you-have-some-knowledge-try-to-help-others)
+    - [Support the Neos Project development with bounties](#support-the-neos-project-development-with-bounties)
+  - [Thanks for helping Neos CMS and Flow Framework](#thanks-for-helping-neos-cms-and-flow-framework)
+  - [Details on development and testing](#details-on-development-and-testing) - [Neos 9](#neos-9) - [Prerequisites](#prerequisites) - [Setup](#setup) - [Running the Tests](#running-the-tests) - [Behavioural tests (Behat)](#behavioural-tests-behat) - [Benchmark tests](#benchmark-tests)
+  <!--toc:end-->
+
 **Neos and Flow are open-source software built by a global community to create an innovative Content Application Platform. Everyone is welcome to contribute to the community and has the possibility to influence the project.**
 
 Please be considerate of our [code of conduct](https://www.neos.io/about/code-of-conduct.html)! We like to provide a positive and enjoyable environment for everybody.
@@ -8,11 +29,11 @@ Do you want to get a certain improvement in Neos or Flow? Did you find a problem
 
 Become part of the Neos project community and help us build a content management system with a great user experience!
 
-----------
+---
 
 ## How to participate
 
-The development of the project is structured in an agile way. You can found more details about the current teams on the official Neos website. You can join one of those team or decide to simply send a single or irregular contributions. All contributions are welcome.
+The development of the project is structured in an agile way. You can find more details about the current teams on the official Neos website. You can join one of those team or decide to simply send a single or irregular contributions. All contributions are welcome.
 Our [Code contribution guidline](https://discuss.neos.io/t/code-contribution-guideline/503) might also be helpful to start with.
 
 ### You are a design or UX expert?
@@ -38,7 +59,7 @@ You can find us on [GitHub](https://github.com/neos) and we use it as our main i
 
 #### Related resources
 
-Read on further down!
+[Read on further down!](#details-on-development-and-testing)
 
 ### You have skills in marketing, branding or product strategy?
 
@@ -56,10 +77,9 @@ We certainly have a something that matches your dream job and where you can help
 
 Your are an end user, enthusiast developer and you have some hours to help the community? Let's see how you can setup Neos, test the product and report issue to the community.
 
-
 #### Related resources
 
-Read on further down!
+[Read on further down!](#details-on-development-and-testing)
 
 #### Our stack
 
@@ -96,7 +116,7 @@ If you have any questions, [we are happy to help you](https://www.neos.io/contac
 
 ## Details on development and testing
 
-**For (specific) Notes on Neos 9, see further down…**
+**For (specific) Notes on Neos 9, see [further down](#neos-9)…**
 
 If you want to contribute to Neos and want to set up a development environment, then follow these steps:
 
@@ -106,7 +126,7 @@ composer create-project neos/neos-development-distribution neos-development 9.0.
 
 Note the **-distribution** repository you create a project from, instead of just checking out this repository.
 
-If you need a different branch, you can either use it from the start (replace the ``9.0.x-dev`` by ``8.3.x-dev`` or whatever you need), or switch after checkout (just make sure to run composer update afterwards to get matching dependencies installed.) In a nutshell, to switch the branch you intend to work on, run:
+If you need a different branch, you can either use it from the start (replace the `9.0.x-dev` by `8.3.x-dev` or whatever you need), or switch after checkout (just make sure to run composer update afterwards to get matching dependencies installed.) In a nutshell, to switch the branch you intend to work on, run:
 
 ```shell
 git checkout 8.3 && composer update
@@ -124,11 +144,10 @@ To run tests, run `composer run test-unit` for unit tests or `composer test-func
 
 ---
 
-**Note**
-
-We use an upmerging strategy: create all bugfixes to the lowest maintained branch that contains the issue. Typically, this is the second last LTS release - see the diagram at https://www.neos.io/features/release-process.html.
-
-For new features, pull requests should be made against the branch for the next minor version (named like `x.y`). Breaking changes must only go into the branch for the next major version.
+> [!NOTE]
+> We use an upmerging strategy: create all bugfixes to the lowest maintained branch that contains the issue. Typically, this is the second last LTS release - see the diagram at https://www.neos.io/features/release-process.html.
+>
+> For new features, pull requests should be made against the branch for the next minor version (named like `x.y`). Breaking changes must only go into the branch for the next major version.
 
 ---
 
@@ -136,9 +155,7 @@ For more detailed information, see https://discuss.neos.io/t/development-setup/5
 https://discuss.neos.io/t/creating-a-pull-request/506 and
 https://discuss.neos.io/t/git-branch-handling-in-the-neos-project/6013
 
-
 ### Neos 9
-
 
 #### Prerequisites
 
@@ -230,7 +247,7 @@ For those you need to install `phive` first, see https://phar.io/#Install, and t
 phive install phpbench
 ```
 
-to install the needed [PHPBench]([url](https://github.com/phpbench/phpbench)) tool.
+to install the needed [PHPBench](<[url](https://github.com/phpbench/phpbench)>) tool.
 
 Then run
 

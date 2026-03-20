@@ -30,12 +30,12 @@ use Neos\ContentRepository\Core\Feature\SubtreeTagging\Dto\SubtreeTag;
  */
 final class NodeAggregateTypeChangeChildConstraintConflictResolutionStrategy implements \JsonSerializable
 {
-    private const string STRATEGY_DELETE = 'delete';
-    private const string STRATEGY_MARK_WITH_TAG = 'mark_with_tag';
-    private const string STRATEGY_HAPPY_PATH = 'happypath';
-    private const string STRATEGY_PROMISED_CASCADE = 'promisedCascade';
+    private const STRATEGY_DELETE = 'delete';
+    private const STRATEGY_MARK_WITH_TAG = 'mark_with_tag';
+    private const STRATEGY_HAPPY_PATH = 'happypath';
+    private const STRATEGY_PROMISED_CASCADE = 'promisedCascade';
 
-    private const array VALID_VALUES = [
+    private const VALID_VALUES = [
         self::STRATEGY_DELETE,
         self::STRATEGY_MARK_WITH_TAG,
         self::STRATEGY_HAPPY_PATH,

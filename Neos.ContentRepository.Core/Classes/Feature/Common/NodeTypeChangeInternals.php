@@ -33,7 +33,7 @@ trait NodeTypeChangeInternals
      * NOTE: when changing this method, also check {@see NodeTypeChange::requireConstraintsImposedByHappyPathStrategyAreMet}
      * which traverses children/grandchildren similarly for validation purposes.
      *
-     * @param \Closure(NodeAggregate, DimensionSpacePointSet): EventInterface $handleNode
+     * @param \Closure(NodeAggregate, DimensionSpacePointSet): EventInterface $handleNodeFn
      * @return array<EventInterface>
      */
     private function handleDisallowedNodesWhenChangingNodeType(

@@ -46,10 +46,9 @@ final class NodeAggregateTypeChangeChildConstraintConflictResolutionStrategy imp
     private static array $instances = [];
 
     private function __construct(
-        private readonly string         $value,
+        private readonly string $value,
         public readonly SubtreeTag|null $subtreeTag
-    )
-    {
+    ) {
     }
 
     private static function instance(string $value): self

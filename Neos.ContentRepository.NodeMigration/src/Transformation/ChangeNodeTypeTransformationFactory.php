@@ -35,10 +35,10 @@ class ChangeNodeTypeTransformationFactory implements TransformationFactoryInterf
     ): GlobalTransformationInterface|NodeAggregateBasedTransformationInterface|NodeBasedTransformationInterface {
         // by default, we won't delete anything.
         $nodeAggregateTypeChangeChildConstraintConflictResolutionStrategy
-            = NodeAggregateTypeChangeChildConstraintConflictResolutionStrategy::STRATEGY_PROMISED_CASCADE;
+            = NodeAggregateTypeChangeChildConstraintConflictResolutionStrategy::promisedCascade();
         if (isset($settings['forceDeleteNonMatchingChildren']) && $settings['forceDeleteNonMatchingChildren']) {
             $nodeAggregateTypeChangeChildConstraintConflictResolutionStrategy
-                = NodeAggregateTypeChangeChildConstraintConflictResolutionStrategy::STRATEGY_DELETE;
+                = NodeAggregateTypeChangeChildConstraintConflictResolutionStrategy::delete();
         }
 
         return new class (

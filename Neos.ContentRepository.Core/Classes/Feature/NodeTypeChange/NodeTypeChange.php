@@ -15,11 +15,13 @@ declare(strict_types=1);
 namespace Neos\ContentRepository\Core\Feature\NodeTypeChange;
 
 use Neos\ContentRepository\Core\CommandHandler\CommandHandlingDependencies;
+use Neos\ContentRepository\Core\DimensionSpace\DimensionSpacePointSet;
 use Neos\ContentRepository\Core\DimensionSpace\OriginDimensionSpacePoint;
 use Neos\ContentRepository\Core\DimensionSpace\OriginDimensionSpacePointSet;
 use Neos\ContentRepository\Core\EventStore\EventInterface;
 use Neos\ContentRepository\Core\EventStore\Events;
 use Neos\ContentRepository\Core\EventStore\EventsToPublish;
+use Neos\ContentRepository\Core\Feature\NodeRemoval\Event\NodeAggregateWasRemoved;
 use Neos\ContentRepository\Core\Feature\RebaseableCommand;
 use Neos\ContentRepository\Core\Feature\Common\NodeTypeChangeInternals;
 use Neos\ContentRepository\Core\Feature\Common\TetheredNodeInternals;
@@ -30,6 +32,7 @@ use Neos\ContentRepository\Core\Feature\NodeModification\Event\NodePropertiesWer
 use Neos\ContentRepository\Core\Feature\NodeTypeChange\Command\ChangeNodeAggregateType;
 use Neos\ContentRepository\Core\Feature\NodeTypeChange\Dto\NodeAggregateTypeChangeChildConstraintConflictResolutionStrategy;
 use Neos\ContentRepository\Core\Feature\NodeTypeChange\Event\NodeAggregateTypeWasChanged;
+use Neos\ContentRepository\Core\Feature\SubtreeTagging\Event\SubtreeWasTagged;
 use Neos\ContentRepository\Core\NodeType\NodeType;
 use Neos\ContentRepository\Core\NodeType\NodeTypeManager;
 use Neos\ContentRepository\Core\NodeType\NodeTypeName;
@@ -159,19 +162,21 @@ trait NodeTypeChange
             );
         }
 
-        match ($command->strategy) {
-            NodeAggregateTypeChangeChildConstraintConflictResolutionStrategy::STRATEGY_HAPPY_PATH,
-            NodeAggregateTypeChangeChildConstraintConflictResolutionStrategy::STRATEGY_PROMISED_CASCADE,
-                => $this->requireConstraintsImposedByHappyPathStrategyAreMet(
-                    $contentGraph,
-                    $nodeAggregate,
-                    $newNodeType,
-                    $command->strategy === NodeAggregateTypeChangeChildConstraintConflictResolutionStrategy::STRATEGY_PROMISED_CASCADE
-                        ? $nodeAggregate->nodeTypeName
-                        : null,
-                ),
-            NodeAggregateTypeChangeChildConstraintConflictResolutionStrategy::STRATEGY_DELETE => null
-        };
+        if ($command->strategy->equals(NodeAggregateTypeChangeChildConstraintConflictResolutionStrategy::happyPath())) {
+            $this->requireConstraintsImposedByHappyPathStrategyAreMet(
+                $contentGraph,
+                $nodeAggregate,
+                $newNodeType,
+                null,
+            );
+        } elseif ($command->strategy->equals(NodeAggregateTypeChangeChildConstraintConflictResolutionStrategy::promisedCascade())) {
+            $this->requireConstraintsImposedByHappyPathStrategyAreMet(
+                $contentGraph,
+                $nodeAggregate,
+                $newNodeType,
+                $nodeAggregate->nodeTypeName,
+            );
+        }
 
         /**************
          * Preparation - make the command fully deterministic in case of rebase
@@ -225,21 +230,28 @@ trait NodeTypeChange
             }
         }
 
-        // remove disallowed nodes
+        // remove or tag disallowed nodes
         $alreadyRemovedNodeAggregateIds = NodeAggregateIds::createEmpty();
-        if ($command->strategy === NodeAggregateTypeChangeChildConstraintConflictResolutionStrategy::STRATEGY_DELETE) {
-            array_push($events, ...$this->deleteDisallowedNodesWhenChangingNodeType(
-                $contentGraph,
-                $nodeAggregate,
-                $newNodeType,
-                $alreadyRemovedNodeAggregateIds,
-            ));
-            array_push($events, ...$this->deleteObsoleteTetheredNodesWhenChangingNodeType(
-                $contentGraph,
-                $nodeAggregate,
-                $newNodeType,
-                $alreadyRemovedNodeAggregateIds
-            ));
+        if ($command->strategy->equals(NodeAggregateTypeChangeChildConstraintConflictResolutionStrategy::delete())) {
+            $handleNode = fn(NodeAggregate $nodeAggregateToDelete, DimensionSpacePointSet $points) => new NodeAggregateWasRemoved(
+                $contentGraph->getWorkspaceName(),
+                $contentGraph->getContentStreamId(),
+                $nodeAggregateToDelete->nodeAggregateId,
+                $points,
+            );
+
+            array_push($events, ...$this->handleDisallowedNodesWhenChangingNodeType($contentGraph, $nodeAggregate, $newNodeType, $alreadyRemovedNodeAggregateIds, $handleNode));
+            array_push($events, ...$this->handleObsoleteTetheredNodesWhenChangingNodeType($contentGraph, $nodeAggregate, $newNodeType, $alreadyRemovedNodeAggregateIds, $handleNode));
+        } elseif ($command->strategy->subtreeTag !== null) { // NodeAggregateTypeChangeChildConstraintConflictResolutionStrategy::markWithTag
+            $handleNode = fn(NodeAggregate $aggregateToTag, DimensionSpacePointSet $points) => new SubtreeWasTagged(
+                $contentGraph->getWorkspaceName(),
+                $contentGraph->getContentStreamId(),
+                $aggregateToTag->nodeAggregateId,
+                $points,
+                $command->strategy->subtreeTag,
+            );
+            array_push($events, ...$this->handleDisallowedNodesWhenChangingNodeType($contentGraph, $nodeAggregate, $newNodeType, $alreadyRemovedNodeAggregateIds, $handleNode));
+            array_push($events, ...$this->handleObsoleteTetheredNodesWhenChangingNodeType($contentGraph, $nodeAggregate, $newNodeType, $alreadyRemovedNodeAggregateIds, $handleNode));
         }
 
         // handle (missing) tethered node aggregates
@@ -286,8 +298,8 @@ trait NodeTypeChange
     }
 
     /**
-     * NOTE: when changing this method, {@see NodeTypeChange::deleteDisallowedNodesWhenChangingNodeType}
-     * needs to be modified as well (as they are structurally the same)
+     * NOTE: when changing this method, also check {@see NodeTypeChangeInternals::handleDisallowedNodesWhenChangingNodeType}
+     * which applies the same traversal pattern to produce events.
      * @throws NodeConstraintException|NodeTypeNotFound
      */
     private function requireConstraintsImposedByHappyPathStrategyAreMet(

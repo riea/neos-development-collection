@@ -65,7 +65,7 @@ final readonly class ChangeNodeAggregateType implements
             WorkspaceName::fromString($array['workspaceName']),
             NodeAggregateId::fromString($array['nodeAggregateId']),
             NodeTypeName::fromString($array['newNodeTypeName']),
-            NodeAggregateTypeChangeChildConstraintConflictResolutionStrategy::from($array['strategy']),
+            NodeAggregateTypeChangeChildConstraintConflictResolutionStrategy::fromString($array['strategy']),
             isset($array['tetheredDescendantNodeAggregateIds'])
                 ? NodeAggregateIdsByNodePaths::fromArray($array['tetheredDescendantNodeAggregateIds'])
                 : NodeAggregateIdsByNodePaths::createEmpty()

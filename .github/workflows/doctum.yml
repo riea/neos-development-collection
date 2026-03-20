@@ -3,8 +3,6 @@ name: Build API documentation
 on:
   workflow_dispatch:
   push:
-    # Error right now, so we need to disable this:
-    # PHP Fatal error:  Uncaught Error: Call to undefined method PhpParser\Node\IntersectionType::__toString() in phar:///bin/doctum/src/Parser/NodeVisitor.php:196
     branches: [ '[0-9]+.[0-9]' ]
 
 jobs:

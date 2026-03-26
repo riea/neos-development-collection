@@ -30,6 +30,7 @@ use Neos\ContentRepository\Core\Feature\NodeCreation\Dto\NodeAggregateIdsByNodeP
 use Neos\ContentRepository\Core\Feature\NodeModification\Dto\SerializedPropertyValues;
 use Neos\ContentRepository\Core\Feature\NodeModification\Event\NodePropertiesWereSet;
 use Neos\ContentRepository\Core\Feature\NodeTypeChange\Command\ChangeNodeAggregateType;
+use Neos\ContentRepository\Core\Feature\NodeTypeChange\Dto\NodeAggregateTypeChangeChildConstraintConflictResolutionMarkWithTagStrategy;
 use Neos\ContentRepository\Core\Feature\NodeTypeChange\Dto\NodeAggregateTypeChangeChildConstraintConflictResolutionStrategy;
 use Neos\ContentRepository\Core\Feature\NodeTypeChange\Event\NodeAggregateTypeWasChanged;
 use Neos\ContentRepository\Core\Feature\SubtreeTagging\Event\SubtreeWasTagged;
@@ -113,7 +114,7 @@ trait NodeTypeChange
         NodeTypeName $newNodeTypeName,
         NodeAggregateIdsByNodePaths $nodeAggregateIdsByNodePaths,
         NodePath $currentNodePath,
-        NodeAggregateTypeChangeChildConstraintConflictResolutionStrategy $conflictResolutionStrategy,
+        NodeAggregateTypeChangeChildConstraintConflictResolutionStrategy|NodeAggregateTypeChangeChildConstraintConflictResolutionMarkWithTagStrategy $conflictResolutionStrategy,
         NodeAggregateIds $alreadyRemovedNodeAggregates,
     ): Events;
 
@@ -162,21 +163,23 @@ trait NodeTypeChange
             );
         }
 
-        if ($command->strategy->equals(NodeAggregateTypeChangeChildConstraintConflictResolutionStrategy::happyPath())) {
-            $this->requireConstraintsImposedByHappyPathStrategyAreMet(
-                $contentGraph,
-                $nodeAggregate,
-                $newNodeType,
-                null,
-            );
-        } elseif ($command->strategy->equals(NodeAggregateTypeChangeChildConstraintConflictResolutionStrategy::promisedCascade())) {
-            $this->requireConstraintsImposedByHappyPathStrategyAreMet(
-                $contentGraph,
-                $nodeAggregate,
-                $newNodeType,
-                $nodeAggregate->nodeTypeName,
-            );
-        }
+        match ($command->strategy) {
+            NodeAggregateTypeChangeChildConstraintConflictResolutionStrategy::STRATEGY_HAPPY_PATH
+                => $this->requireConstraintsImposedByHappyPathStrategyAreMet(
+                    $contentGraph,
+                    $nodeAggregate,
+                    $newNodeType,
+                    null,
+                ),
+            NodeAggregateTypeChangeChildConstraintConflictResolutionStrategy::STRATEGY_PROMISED_CASCADE
+                => $this->requireConstraintsImposedByHappyPathStrategyAreMet(
+                    $contentGraph,
+                    $nodeAggregate,
+                    $newNodeType,
+                    $nodeAggregate->nodeTypeName,
+                ),
+            default => null,
+        };
 
         /**************
          * Preparation - make the command fully deterministic in case of rebase
@@ -232,7 +235,7 @@ trait NodeTypeChange
 
         // remove or tag disallowed nodes
         $alreadyRemovedNodeAggregateIds = NodeAggregateIds::createEmpty();
-        if ($command->strategy->equals(NodeAggregateTypeChangeChildConstraintConflictResolutionStrategy::delete())) {
+        if ($command->strategy === NodeAggregateTypeChangeChildConstraintConflictResolutionStrategy::STRATEGY_DELETE) {
             $handleNode = fn(NodeAggregate $nodeAggregateToDelete, DimensionSpacePointSet $points) => new NodeAggregateWasRemoved(
                 $contentGraph->getWorkspaceName(),
                 $contentGraph->getContentStreamId(),
@@ -242,7 +245,7 @@ trait NodeTypeChange
 
             array_push($events, ...$this->handleDisallowedNodesWhenChangingNodeType($contentGraph, $nodeAggregate, $newNodeType, $alreadyRemovedNodeAggregateIds, $handleNode));
             array_push($events, ...$this->handleObsoleteTetheredNodesWhenChangingNodeType($contentGraph, $nodeAggregate, $newNodeType, $alreadyRemovedNodeAggregateIds, $handleNode));
-        } elseif ($command->strategy->subtreeTag !== null) { // NodeAggregateTypeChangeChildConstraintConflictResolutionStrategy::markWithTag
+        } elseif ($command->strategy instanceof NodeAggregateTypeChangeChildConstraintConflictResolutionMarkWithTagStrategy) {
             $handleNode = fn(NodeAggregate $aggregateToTag, DimensionSpacePointSet $points) => new SubtreeWasTagged(
                 $contentGraph->getWorkspaceName(),
                 $contentGraph->getContentStreamId(),

@@ -200,8 +200,8 @@ trait CRBehavioralTestsSubjectProvider
             Assert::assertNull($result);
             self::$alreadySetUpContentRepositories[] = $contentRepository->id;
         }
-        // We TRUNCATE here and do not want to use $contentRepositoryMaintainer->prune(); here as it would not reset the autoincrement sequence number making some assertions impossible
-
+        // TODO We TRUNCATE here and do not want to use $contentRepositoryMaintainer->prune(); here as it would not reset the autoincrement sequence number making some assertions impossible
+        // TODO With https://github.com/neos/eventstore/pull/26 released we can use EventStore::prune() in the ContentRepositoryMaintainer::prune() and use that.
         /** @var Connection $databaseConnection */
         $databaseConnection = (new \ReflectionClass($eventStore))->getProperty('connection')->getValue($eventStore);
         $eventTableName = sprintf('cr_%s_events', $contentRepositoryId->value);

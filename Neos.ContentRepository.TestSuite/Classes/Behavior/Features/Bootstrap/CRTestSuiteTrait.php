@@ -147,7 +147,17 @@ trait CRTestSuiteTrait
                 'publishable changes' => $workspace->hasPublishableChanges()
             ]);
         }
-        Assert::assertSame($payloadTable->getHash(), $actualComparableHash);
+
+        $expectedWorkspaces = $payloadTable->getHash();
+
+        // assertEqualsCanonicalizing removes keys by using sort recursively that's why we sort manually
+        // sort by unique index to make rows easier comparable when diffing
+        // TODO should core findWorkspaces() return workspaces in defined order? -> Possibly by insert order?
+        $sortRows = fn ($rowA, $rowB) => strcmp($rowA['name'], $rowB['name']);
+        usort($actualComparableHash, $sortRows);
+        usort($expectedWorkspaces, $sortRows);
+
+        Assert::assertSame($expectedWorkspaces, $actualComparableHash);
     }
 
     /**

@@ -120,7 +120,6 @@
             "@test:behat-cli -c Neos.ContentRepository.LegacyNodeMigration/Tests/Behavior/behat.yml.dist",
             "@test:behat-cli -c Neos.ContentRepository.Export/Tests/Behavior/behat.yml.dist",
             "@test:behat-cli -c Neos.TimeableNodeVisibility/Tests/Behavior/behat.yml.dist",
-            "../../flow doctrine:migrate --quiet; ../../flow cr:setup",
             "@test:behat-cli -c Neos.Neos/Tests/Behavior/behat.yml.dist",
             "@test:behat-cli -c Neos.Workspace.Ui/Tests/Behavior/behat.yml.dist"
         ],
@@ -130,7 +129,6 @@
             "@test:behat-cli -vvv --stop-on-failure -c Neos.ContentRepository.LegacyNodeMigration/Tests/Behavior/behat.yml.dist",
             "@test:behat-cli -vvv --stop-on-failure -c Neos.ContentRepository.Export/Tests/Behavior/behat.yml.dist",
             "@test:behat-cli -vvv --stop-on-failure -c Neos.TimeableNodeVisibility/Tests/Behavior/behat.yml.dist",
-            "../../flow doctrine:migrate --quiet; ../../flow cr:setup",
             "@test:behat-cli -vvv --stop-on-failure -c Neos.Neos/Tests/Behavior/behat.yml.dist",
             "@test:behat-cli -vvv --stop-on-failure -c Neos.Workspace.Ui/Tests/Behavior/behat.yml.dist"
         ],

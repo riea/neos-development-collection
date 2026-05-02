@@ -270,8 +270,10 @@ jobs:
           mkdir -p ${{ github.workspace }}/Data/DebugDatabaseDumps
           touch ${{ github.workspace }}/Data/DebugDatabaseDumps/keep
 
+          export FLOW_CONTEXT=Testing/Behat
+
           ./flow package:list --loading-order
-          FLOW_CONTEXT=Testing/Behat ./flow doctrine:migrate --quiet
+          ./flow doctrine:migrate --quiet
           cd Packages/Neos
 
           # composer test:behavioral
